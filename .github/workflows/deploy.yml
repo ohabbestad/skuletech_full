@@ -1,0 +1,23 @@
+name: Deploy to Domeneshop
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  web-deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout kode
+      uses: actions/checkout@v4
+
+    - name: Synkroniser filer via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        # Viktig: Domeneshop legger ofte filene i en www-mappe. 
+        # Hvis filene dine skal ligge i roten av hotellet, bruk /www/
+        server-dir: /www/
