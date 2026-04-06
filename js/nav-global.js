@@ -7,14 +7,17 @@
 
   var pathname = window.location.pathname;
   var rootDirName = 'skuletech';
-  var rootIdx = pathname.toLowerCase().lastIndexOf('/' + rootDirName + '/');
-  var subPath = rootIdx !== -1
-    ? pathname.slice(rootIdx + rootDirName.length + 2)
-    : pathname;
+  var segments = pathname.split('/').filter(Boolean);
 
-  var slashes = (subPath.match(/\//g) || []).length;
-  var depth   = Math.max(0, slashes);
-  var prefix  = depth > 0 ? '../'.repeat(depth) : '';
+  if (segments[0] && segments[0].toLowerCase() === rootDirName) {
+    segments.shift();
+  }
+
+  if (segments.length && segments[segments.length - 1].indexOf('.') !== -1) {
+    segments.pop();
+  }
+
+  var prefix = '../'.repeat(Math.max(0, segments.length));
 
   var html = ''
     + '<a href="' + prefix + 'index.html" id="skuletech-home-btn" '
