@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skulpt Python Editor med Turtle</title>
+    
+    <!-- Hentar inn Skulpt-biblioteket. Dette er "motoren" som forstår Python i nettlesaren -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+
+    <!-- Hentar inn CodeMirror for å få fargar på koden (syntaksutheving) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+
+    <!-- Design og utsjånad (CSS) -->
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: transparent;
+            margin: 0;
+            padding: 5px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .editor-container {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            height: calc(100% - 10px);
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-header {
+            background-color: #f8fafc;
+            padding: 10px 15px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .editor-title {
+            font-weight: 600;
+            color: #334155;
+            font-size: 14px;
+        }
+
+        .run-button {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .run-button:hover {
+            background-color: #059669;
+        }
+
+        .run-button.stop-state {
+            background-color: #ef4444;
+        }
+        
+        .run-button.stop-state:hover {
+            background-color: #dc2626;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+        }
+
+        .editor-pane {
+            width: 100%;
+            flex: 1; 
+            display: flex;
+            flex-direction: column;
+            min-height: 250px;
+        }
+
+        .CodeMirror {
+            flex: 1;
+            height: 100%;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+        }
+
+        .output-pane {
+            width: 100%;
+            flex: 1; 
+            padding: 15px;
+            background-color: #f1f5f9;
+            border-top: 2px solid #e2e8f0;
+            box-sizing: border-box;
+            overflow-y: auto;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .editor-container {
+                min-height: 0;
+            }
+            .main-content {
+                flex-direction: row;
+                overflow-y: hidden;
+            }
+            .editor-pane {
+                width: 50%;
+                border-right: 2px solid #e2e8f0;
+                border-bottom: none;
+                min-height: 0;
+            }
+            .output-pane {
+                width: 50%;
+                border-top: none;
+                min-height: 0;
+            }
+        }
+
+        .output-label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            flex-shrink: 0;
+        }
+        
+        /* NYTT: Forbetra struktur for å sikre at koordinatane alltid blir rette */
+        #mycanvas-wrapper {
+            display: none; /* Skjult fram til koden køyrer */
+            width: 100%;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        #mycanvas {
+            display: inline-block; /* Lèt boksen pakke seg stramt om lerretet */
+            background-color: white; 
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            overflow: hidden; /* Sikrar at ingenting blør utfor kanten */
+        }
+
+        #resultat {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            color: #0f172a;
+            white-space: pre-wrap;
+            margin: 0;
+            min-height: 40px;
+            flex-grow: 1;
+        }
+        
+        .error-msg {
+            color: #ef4444;
+        }
+
+        /* Inline inputfelt for input() */
+        #resultat .inline-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #64748b;
+            outline: none;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            color: #0f172a;
+            min-width: 120px;
+            width: 40%;
+            padding: 0;
+            caret-color: #10b981;
+            vertical-align: baseline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="editor-container">
+        <div class="editor-header">
+            <span class="editor-title">💻 Python Kodevindauge med Turtle 🐢</span>
+            <button id="run-btn" class="run-button" onclick="handterKnapp()">▶ Køyr koden</button>
+        </div>
+        
+        <div class="main-content">
+            <div class="editor-pane">
+<textarea id="kodefelt" spellcheck="false">
+import turtle
+
+padda = turtle.Turtle()
+padda.shape("turtle")
+padda.color("green")
+padda.pensize(3)
+
+for i in range(4):
+    padda.forward(100)
+    padda.left(90)
+
+print("Kvadratet er ferdig teikna!")
+</textarea>
+            </div>
+
+            <div class="output-pane">
+                <div class="output-label">Resultat:</div>
+                <!-- Container som held på sjølve teiknebrettet -->
+                <div id="mycanvas-wrapper">
+                    <div id="mycanvas"></div>
+                </div>
+                <pre id="resultat">Trykk på "Køyr koden" for å sjå kva som skjer...</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript-logikken -->
+    <script>
+        var editor = CodeMirror.fromTextArea(document.getElementById("kodefelt"), {
+            mode: "python",
+            theme: "dracula",
+            lineNumbers: true,
+            indentUnit: 4,
+            viewportMargin: Infinity
+        });
+
+        // Dekoder base64 med støtte for UTF-8 (æ, ø, å)
+        function b64Decode(str) {
+            var bytes = Uint8Array.from(atob(str), c => c.charCodeAt(0));
+            return new TextDecoder().decode(bytes);
+        }
+
+        function utskrift(tekst) {
+            var resultatFelt = document.getElementById("resultat");
+            resultatFelt.appendChild(document.createTextNode(tekst));
+            var outputPane = document.querySelector('.output-pane');
+            outputPane.scrollTop = outputPane.scrollHeight;
+        }
+
+        function inputFun(prompt) {
+            return new Promise(function(resolve) {
+                var resultatFelt = document.getElementById("resultat");
+                var outputPane = document.querySelector('.output-pane');
+
+                if (prompt) {
+                    resultatFelt.appendChild(document.createTextNode(prompt));
+                }
+
+                var inp = document.createElement('input');
+                inp.type = 'text';
+                inp.className = 'inline-input';
+                resultatFelt.appendChild(inp);
+                outputPane.scrollTop = outputPane.scrollHeight;
+
+                setTimeout(function() { inp.focus(); }, 0);
+
+                inp.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        var svar = inp.value;
+                        inp.remove();
+                        resultatFelt.appendChild(document.createTextNode(svar + '\n'));
+                        outputPane.scrollTop = outputPane.scrollHeight;
+                        resolve(svar);
+                    }
+                });
+            });
+        }
+
+        function lesFiler(x) {
+            if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
+                throw "Fann ikkje fila: '" + x + "'";
+            return Sk.builtinFiles["files"][x];
+        }
+
+        var erKodenKoyrande = false;
+        var stoppaAvBrukar = false;
+
+        function handterKnapp() {
+            if (erKodenKoyrande) {
+                stoppaAvBrukar = true;
+                Sk.execLimit = 1;
+            } else {
+                koyrKode();
+            }
+        }
+
+        function koyrKode() {
+            var knapp = document.getElementById("run-btn");
+            var resultatFelt = document.getElementById("resultat");
+            var wrapper = document.getElementById("mycanvas-wrapper");
+            
+            var programKode = editor.getValue();
+            
+            erKodenKoyrande = true;
+            stoppaAvBrukar = false;
+            knapp.innerHTML = "⏹ Stopp koden";
+            knapp.classList.add("stop-state");
+            
+            while (resultatFelt.firstChild) resultatFelt.removeChild(resultatFelt.firstChild);
+
+            // 1. Tving wrapperen synleg FØR vi gjer noko anna
+            wrapper.style.display = 'block';
+            
+            // 2. Erstatt innhaldet heilt for å fjerne leivningar frå gamal teikning
+            wrapper.innerHTML = '<div id="mycanvas"></div>';
+
+            // 3. Rekn ut passande breidde no som alt er synleg
+            var outputPane = document.querySelector('.output-pane');
+            var tilgjengelegBreidde = outputPane.clientWidth - 40; 
+            var endelegBreidde = Math.max(200, Math.min(tilgjengelegBreidde, 450));
+
+            // MAGIEN LIGG HER: Tøm Skulpt sitt minne for "turtle"-modulen!
+            // Dette tvingar Skulpt til å rekne ut midtpunktet på nytt kvar gong koden køyrer.
+            if (Sk.sysmodules && Sk.sysmodules["turtle"]) {
+                delete Sk.sysmodules["turtle"];
+            }
+
+            Sk.pre = "resultat";
+            Sk.configure({
+                output: utskrift,
+                read: lesFiler,
+                inputfun: inputFun,
+                inputfunTakesPrompt: true,
+                __future__: Sk.python3,
+                yieldLimit: 100,
+                execLimit: 120000
+            });
+            
+            // Overstyr TurtleGraphics fullstendig slik at ingen gamle innstillingar heng att
+            Sk.TurtleGraphics = {
+                target: 'mycanvas',
+                width: endelegBreidde,
+                height: 350
+            };
+
+            var myPromise = Sk.misceval.asyncToPromise(function() {
+                return Sk.importMainWithBody("<stdin>", false, programKode, true);
+            });
+
+            myPromise.then(function() {
+                avsluttKoyring(null);
+            }).catch(function(err) {
+                avsluttKoyring(err);
+            });
+        }
+
+        function avsluttKoyring(err) {
+            var knapp = document.getElementById("run-btn");
+            var resultatFelt = document.getElementById("resultat");
+            var wrapper = document.getElementById("mycanvas-wrapper");
+            var canvasFelt = document.getElementById("mycanvas");
+            
+            erKodenKoyrande = false;
+            knapp.innerHTML = "▶ Køyr koden";
+            knapp.classList.remove("stop-state");
+
+            // Skjul wrapperen att viss Skulpt ikkje oppretta noko lerret (det vil seie: koden brukte ikkje turtle)
+            if (canvasFelt && canvasFelt.innerHTML.trim() === '') {
+                wrapper.style.display = 'none';
+            }
+
+            if (err) {
+                var feilmelding = err.toString();
+                
+                var feilSpan = document.createElement('span');
+                feilSpan.className = 'error-msg';
+
+                if (feilmelding.indexOf("TimeLimitError") !== -1) {
+                    if (stoppaAvBrukar) {
+                        feilSpan.appendChild(document.createTextNode('\n\n[Køyringa vart avbroten av deg.]'));
+                    } else {
+                        feilSpan.appendChild(document.createTextNode('\n\n[Feil: Koden brukte for lang tid. Har du laga ei uendeleg løkke?]'));
+                    }
+                } else {
+                    feilmelding = feilmelding.replace("ParseError: bad input", "Skrivefeil: Noko er skrive feil");
+                    feilmelding = feilmelding.replace("NameError: name", "Namnefeil: Datamaskina kjenner ikkje att ordet");
+                    feilmelding = feilmelding.replace("is not defined", "er ikkje definert (har du hugsa hermeteikn?)");
+                    feilmelding = feilmelding.replace("on line", "på linje");
+                    while (resultatFelt.firstChild) resultatFelt.removeChild(resultatFelt.firstChild);
+                    feilSpan.appendChild(document.createTextNode(feilmelding));
+                }
+                resultatFelt.appendChild(feilSpan);
+            }
+            
+            var outputPane = document.querySelector('.output-pane');
+            outputPane.scrollTop = outputPane.scrollHeight;
+        }
+        
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var kodeParam = params.get('kode');
+            if (kodeParam) {
+                try {
+                    var dekodet = b64Decode(kodeParam);
+                    editor.setValue(dekodet);
+                } catch (e) { }
+            }
+        })();
+
+        window.addEventListener('resize', function() {
+            editor.refresh();
+        });
+    </script>
+</body>
+</html>

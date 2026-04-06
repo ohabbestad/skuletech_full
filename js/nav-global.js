@@ -35,7 +35,7 @@
     + ' onmouseover="this.style.background=\'rgba(15,23,42,0.97)\';this.style.borderColor=\'rgba(255,255,255,0.28)\';this.style.transform=\'translateY(-2px)\'"'
     + ' onmouseout="this.style.background=\'rgba(15,23,42,0.82)\';this.style.borderColor=\'rgba(255,255,255,0.12)\';this.style.transform=\'translateY(0)\'"'
     + '>'
-    + '<img src="' + prefix + 'koding/bilete/Logo.png" alt="" style="height:20px;width:auto;flex-shrink:0;" />'
+    + '<img src="' + prefix + 'bilete/Logo.png" alt="SkuleTech" style="height:22px;width:auto;flex-shrink:0;" />'
     + '<span style="font-size:0.75rem;font-weight:700;color:#f8fafc;letter-spacing:-0.01em;white-space:nowrap;">← Framsida</span>'
     + '</a>';
 

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Variablar. Programmering i matematikk</title>
+  <meta name="description" content="Lær om variablar og korleis du lagrar verdiar i Python." />
+  <meta property="og:title" content="Variablar. Koding i matematikk" />
+  <meta property="og:description" content="Modul 3: Lagra tal og tekst i variablar og bygg setningar." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://skuletech.no/koding/bilete/Banner.jpg" />
+  <link rel="icon" href="../bilete/favicon.ico" />
+  <link rel="apple-touch-icon" href="../bilete/apple-touch-icon.png" />
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <script src="../js/nav.js"></script>
+  <script src="../js/youtube.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; }
+    .kode-inline { background: #f1f5f9; border: 1px solid #e2e8f0; padding: 1px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em; color: #0f172a; }
+  </style>
+</head>
+<body class="pb-16">
+
+  <!-- Nav blir injisert av nav.js -->
+
+  <div class="bg-white border-b border-gray-200 px-4 py-4">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-xs text-indigo-500 font-medium mb-1">Del 1 · Modul 3</div>
+      <h1 class="text-2xl font-bold text-gray-900">Variablar</h1>
+    </div>
+  </div>
+
+  <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
+
+    <!-- Video 1 -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">Del 1, Kva er ein variabel?</h2>
+      <!-- Lim inn YouTube-URL her, t.d.: data-yt="https://youtu.be/ditt-video-id" -->
+      <div class="yt-video" data-yt="https://youtu.be/aOA6_dVVNbY"></div>
+    </section>
+
+    <!-- Forklaring variablar -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800">Kva er ein variabel?</h2>
+      <p class="text-gray-700 leading-relaxed">
+        Ein variabel er som ein <strong>minneboks</strong> i datamaskina. Du gjev boksen eit namn, og legg ein verdi inni.
+        Seinare kan du hente ut verdien att berre ved å bruke namnet.
+      </p>
+
+      <div class="bg-gray-900 rounded-xl p-5 text-sm font-mono text-green-400 leading-loose">
+        namn = <span class="text-yellow-300">"Ola"</span><br/>
+        alder = <span class="text-yellow-300">13</span><br/>
+        <br/>
+        print(namn)&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># → Ola</span><br/>
+        print(alder)&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># → 13</span>
+      </div>
+
+      <p class="text-gray-700 leading-relaxed">
+        Legg merke til at <span class="kode-inline">namn</span> har hermeteikn fordi det er tekst.
+        <span class="kode-inline">alder</span> derimot har ikkje hermeteikn fordi det er eit tal.
+        Python behandlar desse ulikt!
+      </p>
+    </section>
+
+    <!-- Video 2 -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">Del 2, Byggje setningar med variablar</h2>
+      <!-- Lim inn YouTube-URL her, t.d.: data-yt="https://youtu.be/ditt-video-id" -->
+      <div class="yt-video" data-yt="https://youtu.be/xP9q11E3N7A"></div>
+    </section>
+
+    <!-- Forklaring kombinering -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800">Setningar med variablar</h2>
+      <p class="text-gray-700 leading-relaxed">
+        Du kan kombinere tekst og variablar inne i <span class="kode-inline">print()</span> ved å bruke komma eller f-streng.
+        Den enklaste måten er komma, Python set då inn eit mellomrom automatisk.
+      </p>
+
+      <div class="bg-gray-900 rounded-xl p-5 text-sm font-mono text-green-400 leading-loose">
+        namn = <span class="text-yellow-300">"Ola"</span><br/>
+        alder = <span class="text-yellow-300">13</span><br/>
+        <br/>
+        print(<span class="text-yellow-300">"Hei,"</span>, namn)<span class="text-gray-500">&nbsp;&nbsp;&nbsp;&nbsp;# → Hei, Ola</span><br/>
+        print(namn, <span class="text-yellow-300">"er"</span>, alder, <span class="text-yellow-300">"år gamal"</span>)<span class="text-gray-500">&nbsp;&nbsp;&nbsp;&nbsp;# → Ola er 13 år gamal</span>
+      </div>
+    </section>
+
+    <!-- Kodevindauge -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">Prøv sjølv</h2>
+      <div class="rounded-2xl overflow-hidden border border-gray-200 shadow-sm" style="height: 380px;">
+        <iframe
+          src="../kodevindauge.html?kode=IyBMYWcgdmFyaWFibGFuZSBkaW5lCm5hbW4gPSAiT2xhIgphbGRlciA9IDEzCnByaW50KG5hbW4pCnByaW50KGFsZGVyKQ=="
+          style="width:100%; height:100%; border:none;"
+          title="Python kodevindauge">
+        </iframe>
+      </div>
+    </section>
+
+    <!-- Oppgåver -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Oppgåver</h2>
+      <ol class="space-y-4 text-gray-700">
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center shrink-0 text-sm">1</span>
+          <span>Køyr koden og sjå at du får ut <em>Ola</em> og <em>13</em>. Kvar kjem desse frå?</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center shrink-0 text-sm">2</span>
+          <span>Endre variabelen <span class="kode-inline">namn</span> slik at den inneheld ditt eige namn. Køyr koden på nytt.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center shrink-0 text-sm">3</span>
+          <span>Legg til ein ny variabel <span class="kode-inline">favorittfag</span> med ditt favoritfag, og skriv det ut med <span class="kode-inline">print()</span>.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center shrink-0 text-sm">4</span>
+          <span>Bruk komma i <span class="kode-inline">print()</span> til å lage ei setning som seier: <em>[namn] er [alder] år gamal.</em></span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-amber-100 text-amber-700 font-bold rounded-full w-7 h-7 flex items-center justify-center shrink-0 text-sm">★</span>
+          <span><strong>Ekstra:</strong> Kva skjer viss du skriv <span class="kode-inline">print(Ola)</span> utan hermeteikn? Les feilmeldinga og prøv å forstå kva Python klagar på.</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Navigasjon -->
+    <div class="flex justify-between">
+      <a href="rekneartar.html" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-3 rounded-xl font-medium transition no-underline flex items-center gap-2">
+        ← Førre: Python som kalkulator
+      </a>
+      <a href="datatypar.html" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl font-medium transition no-underline flex items-center gap-2">
+        Neste: Datatypar →
+      </a>
+    </div>
+
+  </div>
+</body>
+</html>

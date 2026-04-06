@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skulpt Python Editor</title>
+    
+    <!-- Hentar inn Skulpt-biblioteket. Dette er "motoren" som forstår Python i nettlesaren -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+
+    <!-- Hentar inn CodeMirror for å få fargar på koden (syntaksutheving) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+
+    <!-- Design og utsjånad (CSS) -->
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: transparent; /* Gjer at han glir rett inn i Google Sites */
+            margin: 0;
+            padding: 5px;
+            box-sizing: border-box;
+            overflow-y: auto; /* Lèt heile ramma rulle viss Sites krympar høgda for mykje */
+        }
+
+        .editor-container {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            height: calc(100% - 10px); /* Fyller heile høgda Google Sites gjev den */
+            min-height: 450px; /* NYTT: Forhindrar at heile editoren blir pressa flat på mobil */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-header {
+            background-color: #f8fafc;
+            padding: 10px 15px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0; /* Hindrar at headeren krympar */
+        }
+
+        .editor-title {
+            font-weight: 600;
+            color: #334155;
+            font-size: 14px;
+        }
+
+        .run-button {
+            background-color: #10b981; /* Fin, tydeleg grønfarge for "Køyr" */
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .run-button:hover {
+            background-color: #059669;
+        }
+
+        /* Styling for stopp-knappen */
+        .run-button.stop-state {
+            background-color: #ef4444;
+        }
+        
+        .run-button.stop-state:hover {
+            background-color: #dc2626;
+        }
+
+        /* Layout-endringar for responsivt design */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1; /* Tek all gjenverande plass under headeren */
+            min-height: 0; /* Kritisk for at flexbox scrolling skal fungere */
+            overflow-y: auto; /* NYTT: Lèt innhaldet rulle internt på små skjermar */
+        }
+
+        .editor-pane {
+            width: 100%;
+            flex: 1; 
+            display: flex;
+            flex-direction: column;
+            min-height: 250px; /* NYTT: Sikrar at kodefeltet alltid er stort nok på mobil */
+        }
+
+        /* Utsjånad for sjølve kodeeditoren (CodeMirror) */
+        .CodeMirror {
+            flex: 1; /* Fyller heile forelderen sin høgde */
+            height: 100%;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px; /* NYTT: 16px hindrar iPhone/iPad frå å zoome irriterande inn automatisk */
+        }
+
+        /* Feltet der resultatet kjem ut */
+        .output-pane {
+            width: 100%;
+            flex: 1; 
+            padding: 15px;
+            background-color: #f1f5f9;
+            border-top: 2px solid #e2e8f0;
+            box-sizing: border-box;
+            overflow-y: auto;
+            min-height: 150px; /* NYTT: Sikrar at output alltid har nok plass på mobil */
+        }
+
+        /* For store skjermar (PC/Nettbrett) */
+        @media (min-width: 768px) {
+            .editor-container {
+                min-height: 0; /* Nullstill tvungen høgde på PC, her stoler vi på dra-og-slepp i Sites */
+            }
+            .main-content {
+                flex-direction: row;
+                overflow-y: hidden; /* Slå av intern rulling på PC */
+            }
+            .editor-pane {
+                width: 50%;
+                border-right: 2px solid #e2e8f0;
+                border-bottom: none;
+                min-height: 0; /* Nullstill */
+            }
+            .output-pane {
+                width: 50%;
+                border-top: none;
+                min-height: 0; /* Nullstill */
+            }
+        }
+
+        .output-label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        #resultat {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            color: #0f172a;
+            white-space: pre-wrap;
+            margin: 0;
+            min-height: 40px;
+        }
+
+        /* Gjer feilmeldingar raude og lettare å forstå */
+        .error-msg {
+            color: #ef4444;
+        }
+
+        /* Inline inputfelt for input() */
+        #resultat .inline-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #64748b;
+            outline: none;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            color: #0f172a;
+            min-width: 120px;
+            width: 40%;
+            padding: 0;
+            caret-color: #10b981;
+            vertical-align: baseline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="editor-container">
+        <div class="editor-header">
+            <span class="editor-title">💻 Python Kodevindauge</span>
+            <button id="run-btn" class="run-button" onclick="handterKnapp()">▶ Køyr koden</button>
+        </div>
+        
+        <div class="main-content">
+            <div class="editor-pane">
+                <!-- STARTKODEN: Det er inni her du endrar teksten for kvar nye oppgåve -->
+<textarea id="kodefelt" spellcheck="false">
+# Her kan du øve deg på å kode
+</textarea>
+            </div>
+
+            <div class="output-pane">
+                <div class="output-label">Resultat:</div>
+                <pre id="resultat">Trykk på "Køyr koden" for å sjå kva som skjer...</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript-logikken som koplar tekstfeltet saman med Skulpt -->
+    <script>
+        // Set opp CodeMirror (fargar på koden)
+        var editor = CodeMirror.fromTextArea(document.getElementById("kodefelt"), {
+            mode: "python",
+            theme: "dracula",
+            lineNumbers: true,
+            indentUnit: 4,
+            viewportMargin: Infinity
+        });
+
+        // Funksjon for å skrive ut tekst til resultat-feltet
+        // Brukar tekstnoder (ikkje textContent) slik at vi kan blande tekst og inputfelt
+        function utskrift(tekst) {
+            var resultatFelt = document.getElementById("resultat");
+            resultatFelt.appendChild(document.createTextNode(tekst));
+            var outputPane = document.querySelector('.output-pane');
+            outputPane.scrollTop = outputPane.scrollHeight;
+        }
+
+        // Inline input(), skriv spørsmål til skjermen og ventar på svar i feltet
+        function inputFun(prompt) {
+            return new Promise(function(resolve) {
+                var resultatFelt = document.getElementById("resultat");
+                var outputPane = document.querySelector('.output-pane');
+
+                // Skriv spørsmålsteksten til outputfeltet
+                if (prompt) {
+                    resultatFelt.appendChild(document.createTextNode(prompt));
+                }
+
+                // Lag eit inline inputfelt
+                var inp = document.createElement('input');
+                inp.type = 'text';
+                inp.className = 'inline-input';
+                resultatFelt.appendChild(inp);
+                outputPane.scrollTop = outputPane.scrollHeight;
+
+                // Fokuser automatisk så eleven slepp å klikke
+                setTimeout(function() { inp.focus(); }, 0);
+
+                inp.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        var svar = inp.value;
+                        inp.remove();
+                        // Echo svaret + linjeskift slik det ser ut i ein terminal
+                        resultatFelt.appendChild(document.createTextNode(svar + '\n'));
+                        outputPane.scrollTop = outputPane.scrollHeight;
+                        resolve(svar);
+                    }
+                });
+            });
+        }
+
+        // Standardfunksjon Skulpt treng for å lese innebygde modular
+        function lesFiler(x) {
+            if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
+                throw "Fann ikkje fila: '" + x + "'";
+            return Sk.builtinFiles["files"][x];
+        }
+
+        // Variablar for å styre stopp-funksjonen
+        var erKodenKoyrande = false;
+        var stoppaAvBrukar = false;
+
+        // Funksjon som sjekkar om vi skal starte eller stoppe koden
+        function handterKnapp() {
+            if (erKodenKoyrande) {
+                // Brukaren trykte på Stopp
+                stoppaAvBrukar = true;
+                Sk.execLimit = 1; // Tvingar Skulpt til å avbryte umiddelbart ved neste mikropause
+            } else {
+                // Brukaren trykte på Køyr
+                koyrKode();
+            }
+        }
+
+        // Hovudfunksjonen som køyrer når eleven trykkjer på knappen
+        function koyrKode() {
+            var knapp = document.getElementById("run-btn");
+            var resultatFelt = document.getElementById("resultat");
+            
+            // Hent koden frå den nye fargelagte editoren
+            var programKode = editor.getValue();
+            
+            // Oppdater UI til "Køyrer" / Stopp-knapp
+            erKodenKoyrande = true;
+            stoppaAvBrukar = false;
+            knapp.innerHTML = "⏹ Stopp koden";
+            knapp.classList.add("stop-state");
+            
+            // Tømmer resultatfeltet før kvar nye køyring
+            while (resultatFelt.firstChild) resultatFelt.removeChild(resultatFelt.firstChild);
+
+            // Set opp Skulpt
+            Sk.pre = "resultat";
+            Sk.configure({
+                output: utskrift,
+                read: lesFiler,
+                inputfun: inputFun,          // Inline input(), ingen dialogboks
+                inputfunTakesPrompt: true,   // inputFun handterer prompten sjølv
+                __future__: Sk.python3,      // Bruk Python 3 standard
+                yieldLimit: 100,             // MÅ VERE MED! Gjer at nettlesaren ikkje frys
+                execLimit: 120000             // Maks 120 sekund normal køyring
+            });
+
+            // Gjer koden om til noko nettlesaren kan forstå og køyre
+            var myPromise = Sk.misceval.asyncToPromise(function() {
+                return Sk.importMainWithBody("<stdin>", false, programKode, true);
+            });
+
+            // Handterar resultatet (både suksess og feil)
+            myPromise.then(function() {
+                avsluttKoyring(null);
+            }).catch(function(err) {
+                avsluttKoyring(err);
+            });
+        }
+
+        // Felles funksjon for å rydde opp når koden er ferdig eller stoppa
+        function avsluttKoyring(err) {
+            var knapp = document.getElementById("run-btn");
+            var resultatFelt = document.getElementById("resultat");
+            
+            // Tilbakestill knapp
+            erKodenKoyrande = false;
+            knapp.innerHTML = "▶ Køyr koden";
+            knapp.classList.remove("stop-state");
+
+            // Viss det skjedde ein feil eller brukaren trykte stopp
+            if (err) {
+                var feilmelding = err.toString();
+                var feilSpan = document.createElement('span');
+                feilSpan.className = 'error-msg';
+
+                if (feilmelding.indexOf("TimeLimitError") !== -1) {
+                    if (stoppaAvBrukar) {
+                        feilSpan.appendChild(document.createTextNode('\n\n[Køyringa vart avbroten av deg.]'));
+                    } else {
+                        feilSpan.appendChild(document.createTextNode('\n\n[Feil: Koden brukte for lang tid. Har du laga ei uendeleg løkke?]'));
+                    }
+                } else {
+                    // Omset vanlege feilmeldingar til norsk
+                    feilmelding = feilmelding.replace("ParseError: bad input", "Skrivefeil: Noko er skrive feil");
+                    feilmelding = feilmelding.replace("NameError: name", "Namnefeil: Datamaskina kjenner ikkje att ordet");
+                    feilmelding = feilmelding.replace("is not defined", "er ikkje definert (har du hugsa hermeteikn?)");
+                    feilmelding = feilmelding.replace("on line", "på linje");
+                    // Tøm og vis berre feilmeldinga
+                    while (resultatFelt.firstChild) resultatFelt.removeChild(resultatFelt.firstChild);
+                    feilSpan.appendChild(document.createTextNode(feilmelding));
+                }
+                resultatFelt.appendChild(feilSpan);
+            }
+            
+            // Autoskroll heilt til slutt i tilfelle det kom ei lang feilmelding
+            var outputPane = document.querySelector('.output-pane');
+            outputPane.scrollTop = outputPane.scrollHeight;
+        }
+        
+        // Dekoder base64 med støtte for UTF-8 (æ, ø, å)
+        function b64Decode(str) {
+            var bytes = Uint8Array.from(atob(str), c => c.charCodeAt(0));
+            return new TextDecoder().decode(bytes);
+        }
+
+        // Les tilpassa startkode frå URL-parameter ?kode=BASE64
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var kodeParam = params.get('kode');
+            if (kodeParam) {
+                try {
+                    var dekodet = b64Decode(kodeParam);
+                    editor.setValue(dekodet);
+                } catch (e) { /* Ignorer feil, behold standardkode */ }
+            }
+        })();
+
+        // Sørg for at CodeMirror oppdaterer storleiken sin viss vindauget endrar breidde
+        window.addEventListener('resize', function() {
+            editor.refresh();
+        });
+    </script>
+</body>
+</html>

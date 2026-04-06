@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="nn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HMS-kurs — Test · SkuleTech</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HMS-kurs. Test · SkuleTech</title>
 <meta name="description" content="Test kunnskapen din om HMS i sløydsal. Du må svare rett på alle 10 spørsmål for å bestå og få diplom." />
+<meta property="og:title" content="HMS-kurs. Test · SkuleTech" />
+<meta property="og:description" content="Test dine kunnskapar om HMS i sløydsal. 10 spørsmål, alle må vere rette." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://skuletech.no/alf/hms/HMSkurs_test.html" />
+<meta property="og:image" content="https://skuletech.no/koding/bilete/Banner.jpg" />
+<link rel="icon" href="../../koding/bilete/favicon.ico" />
+<link rel="apple-touch-icon" href="../../koding/bilete/apple-touch-icon.png" />
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
@@ -452,6 +457,8 @@
   }
   .btn-home:hover { background: rgba(255,255,255,0.12); color: #f8fafc; }
 </style>
+  <link rel="apple-touch-icon" href="../../koding/bilete/apple-touch-icon.png" />
+  <link rel="icon" href="../../koding/bilete/favicon.ico" />
 </head>
 <body>
 
@@ -460,7 +467,7 @@
 <!-- SKJERM 1: INTRO -->
 <div id="screen-intro" class="screen active">
   <div class="intro-icon">🦺</div>
-  <h1 class="intro-title">HMS-kurs – Test</h1>
+  <h1 class="intro-title">HMS-kurs, Test</h1>
   <p class="intro-sub">Sløydsal og utvendig arbeid &middot; Arbeidslivsfag 8. trinn</p>
 
   <div class="intro-card">
@@ -469,7 +476,7 @@
            autocomplete="name" onkeydown="if(event.key==='Enter') startQuiz()" />
 
     <div class="info-box">
-      🦺 Testen har <strong>10 spørsmål</strong> – eitt og eitt om gongen.
+      🦺 Testen har <strong>10 spørsmål</strong>, eitt og eitt om gongen.
       Du må svare rett på alle for å bestå. Prøv så mange gonger du treng.
     </div>
 
@@ -541,7 +548,7 @@ const questions = [
       'Hanskar og vernebriller',
       'Hørselvern',
       'Hjelm og støvmaske',
-      'Ingenting – det er ikkje farleg i ei skulesetting'
+      'Ingenting, det er ikkje farleg i ei skulesetting'
     ],
     correct: 1
   },
@@ -550,7 +557,7 @@ const questions = [
     options: [
       'Hanskane gir dårlegare grep om maskinen',
       'Hanskane kan setje seg fast og dra handa inn i maskinen',
-      'Det er inga grunn – hanskar er alltid trygge å bruke',
+      'Det er inga grunn, hanskar er alltid trygge å bruke',
       'Hanskane kan bli skadd av maskinen'
     ],
     correct: 1
@@ -558,7 +565,7 @@ const questions = [
   {
     text: 'Kva krav gjeld for fottøy på sløydsalen og på byggjeplass?',
     options: [
-      'Joggesko er greitt – dei er behagelige og gir godt grep',
+      'Joggesko er greitt, dei er behagelige og gir godt grep',
       'Sandalar er tillatne i varmt ver',
       'Lukka sko, helst med ståltupp ved handtering av tunge materialar',
       'Det er ingen krav til fottøy'
@@ -568,8 +575,8 @@ const questions = [
   {
     text: 'Du skal skjere med ein skarp kniv. Kva retning skal du alltid skjere?',
     options: [
-      'Mot deg sjølv – då har du best kontroll',
-      'Mot sida – det speler inga rolle',
+      'Mot deg sjølv, då har du best kontroll',
+      'Mot sida, det speler inga rolle',
       'Bort frå kroppen og bort frå andre personar',
       'Mot arbeidsstykket, uansett retning'
     ],
@@ -591,7 +598,7 @@ const questions = [
       'At leidningen er lang nok til å nå stikkontakten',
       'At leidningen er rett farge',
       'At leidningen ikkje er skadd, sliten eller klemt',
-      'Ingenting – leidningar er alltid trygge'
+      'Ingenting, leidningar er alltid trygge'
     ],
     correct: 2
   },
@@ -631,7 +638,7 @@ const questions = [
       'Startar raskt og let dei andre passe på seg sjølv',
       'Varslar læraren og medelevar slik at alle veit at maskinen startar',
       'Ventar til alle har forlate rommet',
-      'Det trengst inga varsling – batteridrillen er ikkje farleg'
+      'Det trengst inga varsling, batteridrillen er ikkje farleg'
     ],
     correct: 1
   }
@@ -849,8 +856,8 @@ function downloadDiploma() {
   const html = `<!DOCTYPE html>
 <html lang="nn">
 <head>
-<meta charset="UTF-8">
-<title>Diplom – ${studentName}</title>
+<meta charset="UTF-8" />
+<title>Diplom. ${studentName}</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -913,7 +920,7 @@ function downloadDiploma() {
 <body>
 <div class="diploma">
   <img class="logo" src="${logoPath}" alt="Logo" onerror="this.style.display='none'">
-  <div class="course-label">HMS-kurs – Sløydsal og utvendig arbeid · Arbeidslivsfag 8. trinn</div>
+  <div class="course-label">HMS-kurs, Sløydsal og utvendig arbeid · Arbeidslivsfag 8. trinn</div>
   <div class="diploma-title">Diplom</div>
   <div class="this-is">tildelt</div>
   <div class="student-name">${studentName}</div>

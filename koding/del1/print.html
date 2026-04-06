@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>print(). Programmering i matematikk</title>
+  <meta name="description" content="Lær om print()-funksjonen og korleis du skriv ditt første Python-program." />
+  <meta property="og:title" content="print(). Koding i matematikk" />
+  <meta property="og:description" content="Modul 1: Kva er programmering? Lær å skrive ut tekst med print()." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://skuletech.no/koding/bilete/Banner.jpg" />
+  <link rel="icon" href="../bilete/favicon.ico" />
+  <link rel="apple-touch-icon" href="../bilete/apple-touch-icon.png" />
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <script src="../js/nav.js"></script>
+  <script src="../js/youtube.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; }
+    code { font-family: 'Courier New', monospace; }
+    .kode-inline { background: #f1f5f9; border: 1px solid #e2e8f0; padding: 1px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em; color: #0f172a; }
+  </style>
+</head>
+<body class="pb-16">
+
+  <!-- Nav blir injisert av nav.js -->
+
+  <!-- Modulheader -->
+  <div class="bg-white border-b border-gray-200 px-4 py-4">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-xs text-indigo-500 font-medium mb-1">Del 1 · Modul 1</div>
+      <h1 class="text-2xl font-bold text-gray-900">Kva er programmering?</h1>
+    </div>
+  </div>
+
+  <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
+
+    <!-- Video -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">Sjå videoen</h2>
+      <!-- Lim inn YouTube-URL her, t.d.: data-yt="https://youtu.be/ditt-video-id" -->
+      <div class="yt-video" data-yt="https://youtu.be/4oIxhLF_qvI"></div>
+    </section>
+
+    <!-- Forklaring -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800">Kva er print()?</h2>
+      <p class="text-gray-700 leading-relaxed">
+        <span class="kode-inline">print()</span> er ein innebygd kommando i Python som fortel datamaskinen at noko skal visast på skjermen.
+        Det er den første og viktigaste kommandoen du lærer.
+      </p>
+      <div class="bg-gray-900 rounded-xl p-5 text-sm font-mono text-green-400 leading-relaxed">
+        <span class="text-gray-500"># Slik ser ein enkel print-kommando ut:</span><br/>
+        print(<span class="text-yellow-300">"Hello World!"</span>)
+      </div>
+      <p class="text-gray-700 leading-relaxed">
+        Parentesane <span class="kode-inline">()</span> fungerer som ein boks der du legg inn det du vil at maskinen skal skrive ut.
+        Tekst må alltid ha <strong>hermeteikn</strong> rundt seg for at Python skal forstå at det er tekst og ikkje ein del av koden.
+      </p>
+    </section>
+
+    <!-- Kodevindauge -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">Prøv sjølv</h2>
+      <div class="rounded-2xl overflow-hidden border border-gray-200 shadow-sm" style="height: 380px;">
+        <iframe
+          src="../kodevindauge.html?kode=I1Nrcml2IHV0IHRla3N0CnByaW50KCJIZWxsbyBXb3JsZCEiKQ=="
+          style="width:100%; height:100%; border:none;"
+          title="Python kodevindauge">
+        </iframe>
+      </div>
+    </section>
+
+    <!-- Oppgåver -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Oppgåver</h2>
+      <ol class="space-y-4 text-gray-700">
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center shrink-0 text-sm">1</span>
+          <span>Køyr koden og sjå kva som skjer. Kjem det <em>Hello World!</em> på skjermen?</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center shrink-0 text-sm">2</span>
+          <span>Endre koden slik at maskinen skriv <em>Hallo, [namnet ditt]!</em></span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center shrink-0 text-sm">3</span>
+          <span>Legg til fleire <span class="kode-inline">print()</span>-linjer slik at maskinen skriv tre ulike setningar etter kvarandre.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-amber-100 text-amber-700 font-bold rounded-full w-7 h-7 flex items-center justify-center shrink-0 text-sm">★</span>
+          <span><strong>Ekstra:</strong> Kva skjer viss du skriv tekst <em>utan</em> hermeteikn? Prøv og sjå kva feilmelding du får.</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Navigasjon neste -->
+    <div class="flex justify-end">
+      <a href="rekneartar.html" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl font-medium transition no-underline flex items-center gap-2">
+        Neste: Python som kalkulator →
+      </a>
+    </div>
+
+  </div>
+</body>
+</html>

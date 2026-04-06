@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python som kalkulator. Programmering i matematikk</title>
+  <meta name="description" content="Lær å bruke Python som kalkulator med dei fire rekneartane." />
+  <meta property="og:title" content="Rekneartar. Koding i matematikk" />
+  <meta property="og:description" content="Modul 2: Bruk Python til å rekne med addisjon, subtraksjon, multiplikasjon og divisjon." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://skuletech.no/koding/bilete/Banner.jpg" />
+  <link rel="icon" href="../bilete/favicon.ico" />
+  <link rel="apple-touch-icon" href="../bilete/apple-touch-icon.png" />
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <script src="../js/nav.js"></script>
+  <script src="../js/youtube.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; }
+    .kode-inline { background: #f1f5f9; border: 1px solid #e2e8f0; padding: 1px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em; color: #0f172a; }
+  </style>
+</head>
+<body class="pb-16">
+
+  <!-- Nav blir injisert av nav.js -->
+
+  <div class="bg-white border-b border-gray-200 px-4 py-4">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-xs text-indigo-500 font-medium mb-1">Del 1 · Modul 2</div>
+      <h1 class="text-2xl font-bold text-gray-900">Python som kalkulator</h1>
+    </div>
+  </div>
+
+  <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
+
+    <!-- Video -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">Sjå videoen</h2>
+      <!-- Lim inn YouTube-URL her, t.d.: data-yt="https://youtu.be/ditt-video-id" -->
+      <div class="yt-video" data-yt="https://youtu.be/X3o6ImpOORU"></div>
+    </section>
+
+    <!-- Forklaring -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800">Rekneartane i Python</h2>
+      <p class="text-gray-700 leading-relaxed">
+        Du kan be Python rekne for deg direkte inne i ein <span class="kode-inline">print()</span>-kommando.
+        Hugs: Utan hermeteikn behandlar Python innhaldet som eit reknestykke.
+      </p>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+          <div class="text-2xl font-mono font-bold text-green-700">+</div>
+          <div class="text-sm text-gray-600 mt-1">Pluss</div>
+          <div class="font-mono text-xs text-gray-400 mt-1">10 + 5</div>
+        </div>
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <div class="text-2xl font-mono font-bold text-blue-700">−</div>
+          <div class="text-sm text-gray-600 mt-1">Minus</div>
+          <div class="font-mono text-xs text-gray-400 mt-1">10 - 3</div>
+        </div>
+        <div class="bg-purple-50 border border-purple-200 rounded-xl p-4">
+          <div class="text-2xl font-mono font-bold text-purple-700">*</div>
+          <div class="text-sm text-gray-600 mt-1">Gonge</div>
+          <div class="font-mono text-xs text-gray-400 mt-1">4 * 6</div>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div class="text-2xl font-mono font-bold text-amber-700">/</div>
+          <div class="text-sm text-gray-600 mt-1">Dele</div>
+          <div class="font-mono text-xs text-gray-400 mt-1">20 / 4</div>
+        </div>
+      </div>
+
+      <div class="bg-gray-900 rounded-xl p-5 text-sm font-mono text-green-400 leading-loose">
+        print(<span class="text-yellow-300">10 + 5</span>)&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># → 15</span><br/>
+        print(<span class="text-yellow-300">10 - 3</span>)&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># → 7</span><br/>
+        print(<span class="text-yellow-300">4 * 6</span>)&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># → 24</span><br/>
+        print(<span class="text-yellow-300">20 / 4</span>)&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># → 5.0</span>
+      </div>
+    </section>
+
+    <!-- Kodevindauge -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">Prøv sjølv</h2>
+      <div class="rounded-2xl overflow-hidden border border-gray-200 shadow-sm" style="height: 380px;">
+        <iframe
+          src="../kodevindauge.html?kode=IyBQcsO4diBkZWkgZmlyZSByZWtuZWFydGFuZQpwcmludCgxMCArIDUpCnByaW50KDEwIC0gMykKcHJpbnQoNCAqIDYpCnByaW50KDIwIC8gNCk="
+          style="width:100%; height:100%; border:none;"
+          title="Python kodevindauge">
+        </iframe>
+      </div>
+    </section>
+
+    <!-- Oppgåver -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Oppgåver</h2>
+      <ol class="space-y-4 text-gray-700">
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center shrink-0 text-sm">1</span>
+          <span>Køyr koden og sjå at du får riktige svar på alle fire reknestykka.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center shrink-0 text-sm">2</span>
+          <span>Bruk Python til å rekne ut <strong>7 × 8</strong>. Fekk du 56?</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center shrink-0 text-sm">3</span>
+          <span>Rekn ut: <strong>144 ÷ 12</strong>. Kva svarar Python?</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center shrink-0 text-sm">4</span>
+          <span>Lag eit reknestykke som finn arealet av eit rektangel med breidde 8 og høgd 5.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center shrink-0 text-sm">5</span>
+          <span>Skriv inn eit reknestykke med hermeteikn og sjå kva som skjer. For eksempel: <span class="kode-inline">print("2 + 2")</span></span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-amber-100 text-amber-700 font-bold rounded-full w-7 h-7 flex items-center justify-center shrink-0 text-sm">★</span>
+          <span><strong>Ekstra:</strong> Kva skjer viss du deler på 0? Prøv <span class="kode-inline">print(10 / 0)</span> og les feilmeldinga.</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Navigasjon -->
+    <div class="flex justify-between">
+      <a href="print.html" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-3 rounded-xl font-medium transition no-underline flex items-center gap-2">
+        ← Førre: print()
+      </a>
+      <a href="variablar.html" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl font-medium transition no-underline flex items-center gap-2">
+        Neste: Variablar →
+      </a>
+    </div>
+
+  </div>
+</body>
+</html>

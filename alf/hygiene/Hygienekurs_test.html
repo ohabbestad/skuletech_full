@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="nn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hygienekurs — Test · SkuleTech</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hygienekurs. Test · SkuleTech</title>
 <meta name="description" content="Test kunnskapen din om mathygiene. Du må svare rett på alle 10 spørsmål for å bestå og få diplom." />
+<meta property="og:title" content="Hygienekurs. Test · SkuleTech" />
+<meta property="og:description" content="Test dine kunnskapar om hygiene på kjøkkenet. 10 spørsmål, alle må vere rette." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://skuletech.no/alf/hygiene/Hygienekurs_test.html" />
+<meta property="og:image" content="https://skuletech.no/koding/bilete/Banner.jpg" />
+<link rel="icon" href="../../koding/bilete/favicon.ico" />
+<link rel="apple-touch-icon" href="../../koding/bilete/apple-touch-icon.png" />
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
@@ -458,6 +463,8 @@
   }
   .btn-home:hover { background: rgba(255,255,255,0.12); color: #f8fafc; }
 </style>
+  <link rel="apple-touch-icon" href="../../koding/bilete/apple-touch-icon.png" />
+  <link rel="icon" href="../../koding/bilete/favicon.ico" />
 </head>
 <body>
 
@@ -468,7 +475,7 @@
 <!-- ══════════════════════════════════════ -->
 <div id="screen-intro" class="screen active">
   <div class="intro-icon">🧼</div>
-  <h1 class="intro-title">Hygienekurs – Test</h1>
+  <h1 class="intro-title">Hygienekurs, Test</h1>
   <p class="intro-sub">Kjøkken og kantine &middot; Arbeidslivsfag 8. trinn</p>
 
   <div class="intro-card">
@@ -477,7 +484,7 @@
            autocomplete="name" onkeydown="if(event.key==='Enter') startQuiz()" />
 
     <div class="info-box">
-      📋 Testen har <strong>10 spørsmål</strong> – eitt og eitt om gongen.
+      📋 Testen har <strong>10 spørsmål</strong>, eitt og eitt om gongen.
       Du må svare rett på alle for å bestå. Prøv så mange gonger du treng.
     </div>
 
@@ -558,7 +565,7 @@
 const questions = [
   {
     text: 'Kva er temperaturområdet for «faresona» der bakteriar trivst og formeirar seg best?',
-    options: ['0 – 4 °C', '4 – 60 °C', '60 – 100 °C', 'Under 0 °C'],
+    options: ['0-4 °C', '4-60 °C', '60-100 °C', 'Under 0 °C'],
     correct: 1
   },
   {
@@ -583,7 +590,7 @@ const questions = [
   },
   {
     text: 'Kva temperatur skal eit kjøleskåp ha?',
-    options: ['5 – 10 °C', '0 – 4 °C', '4 – 8 °C', 'Under 0 °C'],
+    options: ['5-10 °C', '0-4 °C', '4-8 °C', 'Under 0 °C'],
     correct: 1
   },
   {
@@ -592,7 +599,7 @@ const questions = [
       'Vaskar kniven raskt med kaldt vatn',
       'Tørkar av kniven med eit kjøkkenpapir',
       'Vaskar kniven grundig med varmt vatn og oppvaskmiddel',
-      'Held fram – kniven er ikkje synleg skitten'
+      'Held fram, kniven er ikkje synleg skitten'
     ],
     correct: 2
   },
@@ -620,7 +627,7 @@ const questions = [
     text: 'Kva er rett framgangsmåte når du skal ta ein smaksprøve?',
     options: [
       'Bruke ein finger og slukke han av etterpå',
-      'Bruke ein rein skei éin gong – aldri putte ho attende i gryta',
+      'Bruke ein rein skei éin gong, aldri putte ho attende i gryta',
       'Bruke same skei og putte ho attende i gryta',
       'Pusse skeia i forkleet og bruke ho på nytt'
     ],
@@ -629,7 +636,7 @@ const questions = [
   {
     text: 'Kva skal du gjere med langt hår når du jobbar på kjøkkenet?',
     options: [
-      'Ingenting – hår er ikkje eit hygieneproblem',
+      'Ingenting, hår er ikkje eit hygieneproblem',
       'Berre vaske det godt om morgonen',
       'Setje det opp eller bruke lue/hårnett',
       'Binde det laust til sides'
@@ -898,8 +905,8 @@ function downloadDiploma() {
   const html = `<!DOCTYPE html>
 <html lang="nn">
 <head>
-<meta charset="UTF-8">
-<title>Diplom – ${studentName}</title>
+<meta charset="UTF-8" />
+<title>Diplom. ${studentName}</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -962,7 +969,7 @@ function downloadDiploma() {
 <body>
 <div class="diploma">
   <img class="logo" src="${logoPath}" alt="Logo" onerror="this.style.display='none'">
-  <div class="course-label">Hygienekurs – Kjøkken og kantine · Arbeidslivsfag 8. trinn</div>
+  <div class="course-label">Hygienekurs, Kjøkken og kantine · Arbeidslivsfag 8. trinn</div>
   <div class="diploma-title">Diplom</div>
   <div class="this-is">tildelt</div>
   <div class="student-name">${studentName}</div>
@@ -971,7 +978,7 @@ function downloadDiploma() {
   </p>
   <div class="competencies">
     <span class="comp-label">Kompetansemål</span>
-    Kjenner til hygienereglane for matomsetnad · handterer mat trygt og unngår kryssforureining · forstår faresona for bakterievekst (4–60 °C) · veit korleis sjukdom påverkar arbeid med mat · praktiserer god handvask og personleg hygiene på kjøkkenet.
+    Kjenner til hygienereglane for matomsetnad · handterer mat trygt og unngår kryssforureining · forstår faresona for bakterievekst (4-60 °C) · veit korleis sjukdom påverkar arbeid med mat · praktiserer god handvask og personleg hygiene på kjøkkenet.
   </div>
   <div class="footer">
     <span>${dato}</span>

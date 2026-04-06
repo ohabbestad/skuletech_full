@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>While-løkker. Programmering i matematikk</title>
+  <meta name="description" content="Lær å bruke while-løkker i Python for å gjenta kode til eit vilkår er oppfylt." />
+  <meta property="og:title" content="While-løkker. Koding i matematikk" />
+  <meta property="og:description" content="Modul 7: Gjenta kode medan eit vilkår er sant." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://skuletech.no/koding/bilete/Banner.jpg" />
+  <link rel="icon" href="../bilete/favicon.ico" />
+  <link rel="apple-touch-icon" href="../bilete/apple-touch-icon.png" />
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <script src="../js/nav.js"></script>
+  <script src="../js/youtube.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; }
+    code { font-family: 'Courier New', monospace; }
+    .kode-inline { background: #f1f5f9; border: 1px solid #e2e8f0; padding: 1px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em; color: #0f172a; }
+  </style>
+</head>
+<body class="pb-16">
+
+  <!-- Nav blir injisert av nav.js -->
+
+  <!-- Under arbeid-banner -->
+  <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-center text-sm text-amber-700">
+    🎬 Video kjem snart, du kan lese og prøve oppgåvene allereie no
+  </div>
+
+  <!-- Modulheader -->
+  <div class="bg-white border-b border-gray-200 px-4 py-4">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-xs text-violet-500 font-medium mb-1">Del 2 · Modul 7</div>
+      <h1 class="text-2xl font-bold text-gray-900">While-løkker</h1>
+      <p class="text-gray-500 text-sm mt-1 font-mono">while vilkår:</p>
+    </div>
+  </div>
+
+  <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
+
+    <!-- Video placeholder -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">📺 Sjå videoen</h2>
+      <!-- Lim inn YouTube-URL her, t.d.: data-yt="https://youtu.be/ditt-video-id" -->
+      <div class="yt-video" data-yt=""></div>
+    </section>
+
+    <!-- Forklaring 1 -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800">📖 Kva er ei while-løkke?</h2>
+      <p class="text-gray-700 leading-relaxed">
+        While betyr «medan» på engelsk. Ei while-løkke seier: <strong>«hald fram medan dette er sant»</strong>.
+        I motsetning til for-løkka, der vi veit kor mange gonger vi gjentek, held while-løkka fram heilt til eit vilkår blir usant.
+      </p>
+      <div class="bg-gray-900 rounded-xl p-5 text-sm font-mono text-green-400 leading-loose">
+        teller = <span class="text-yellow-300">0</span><br/>
+        <span class="text-blue-300">while</span> teller &lt; <span class="text-yellow-300">5</span>:<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;print(teller)<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;teller = teller + <span class="text-yellow-300">1</span>
+      </div>
+      <p class="text-gray-700 leading-relaxed">
+        For kvar runde sjekkar Python om <span class="kode-inline">teller &lt; 5</span> er sant. Viss ja, køyrer koden. Viss nei, stoppar løkka.
+      </p>
+    </section>
+
+    <!-- Åtvaring: uendeleg løkke -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800">⚠️ Hugs å oppdatere variabelen!</h2>
+      <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-800">
+        <p class="font-semibold mb-1">🔄 Uendeleg løkke</p>
+        <p>Viss du gløymer å endre variabelen inni løkka, vil vilkåret alltid vere sant, og løkka køyrer for alltid. I koderommet kan du trykkje <strong>«Stopp koden»</strong> viss det skjer.</p>
+      </div>
+      <div class="bg-gray-900 rounded-xl p-5 text-sm font-mono text-green-400 leading-loose">
+        <span class="text-red-400"># ⚠️ Uendeleg løkke, manglar teller = teller + 1</span><br/>
+        teller = <span class="text-yellow-300">0</span><br/>
+        <span class="text-blue-300">while</span> teller &lt; <span class="text-yellow-300">5</span>:<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;print(teller)<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-red-400"># Gløymde å auke teller!</span>
+      </div>
+    </section>
+
+    <!-- While med input -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800">🗣️ While saman med input()</h2>
+      <p class="text-gray-700 leading-relaxed">
+        While-løkker er spesielt nyttige saman med <span class="kode-inline">input()</span>, til dømes viss du vil halde fram å spørje til brukaren gjev eit bestemt svar:
+      </p>
+      <div class="bg-gray-900 rounded-xl p-5 text-sm font-mono text-green-400 leading-loose">
+        svar = <span class="text-yellow-300">""</span><br/>
+        <span class="text-blue-300">while</span> svar != <span class="text-yellow-300">"ja"</span>:<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;svar = input(<span class="text-yellow-300">"Er du klar? Skriv 'ja': "</span>)<br/>
+        print(<span class="text-yellow-300">"Bra! La oss begynne."</span>)
+      </div>
+    </section>
+
+    <!-- For vs While -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800">🤔 For-løkke eller while-løkke?</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
+          <div class="font-semibold text-indigo-700 mb-2">Bruk for-løkke når:</div>
+          <div class="text-sm text-gray-700">Du veit kor mange gonger du vil gjenta. <span class="kode-inline">range(10)</span> gjentek nøyaktig 10 gonger.</div>
+        </div>
+        <div class="bg-violet-50 border border-violet-200 rounded-xl p-4">
+          <div class="font-semibold text-violet-700 mb-2">Bruk while-løkke når:</div>
+          <div class="text-sm text-gray-700">Du vil gjenta inntil noko endrar seg, til dømes at brukaren skriv rett svar.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Kodevindauge -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">💻 Prøv sjølv</h2>
+      <div class="rounded-2xl overflow-hidden border border-gray-200 shadow-sm" style="height: 380px;">
+        <iframe
+          src="../kodevindauge.html?kode=IyBFbmtlbCB3aGlsZS1sw7hra2UKdGVsbGVyID0gMAp3aGlsZSB0ZWxsZXIgPCA1OgogICAgcHJpbnQodGVsbGVyKQogICAgdGVsbGVyID0gdGVsbGVyICsgMQ=="
+          style="width:100%; height:100%; border:none;"
+          title="Python kodevindauge">
+        </iframe>
+      </div>
+    </section>
+
+    <!-- Oppgåver -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">🎯 Oppgåver</h2>
+      <ol class="space-y-4 text-gray-700">
+        <li class="flex gap-3">
+          <span class="bg-violet-100 text-violet-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">1</span>
+          <span>Køyr koden og sjå at det kjem ut tala 0-4. Kvifor stoppar det på 4 og ikkje 5?</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-violet-100 text-violet-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">2</span>
+          <span>Endre løkka slik at ho tel frå 1 til 10 (ikkje frå 0).</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-violet-100 text-violet-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">3</span>
+          <span>Lag ei while-løkke som dobler ein variabel heilt til verdien er over 1000. Start med <span class="kode-inline">tal = 1</span>. Skriv ut verdien for kvar runde.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-violet-100 text-violet-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">4</span>
+          <span>Lag eit «gjetteprogram»: velg eit tal (t.d. <span class="kode-inline">fasit = 7</span>), og bruk <span class="kode-inline">input()</span> i ei while-løkke som held fram til brukaren gjettar riktig.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-amber-100 text-amber-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">★</span>
+          <span><strong>Ekstra:</strong> Legg til ei teljing i gjetteprogrammet som tel kor mange forsøk brukaren bruker, og skriv det ut til slutt.</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Navigasjon -->
+    <div class="flex justify-between">
+      <a href="for-lokker.html" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-3 rounded-xl font-medium transition no-underline flex items-center gap-2">
+        ← Førre: For-løkker
+      </a>
+      <a href="boolean.html" class="bg-violet-600 hover:bg-violet-700 text-white px-5 py-3 rounded-xl font-medium transition no-underline flex items-center gap-2">
+        Neste: Boolean og vilkår →
+      </a>
+    </div>
+
+  </div>
+</body>
+</html>
