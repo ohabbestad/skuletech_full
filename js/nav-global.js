@@ -6,18 +6,19 @@
   'use strict';
 
   var pathname = window.location.pathname;
-  var rootDirName = 'skuletech';
+  var rootDirName = 'skuletech_full';
   var segments = pathname.split('/').filter(Boolean);
 
-  if (segments[0] && segments[0].toLowerCase() === rootDirName) {
-    segments.shift();
+  var rootIndex = segments.findIndex(function(seg) { return seg.toLowerCase() === rootDirName; });
+  if (rootIndex !== -1) {
+    segments = segments.slice(rootIndex + 1);
   }
 
   if (segments.length && segments[segments.length - 1].indexOf('.') !== -1) {
     segments.pop();
   }
 
-  var prefix = '../'.repeat(Math.max(0, segments.length));
+  var prefix = '../'.repeat(segments.length);
 
   var html = ''
     + '<a href="' + prefix + 'index.html" id="skuletech-home-btn" '
