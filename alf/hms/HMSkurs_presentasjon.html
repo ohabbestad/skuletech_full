@@ -734,6 +734,7 @@
   </div>
 </div>
 
+<script src="../../js/youtube-stop.js"></script>
 <script>
   const totalSlides = 17;
   let current = 1;
@@ -753,6 +754,10 @@
     current = n;
     document.getElementById('slide-' + current).classList.add('active');
     updateNav();
+    // Stopp YouTube-videoer når vi skifter slide
+    if (window.stoppYouTubeVideoer) {
+      window.stoppYouTubeVideoer();
+    }
   }
 
   function changeSlide(dir) {
