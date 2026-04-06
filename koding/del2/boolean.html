@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boolean og vilkår. Programmering i matematikk</title>
+  <meta name="description" content="Lær om boolean-verdiar og if-setningar i Python." />
+  <meta property="og:title" content="Boolean og vilkår. Koding i matematikk" />
+  <meta property="og:description" content="Modul 8: La programmet ta avgjersler med if, elif og else." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://skuletech.no/koding/bilete/Banner.jpg" />
+  <link rel="icon" href="../bilete/favicon.ico" />
+  <link rel="apple-touch-icon" href="../bilete/apple-touch-icon.png" />
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <script src="../js/nav.js"></script>
+  <script src="../js/youtube.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; }
+    code { font-family: 'Courier New', monospace; }
+    .kode-inline { background: #f1f5f9; border: 1px solid #e2e8f0; padding: 1px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em; color: #0f172a; }
+  </style>
+</head>
+<body class="pb-16">
+
+  <!-- Nav blir injisert av nav.js -->
+
+  <!-- Under arbeid-banner -->
+  <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-center text-sm text-amber-700">
+    🎬 Video kjem snart, du kan lese og prøve oppgåvene allereie no
+  </div>
+
+  <!-- Modulheader -->
+  <div class="bg-white border-b border-gray-200 px-4 py-4">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-xs text-violet-500 font-medium mb-1">Del 2 · Modul 8</div>
+      <h1 class="text-2xl font-bold text-gray-900">Boolean og vilkår</h1>
+      <p class="text-gray-500 text-sm mt-1 font-mono">True / False &nbsp;·&nbsp; if / elif / else</p>
+    </div>
+  </div>
+
+  <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
+
+    <!-- Video placeholder -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">📺 Sjå videoen</h2>
+      <!-- Lim inn YouTube-URL her, t.d.: data-yt="https://youtu.be/ditt-video-id" -->
+      <div class="yt-video" data-yt=""></div>
+    </section>
+
+    <!-- Forklaring 1: boolean -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800">📖 Kva er boolean?</h2>
+      <p class="text-gray-700 leading-relaxed">
+        Ein <strong>boolean</strong> er ein verdi som berre kan vere eitt av to ting: <span class="kode-inline">True</span> (sant) eller <span class="kode-inline">False</span> (usant).
+        Slike verdiar kjem ut av samanlikningar:
+      </p>
+      <div class="bg-gray-900 rounded-xl p-5 text-sm font-mono text-green-400 leading-loose">
+        print(<span class="text-yellow-300">10 > 5</span>)&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># True</span><br/>
+        print(<span class="text-yellow-300">10 &lt; 5</span>)&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># False</span><br/>
+        print(<span class="text-yellow-300">10 == 10</span>)&nbsp;&nbsp;<span class="text-gray-500"># True</span>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+        💡 <strong>= vs ==:</strong> Eitt likskapsteikn (<span class="kode-inline">=</span>) tildeler ein verdi til ein variabel. To likskapsteikn (<span class="kode-inline">==</span>) samanliknar to verdiar og gjev True eller False.
+      </div>
+    </section>
+
+    <!-- Forklaring 2: operatorar -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800">📋 Samanlikningsoperatorar</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="bg-gray-100 text-left">
+              <th class="px-4 py-2 font-semibold text-gray-700 rounded-tl-lg">Operator</th>
+              <th class="px-4 py-2 font-semibold text-gray-700">Tyder</th>
+              <th class="px-4 py-2 font-semibold text-gray-700 rounded-tr-lg">Døme</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr><td class="px-4 py-2 font-mono text-indigo-700">==</td><td class="px-4 py-2 text-gray-600">er lik</td><td class="px-4 py-2 font-mono text-gray-500">5 == 5 → True</td></tr>
+            <tr class="bg-gray-50"><td class="px-4 py-2 font-mono text-indigo-700">!=</td><td class="px-4 py-2 text-gray-600">er ikkje lik</td><td class="px-4 py-2 font-mono text-gray-500">5 != 3 → True</td></tr>
+            <tr><td class="px-4 py-2 font-mono text-indigo-700">&gt;</td><td class="px-4 py-2 text-gray-600">større enn</td><td class="px-4 py-2 font-mono text-gray-500">8 &gt; 3 → True</td></tr>
+            <tr class="bg-gray-50"><td class="px-4 py-2 font-mono text-indigo-700">&lt;</td><td class="px-4 py-2 text-gray-600">mindre enn</td><td class="px-4 py-2 font-mono text-gray-500">2 &lt; 7 → True</td></tr>
+            <tr><td class="px-4 py-2 font-mono text-indigo-700">&gt;=</td><td class="px-4 py-2 text-gray-600">større eller lik</td><td class="px-4 py-2 font-mono text-gray-500">5 &gt;= 5 → True</td></tr>
+            <tr class="bg-gray-50 rounded-b-lg"><td class="px-4 py-2 font-mono text-indigo-700">&lt;=</td><td class="px-4 py-2 text-gray-600">mindre eller lik</td><td class="px-4 py-2 font-mono text-gray-500">4 &lt;= 6 → True</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Forklaring 3: if -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800">🔀 if / else / elif</h2>
+      <p class="text-gray-700 leading-relaxed">
+        Med <span class="kode-inline">if</span> kan Python ta avgjerder og gjere ulike ting avhengig av kva som er sant:
+      </p>
+      <div class="bg-gray-900 rounded-xl p-5 text-sm font-mono text-green-400 leading-loose">
+        tal = int(input(<span class="text-yellow-300">"Skriv eit tal: "</span>))<br/>
+        <span class="text-blue-300">if</span> tal &gt; <span class="text-yellow-300">0</span>:<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;print(<span class="text-yellow-300">"Positivt"</span>)<br/>
+        <span class="text-blue-300">elif</span> tal &lt; <span class="text-yellow-300">0</span>:<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;print(<span class="text-yellow-300">"Negativt"</span>)<br/>
+        <span class="text-blue-300">else</span>:<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;print(<span class="text-yellow-300">"Null"</span>)
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm text-center">
+        <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-3">
+          <div class="font-mono font-bold text-indigo-700">if</div>
+          <div class="text-gray-600 mt-1">Sjekkar det første vilkåret</div>
+        </div>
+        <div class="bg-purple-50 border border-purple-200 rounded-xl p-3">
+          <div class="font-mono font-bold text-purple-700">elif</div>
+          <div class="text-gray-600 mt-1">Sjekkar neste vilkår viss det første var usant</div>
+        </div>
+        <div class="bg-gray-100 border border-gray-200 rounded-xl p-3">
+          <div class="font-mono font-bold text-gray-700">else</div>
+          <div class="text-gray-600 mt-1">Køyrer viss ingen av dei andre var sanne</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Kodevindauge -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">💻 Prøv sjølv</h2>
+      <div class="rounded-2xl overflow-hidden border border-gray-200 shadow-sm" style="height: 380px;">
+        <iframe
+          src="../kodevindauge.html?kode=IyBCb29sZWFuIG9nIGlmCnRhbCA9IDEwCmlmIHRhbCA+IDU6CiAgICBwcmludCgiU3TDuHJyZSBlbm4gNSEiKQplbHNlOgogICAgcHJpbnQoIjUgZWxsZXIgbWluZHJlIik="
+          style="width:100%; height:100%; border:none;"
+          title="Python kodevindauge">
+        </iframe>
+      </div>
+    </section>
+
+    <!-- Oppgåver -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">🎯 Oppgåver</h2>
+      <ol class="space-y-4 text-gray-700">
+        <li class="flex gap-3">
+          <span class="bg-violet-100 text-violet-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">1</span>
+          <span>Lag eit program som spør etter alderen til brukaren og skriv ut om han er «barn» (under 13), «ungdomsskulelev» (13-15) eller «vidaregåandeelev» (16 og eldre).</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-violet-100 text-violet-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">2</span>
+          <span>Bruk <span class="kode-inline">input()</span> til å lage eit enkelt «stemme eller ikkje»-program: viss alderen er 18 eller meir, skriv «Du kan stemme!», elles skriv ut kor mange år som manglar.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-violet-100 text-violet-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">3</span>
+          <span>Kombiner if med ei for-løkke: gå gjennom tala 1-20 og skriv «Partal» eller «Oddeleg» for kvart tal. (Tips: bruk modulo-operatoren <span class="kode-inline">%</span>, t.d. <span class="kode-inline">tal % 2 == 0</span> er sant for partal.)</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-violet-100 text-violet-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">4</span>
+          <span>Kombiner while med if: lag eit gjetteprogram der brukaren prøver å gjette eit tal mellom 1 og 10. Viss svaret er for høgt, skriv «For høgt!», viss for lågt, skriv «For lågt!», viss rett, avslutt løkka.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-amber-100 text-amber-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">★</span>
+          <span><strong>Ekstra:</strong> Lag ein enkel kalkulator som spør etter to tal og ein rekneoperasjon (+, -, *, /) og skriv ut svaret. Bruk if/elif for å skilje mellom operasjonane.</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Navigasjon -->
+    <div class="flex justify-between">
+      <a href="while-lokker.html" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-3 rounded-xl font-medium transition no-underline flex items-center gap-2">
+        ← Førre: While-løkker
+      </a>
+      <a href="../oppgavebank.html" class="bg-violet-600 hover:bg-violet-700 text-white px-5 py-3 rounded-xl font-medium transition no-underline flex items-center gap-2">
+        Til oppgåvebanken →
+      </a>
+    </div>
+
+  </div>
+</body>
+</html>

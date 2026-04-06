@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Datatypar. Programmering i matematikk</title>
+  <meta name="description" content="Lær skilnaden mellom int, float og str i Python." />
+  <meta property="og:title" content="Datatypar. Koding i matematikk" />
+  <meta property="og:description" content="Modul 4: Forstå datatypar. heiltal, desimaltal og tekst." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://skuletech.no/koding/bilete/Banner.jpg" />
+  <link rel="icon" href="../bilete/favicon.ico" />
+  <link rel="apple-touch-icon" href="../bilete/apple-touch-icon.png" />
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <script src="../js/nav.js"></script>
+  <script src="../js/youtube.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; }
+    code { font-family: 'Courier New', monospace; }
+    .kode-inline { background: #f1f5f9; border: 1px solid #e2e8f0; padding: 1px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em; color: #0f172a; }
+  </style>
+</head>
+<body class="pb-16">
+
+  <!-- Nav blir injisert av nav.js -->
+
+  <!-- Under arbeid-banner -->
+  <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-center text-sm text-amber-700">
+    🎬 Video kjem snart, du kan lese og prøve oppgåvene allereie no
+  </div>
+
+  <!-- Modulheader -->
+  <div class="bg-white border-b border-gray-200 px-4 py-4">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-xs text-indigo-500 font-medium mb-1">Del 1 · Modul 4</div>
+      <h1 class="text-2xl font-bold text-gray-900">Datatypar</h1>
+    </div>
+  </div>
+
+  <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
+
+    <!-- Video placeholder -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">Sjå videoen</h2>
+      <!-- Lim inn YouTube-URL her, t.d.: data-yt="https://youtu.be/ditt-video-id" -->
+      <div class="yt-video" data-yt=""></div>
+    </section>
+
+    <!-- Forklaring 1 -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800">Kva er datatypar?</h2>
+      <p class="text-gray-700 leading-relaxed">
+        Python skil mellom ulike <strong>typar verdiar</strong>. Eit tal er ikkje det same som tekst, sjølv om dei ser like ut.
+        Dei tre viktigaste datatypane er:
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
+          <div class="font-mono font-bold text-blue-700 text-xl">int</div>
+          <div class="text-sm text-gray-600 mt-1">Heiltal</div>
+          <div class="font-mono text-xs text-gray-400 mt-2">10, 34, -5</div>
+        </div>
+        <div class="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
+          <div class="font-mono font-bold text-purple-700 text-xl">float</div>
+          <div class="text-sm text-gray-600 mt-1">Desimaltal</div>
+          <div class="font-mono text-xs text-gray-400 mt-2">3.14, 9.81, 1.5</div>
+        </div>
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+          <div class="font-mono font-bold text-green-700 text-xl">str</div>
+          <div class="text-sm text-gray-600 mt-1">Tekst (string)</div>
+          <div class="font-mono text-xs text-gray-400 mt-2">"Ole", "Hei!"</div>
+        </div>
+      </div>
+
+      <p class="text-gray-700 leading-relaxed">
+        Tekst (<span class="kode-inline">str</span>) har alltid hermeteikn rundt seg. Tal (<span class="kode-inline">int</span> og <span class="kode-inline">float</span>) har ikkje det.
+      </p>
+
+      <div class="bg-gray-900 rounded-xl p-5 text-sm font-mono text-green-400 leading-loose">
+        alder = <span class="text-yellow-300">34</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># int</span><br/>
+        karakter = <span class="text-yellow-300">4.5</span>&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># float</span><br/>
+        namn = <span class="text-yellow-300">"Ole"</span>&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># str</span>
+      </div>
+    </section>
+
+    <!-- Forklaring 2: type() -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800">type(), sjå kva type noko har</h2>
+      <p class="text-gray-700 leading-relaxed">
+        Du kan bruke den innebygde kommandoen <span class="kode-inline">type()</span> til å sjekke kva datatype ein variabel har:
+      </p>
+      <div class="bg-gray-900 rounded-xl p-5 text-sm font-mono text-green-400 leading-loose">
+        print(type(<span class="text-yellow-300">34</span>))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># &lt;class 'int'&gt;</span><br/>
+        print(type(<span class="text-yellow-300">4.5</span>))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># &lt;class 'float'&gt;</span><br/>
+        print(type(<span class="text-yellow-300">"Ole"</span>))&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># &lt;class 'str'&gt;</span>
+      </div>
+    </section>
+
+    <!-- Forklaring 3: viktig skilnad -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800">Kvifor dette er viktig</h2>
+      <p class="text-gray-700 leading-relaxed">
+        Hermeteikn endrar korleis Python behandlar verdien. Sjå her:
+      </p>
+      <div class="bg-gray-900 rounded-xl p-5 text-sm font-mono text-green-400 leading-loose">
+        print(<span class="text-yellow-300">10 + 5</span>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-gray-500"># → 15 (reknar)</span><br/>
+        print(<span class="text-yellow-300">"10" + "5"</span>)&nbsp;&nbsp;<span class="text-gray-500"># → 105 (set saman tekst!)</span>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+        💡 Når Python ser hermeteikn, trur han at det er tekst, og set då bokstavar etter kvarandre i staden for å rekne. <strong>Tal utan hermeteikn, tekst med hermeteikn.</strong>
+      </div>
+    </section>
+
+    <!-- Kodevindauge -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">Prøv sjølv</h2>
+      <div class="rounded-2xl overflow-hidden border border-gray-200 shadow-sm" style="height: 380px;">
+        <iframe
+          src="../kodevindauge.html?kode=IyBQcsO4diBkYXRhdHlwYXIKYWxkZXIgPSAzNAprYXJha3RlciA9IDQuNQpuYW1uID0gIk9sZSIKCnByaW50KHR5cGUoYWxkZXIpKQpwcmludCh0eXBlKGthcmFrdGVyKSkKcHJpbnQodHlwZShuYW1uKSk="
+          style="width:100%; height:100%; border:none;"
+          title="Python kodevindauge">
+        </iframe>
+      </div>
+    </section>
+
+    <!-- Oppgåver -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Oppgåver</h2>
+      <ol class="space-y-4 text-gray-700">
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">1</span>
+          <span>Køyr koden og sjå kva <span class="kode-inline">type()</span> seier om <em>alder</em>, <em>karakter</em> og <em>namn</em>.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">2</span>
+          <span>Legg til ein variabel <span class="kode-inline">pris = 29.90</span> og skriv ut kva type han har.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">3</span>
+          <span>Prøv <span class="kode-inline">print(10 + 5)</span> og <span class="kode-inline">print("10" + "5")</span>. Kva er skilnaden? Kvifor?</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">4</span>
+          <span>Kva skjer viss du prøver <span class="kode-inline">print("5" + 5)</span>? Les feilmeldinga og prøv å forstå kva Python klagar på.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-amber-100 text-amber-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">★</span>
+          <span><strong>Ekstra:</strong> Bruk <span class="kode-inline">str()</span>, <span class="kode-inline">int()</span> og <span class="kode-inline">float()</span> til å gjere om verdiar mellom typar. Kva skjer med <span class="kode-inline">int(3.9)</span>?</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Navigasjon -->
+    <div class="flex justify-between">
+      <a href="variablar.html" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-3 rounded-xl font-medium transition no-underline flex items-center gap-2">
+        ← Førre: Variablar
+      </a>
+      <a href="input.html" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl font-medium transition no-underline flex items-center gap-2">
+        Neste: Input frå brukar →
+      </a>
+    </div>
+
+  </div>
+</body>
+</html>

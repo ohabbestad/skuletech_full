@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Input. Programmering i matematikk</title>
+  <meta name="description" content="Lær å hente input frå brukaren med input()-funksjonen i Python." />
+  <meta property="og:title" content="Input. Koding i matematikk" />
+  <meta property="og:description" content="Modul 5: La programmet ditt snakke med brukaren." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://skuletech.no/koding/bilete/Banner.jpg" />
+  <link rel="icon" href="../bilete/favicon.ico" />
+  <link rel="apple-touch-icon" href="../bilete/apple-touch-icon.png" />
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <script src="../js/nav.js"></script>
+  <script src="../js/youtube.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; }
+    code { font-family: 'Courier New', monospace; }
+    .kode-inline { background: #f1f5f9; border: 1px solid #e2e8f0; padding: 1px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em; color: #0f172a; }
+  </style>
+</head>
+<body class="pb-16">
+
+  <!-- Nav blir injisert av nav.js -->
+
+  <!-- Under arbeid-banner -->
+  <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-center text-sm text-amber-700">
+    🎬 Video kjem snart. Du kan lese og prøve oppgåvene allereie no
+  </div>
+
+  <!-- Modulheader -->
+  <div class="bg-white border-b border-gray-200 px-4 py-4">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-xs text-indigo-500 font-medium mb-1">Del 1 · Modul 5</div>
+      <h1 class="text-2xl font-bold text-gray-900">Input frå brukar</h1>
+    </div>
+  </div>
+
+  <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
+
+    <!-- Video placeholder -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">Sjå videoen</h2>
+      <!-- Lim inn YouTube-URL her, t.d.: data-yt="https://youtu.be/ditt-video-id" -->
+      <div class="yt-video" data-yt=""></div>
+    </section>
+
+    <!-- Forklaring 1 -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800">Kva er input()?</h2>
+      <p class="text-gray-700 leading-relaxed">
+        Til no har programma dine alltid gjort det same. Kvar gong du køyrer koden, kjem same svaret ut.
+        <span class="kode-inline">input()</span> let deg lage program som <strong>"snakkar med brukaren"</strong>.
+      </p>
+      <div class="bg-gray-900 rounded-xl p-5 text-sm font-mono text-green-400 leading-loose">
+        namn = input(<span class="text-yellow-300">"Kva heiter du? "</span>)<br/>
+        print(<span class="text-yellow-300">"Hei,"</span>, namn)
+      </div>
+      <p class="text-gray-700 leading-relaxed">
+        Teksten inni <span class="kode-inline">input()</span> er meldinga brukaren ser på skjermen. Det brukaren skriv, kjem inn i variabelen <span class="kode-inline">namn</span>.
+      </p>
+    </section>
+
+    <!-- Forklaring 2: input gjev alltid str -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800">input() gjev alltid tekst</h2>
+      <p class="text-gray-700 leading-relaxed">
+        Sjølv om brukaren skriv inn eit tal, vil <span class="kode-inline">input()</span> alltid returnere ein <span class="kode-inline">str</span> (tekst):
+      </p>
+      <div class="bg-gray-900 rounded-xl p-5 text-sm font-mono text-green-400 leading-loose">
+        tal = input(<span class="text-yellow-300">"Skriv eit tal: "</span>)<br/>
+        print(type(tal))&nbsp;&nbsp;<span class="text-gray-500"># &lt;class 'str'&gt;</span>
+      </div>
+      <p class="text-gray-700 leading-relaxed">
+        Vil du bruke svaret i eit reknestykke, må du gjere det om med <span class="kode-inline">int()</span> (for heiltal) eller <span class="kode-inline">float()</span> (for desimaltal):
+      </p>
+      <div class="bg-gray-900 rounded-xl p-5 text-sm font-mono text-green-400 leading-loose">
+        alder = int(input(<span class="text-yellow-300">"Kor gamal er du? "</span>))<br/>
+        neste_ar = alder + 1<br/>
+        print(<span class="text-yellow-300">"Neste år er du"</span>, neste_ar, <span class="text-yellow-300">"år gamal."</span>)
+      </div>
+    </section>
+
+    <!-- Kodevindauge -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">Prøv sjølv</h2>
+      <div class="rounded-2xl overflow-hidden border border-gray-200 shadow-sm" style="height: 380px;">
+        <iframe
+          src="../kodevindauge.html?kode=IyBFbmtlbCBpbnB1dApuYW1uID0gaW5wdXQoIkt2YSBoZWl0ZXIgZHU/ICIpCnByaW50KCJIZWksIiwgbmFtbik="
+          style="width:100%; height:100%; border:none;"
+          title="Python kodevindauge">
+        </iframe>
+      </div>
+    </section>
+
+    <!-- Oppgåver -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Oppgåver</h2>
+      <ol class="space-y-4 text-gray-700">
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">1</span>
+          <span>Køyr koden og skriv inn namnet ditt. Kjem det korrekt «Hei, [namn]» tilbake?</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">2</span>
+          <span>Legg til ein ny <span class="kode-inline">input()</span> som spør etter favorittidretten. Bruk svaret i ei setning.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">3</span>
+          <span>Lag eit program som ber om to tal frå brukaren og skriv ut summen. Hugs å bruke <span class="kode-inline">int()</span>!</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-indigo-100 text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">4</span>
+          <span>Lag eit program som ber om eit tal og reknar ut det dobbelte. Skriv ut: «Det dobbelte av X er Y.»</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-amber-100 text-amber-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">★</span>
+          <span><strong>Ekstra:</strong> Lag eit lite spørjeskjema med minst tre spørsmål (namn, alder, favorittfag). Skriv ut ei oppsummering til slutt: «[namn] er [alder] år og likar [fag].»</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Navigasjon -->
+    <div class="flex justify-between">
+      <a href="datatypar.html" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-3 rounded-xl font-medium transition no-underline flex items-center gap-2">
+        ← Førre: Datatypar
+      </a>
+      <a href="../del2/for-lokker.html" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl font-medium transition no-underline flex items-center gap-2">
+        Neste: For-løkker →
+      </a>
+    </div>
+
+  </div>
+</body>
+</html>

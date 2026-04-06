@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>For-løkker. Programmering i matematikk</title>
+  <meta name="description" content="Lær å bruke for-løkker og range() i Python for å gjenta kode." />
+  <meta property="og:title" content="For-løkker. Koding i matematikk" />
+  <meta property="og:description" content="Modul 6: Gjenta kode med for-løkker og range()." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://skuletech.no/koding/bilete/Banner.jpg" />
+  <link rel="icon" href="../bilete/favicon.ico" />
+  <link rel="apple-touch-icon" href="../bilete/apple-touch-icon.png" />
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <script src="../js/nav.js"></script>
+  <script src="../js/youtube.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; }
+    code { font-family: 'Courier New', monospace; }
+    .kode-inline { background: #f1f5f9; border: 1px solid #e2e8f0; padding: 1px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em; color: #0f172a; }
+  </style>
+</head>
+<body class="pb-16">
+
+  <!-- Nav blir injisert av nav.js -->
+
+  <!-- Under arbeid-banner -->
+  <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-center text-sm text-amber-700">
+    🎬 Video kjem snart, du kan lese og prøve oppgåvene allereie no
+  </div>
+
+  <!-- Modulheader -->
+  <div class="bg-white border-b border-gray-200 px-4 py-4">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-xs text-violet-500 font-medium mb-1">Del 2 · Modul 6</div>
+      <h1 class="text-2xl font-bold text-gray-900">For-løkker</h1>
+      <p class="text-gray-500 text-sm mt-1 font-mono">for i in range(n)</p>
+    </div>
+  </div>
+
+  <div class="max-w-4xl mx-auto px-4 py-8 space-y-10">
+
+    <!-- Video placeholder -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">📺 Sjå videoen</h2>
+      <!-- Lim inn YouTube-URL her, t.d.: data-yt="https://youtu.be/ditt-video-id" -->
+      <div class="yt-video" data-yt=""></div>
+    </section>
+
+    <!-- Forklaring 1 -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800">📖 Kva er ei for-løkke?</h2>
+      <p class="text-gray-700 leading-relaxed">
+        Ei <strong>løkke</strong> er ein måte å seie «gjer dette fleire gonger» utan å skrive den same linja om og om att.
+        For-løkka bruker nøkkelordet <span class="kode-inline">for</span> saman med <span class="kode-inline">range()</span>:
+      </p>
+      <div class="bg-gray-900 rounded-xl p-5 text-sm font-mono text-green-400 leading-loose">
+        <span class="text-blue-300">for</span> i <span class="text-blue-300">in</span> range(<span class="text-yellow-300">5</span>):<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;print(<span class="text-yellow-300">"Hei!"</span>)
+      </div>
+      <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm">
+        <p class="font-semibold text-blue-800 mb-2">Viktig: innrykk!</p>
+        <p class="text-blue-700">Koden som skal gjentakast, må ha <strong>4 mellomrom</strong> (eller ein tabulator) som innrykk. Python bruker innrykket til å forstå kva som er inni løkka og kva som er utanfor.</p>
+      </div>
+    </section>
+
+    <!-- Forklaring 2: range-variantar -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-6">
+      <h2 class="text-lg font-semibold text-gray-800">📖 Tre måtar å bruke range()</h2>
+
+      <div class="space-y-2">
+        <h3 class="font-semibold text-gray-700">range(n), frå 0 til n-1</h3>
+        <p class="text-gray-600 text-sm">Tel frå 0 og opp til (men ikkje med) n:</p>
+        <div class="bg-gray-900 rounded-xl p-4 text-sm font-mono text-green-400 leading-loose">
+          <span class="text-blue-300">for</span> i <span class="text-blue-300">in</span> range(<span class="text-yellow-300">5</span>):<br/>
+          &nbsp;&nbsp;&nbsp;&nbsp;print(i)&nbsp;&nbsp;<span class="text-gray-500"># 0, 1, 2, 3, 4</span>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <h3 class="font-semibold text-gray-700">range(x, y), vel start og slutt</h3>
+        <p class="text-gray-600 text-sm">Start på x, tell opp til (men ikkje med) y:</p>
+        <div class="bg-gray-900 rounded-xl p-4 text-sm font-mono text-green-400 leading-loose">
+          <span class="text-blue-300">for</span> i <span class="text-blue-300">in</span> range(<span class="text-yellow-300">1, 6</span>):<br/>
+          &nbsp;&nbsp;&nbsp;&nbsp;print(i)&nbsp;&nbsp;<span class="text-gray-500"># 1, 2, 3, 4, 5</span>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <h3 class="font-semibold text-gray-700">range(x, y, d), vel steglengda</h3>
+        <p class="text-gray-600 text-sm">Hopp d av gongen. Kan óg gå baklengs med negativt tal:</p>
+        <div class="bg-gray-900 rounded-xl p-4 text-sm font-mono text-green-400 leading-loose">
+          <span class="text-blue-300">for</span> i <span class="text-blue-300">in</span> range(<span class="text-yellow-300">0, 11, 2</span>):<br/>
+          &nbsp;&nbsp;&nbsp;&nbsp;print(i)&nbsp;&nbsp;<span class="text-gray-500"># 0, 2, 4, 6, 8, 10</span><br/><br/>
+          <span class="text-blue-300">for</span> i <span class="text-blue-300">in</span> range(<span class="text-yellow-300">10, 0, -1</span>):<br/>
+          &nbsp;&nbsp;&nbsp;&nbsp;print(i)&nbsp;&nbsp;<span class="text-gray-500"># 10, 9, 8, ... 1</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Forklaring 3: rekne med løkker -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800">🔢 Rekne med løkker</h2>
+      <p class="text-gray-700 leading-relaxed">
+        For-løkker er svært nyttige i matematikk. Her summerer vi alle tal frå 1 til 10:
+      </p>
+      <div class="bg-gray-900 rounded-xl p-5 text-sm font-mono text-green-400 leading-loose">
+        sum = <span class="text-yellow-300">0</span><br/>
+        <span class="text-blue-300">for</span> i <span class="text-blue-300">in</span> range(<span class="text-yellow-300">1, 11</span>):<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;sum = sum + i<br/>
+        print(<span class="text-yellow-300">"Summen er:"</span>, sum)&nbsp;&nbsp;<span class="text-gray-500"># → 55</span>
+      </div>
+      <p class="text-gray-500 text-sm">For kvar runde legg vi til den gjeldande verdien av <span class="kode-inline">i</span> på summen. Eit klassisk mønster!</p>
+    </section>
+
+    <!-- Kodevindauge -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">💻 Prøv sjølv</h2>
+      <div class="rounded-2xl overflow-hidden border border-gray-200 shadow-sm" style="height: 380px;">
+        <iframe
+          src="../kodevindauge.html?kode=IyBUZWwgbWVkIHJhbmdlKCkKZm9yIGkgaW4gcmFuZ2UoNSk6CiAgICBwcmludChpKQ=="
+          style="width:100%; height:100%; border:none;"
+          title="Python kodevindauge">
+        </iframe>
+      </div>
+    </section>
+
+    <!-- Oppgåver -->
+    <section class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">🎯 Oppgåver</h2>
+      <ol class="space-y-4 text-gray-700">
+        <li class="flex gap-3">
+          <span class="bg-violet-100 text-violet-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">1</span>
+          <span>Bruk ei for-løkke til å skrive ut alle tal frå 1 til 10.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-violet-100 text-violet-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">2</span>
+          <span>Bruk <span class="kode-inline">range(x, y)</span> til å skrive ut alle tal frå 5 til 15.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-violet-100 text-violet-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">3</span>
+          <span>Skriv ut alle partala mellom 0 og 20 ved å bruke <span class="kode-inline">range(0, 21, 2)</span>.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-violet-100 text-violet-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">4</span>
+          <span>Skriv ut ein nedteljing frå 10 til 1, og skriv «Opp!» til slutt (utanfor løkka).</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-violet-100 text-violet-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">5</span>
+          <span>Lag ei løkke som reknar ut og skriv ut gongetabellen for 7 (frå 7×1 til 7×10).</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="bg-amber-100 text-amber-700 font-bold rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-sm">★</span>
+          <span><strong>Ekstra:</strong> Bruk ei for-løkke til å summere alle oddetala frå 1 til 99. Kva er svaret?</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Navigasjon -->
+    <div class="flex justify-between">
+      <a href="../del1/input.html" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-3 rounded-xl font-medium transition no-underline flex items-center gap-2">
+        ← Førre: Input frå brukar
+      </a>
+      <a href="while-lokker.html" class="bg-violet-600 hover:bg-violet-700 text-white px-5 py-3 rounded-xl font-medium transition no-underline flex items-center gap-2">
+        Neste: While-løkker →
+      </a>
+    </div>
+
+  </div>
+</body>
+</html>
