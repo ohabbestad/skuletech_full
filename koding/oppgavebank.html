@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oppgåvebank. Programmering i matematikk</title>
+  <meta name="description" content="Over 40 oppgåver i Python sortert etter tema og vanskegraden. Prøv dei direkte i nettlesaren." />
+  <meta property="og:title" content="Oppgåvebank. SkuleTech" />
+  <meta property="og:description" content="Mengdetrening i Python. Filtrer etter tema, vanskegraden og prøv oppgåvene direkte." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://skuletech.no/koding/bilete/Banner.jpg" />
+  <link rel="icon" href="bilete/favicon.ico" />
+  <link rel="apple-touch-icon" href="bilete/apple-touch-icon.png" />
+  <link rel="stylesheet" href="css/tailwind.css" />
+  <script src="js/nav.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; }
+    .task-card { transition: transform 0.15s, box-shadow 0.15s; }
+    .task-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+  </style>
+</head>
+<body class="pb-20">
+
+  <!-- Nav blir injisert av nav.js -->
+
+  <!-- Header -->
+  <div class="bg-white border-b border-gray-200 px-4 py-5">
+    <div class="max-w-5xl mx-auto">
+      <h1 class="text-2xl font-bold text-gray-900">🎯 Oppgåvebank</h1>
+      <p class="text-gray-500 text-sm mt-1">Eit stort utval oppgåver sortert etter tema. Klikk «Prøv» for å opne koderommet med startkoden ferdig.</p>
+    </div>
+  </div>
+
+  <!-- Filter-tabs -->
+  <div class="bg-white border-b border-gray-100 px-4 sticky top-0 z-10 shadow-sm">
+    <div class="max-w-5xl mx-auto flex gap-1 overflow-x-auto py-2 text-sm" id="filter-tabs">
+      <button onclick="filtrer('alle')" class="filter-btn active whitespace-nowrap px-3 py-1.5 rounded-full font-medium transition">Alle</button>
+      <button onclick="filtrer('print')" class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full font-medium transition">print()</button>
+      <button onclick="filtrer('rekneartar')" class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full font-medium transition">Rekneartar</button>
+      <button onclick="filtrer('variablar')" class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full font-medium transition">Variablar</button>
+      <button onclick="filtrer('datatypar')" class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full font-medium transition">Datatypar</button>
+      <button onclick="filtrer('input')" class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full font-medium transition">input()</button>
+      <button onclick="filtrer('for')" class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full font-medium transition">For-løkker</button>
+      <button onclick="filtrer('while')" class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full font-medium transition">While-løkker</button>
+      <button onclick="filtrer('boolean')" class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full font-medium transition">Boolean</button>
+      <button onclick="filtrer('turtle')" class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full font-medium transition">🐢 Turtle</button>
+    </div>
+  </div>
+
+  <div class="max-w-5xl mx-auto px-4 py-8 space-y-12" id="oppgave-innhald">
+
+    <!-- === DEL 1 === -->
+
+    <!-- print() -->
+    <section data-kategori="print">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center font-mono font-bold text-sm">01</div>
+        <h2 class="text-lg font-bold text-gray-800">print()</h2>
+        <a href="del1/print.html" class="text-xs text-blue-500 hover:underline ml-auto">→ Gå til modulen</a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Lett</span>
+            <span class="text-xs text-gray-400">#1.1</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Skriv eit program som skriv ut ditt eige namn.</p>
+          <a href="koderom.html?kode=IyBPcHBnw6V2ZTogU2tyaXYgZGl0dCBlaWdlIG5hbW4KcHJpbnQoIlNrcml2IG5hbW5ldCBkaXR0IGhlciIp" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Lett</span>
+            <span class="text-xs text-gray-400">#1.2</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Skriv tre <code class="text-xs bg-gray-100 px-1 rounded">print()</code>-kommandoar som skriv ut kvar av dine tre favorittretter.</p>
+          <a href="koderom.html?kode=IyBPcHBnw6V2ZTogVHJlIHNldG5pbmdhcgpwcmludCgiU2V0bmluZyAxIikKIyBMZWdnIHRpbCB0byBzZXRuaW5nYXIgdGls" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#1.3</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Det er ein feil i koden. Finn og rett han!</p>
+          <a href="koderom.html?kode=IyBPcHBnw6V2ZTogRmlubiBmZWlsZW4KcHJpbnQoIkhlaSwgdmVyZCEpCiMgS3ZhIGVyIGdhbGU/" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Lett</span>
+            <span class="text-xs text-gray-400">#1.4</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Lag eit program som skriv ut ei tilfeldig trivia-setning (kva du vil).</p>
+          <a href="koderom.html?kode=IyBUcml2aWEtcHJvZ3JhbQpwcmludCgiVmlzdGUgZHUgYXQ6IC4uLiIp" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#1.5</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Skriv ut eit enkelt ASCII-bilete (t.d. ein hus, ei stjerne, ein katt) ved hjelp av fleire <code class="text-xs bg-gray-100 px-1 rounded">print()</code>-linjer.</p>
+          <a href="koderom.html?kode=IyBBU0NJSS1iaWxldGUKcHJpbnQoIiAgQSAgIikKcHJpbnQoIiAvIFwgIikKcHJpbnQoIi8gX18gXCIpCiMgKEJneWcgdmlkYXJlISk=" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Rekneartar -->
+    <section data-kategori="rekneartar">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center font-mono font-bold text-sm">02</div>
+        <h2 class="text-lg font-bold text-gray-800">Python som kalkulator</h2>
+        <a href="del1/rekneartar.html" class="text-xs text-blue-500 hover:underline ml-auto">→ Gå til modulen</a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Lett</span>
+            <span class="text-xs text-gray-400">#2.1</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Rekn ut arealet av eit rektangel med breidde 8 og høgd 5. Skriv ut svaret.</p>
+          <a href="koderom.html?kode=IyBBcmVhbGV0IGF2IGVpdCByZWt0YW5nZWwKYnJlaWRkZSA9IDgKaG9nZCA9IDUKIyBSZWtuIHV0IGFyZWFsZXQ=" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#2.2</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Rekn ut omfanget av ein sirkel med radius 6. Bruk <code class="text-xs bg-gray-100 px-1 rounded">math.pi</code>. (Hint: <code class="text-xs bg-gray-100 px-1 rounded">import math</code>)</p>
+          <a href="koderom.html?kode=IyBPbWZhbmdldCBhdiBlaW4gc2lya2VsCmltcG9ydCBtYXRoCnIgPSA2CiMgQnJ1ayBtYXRoLnBpIG9nIDIqcg==" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#2.3</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Kva er heiltalsdivisjonen og resten av 17 delt på 5? Bruk <code class="text-xs bg-gray-100 px-1 rounded">//</code> og <code class="text-xs bg-gray-100 px-1 rounded">%</code>.</p>
+          <a href="koderom.html?kode=IyBIZWx0YWxkaXZpc2pvbiBvZyByZXN0CnByaW50KDE3IC8vIDUpICAjIEhlaWx0YWwtZGVsCnByaW50KDE3ICUgNSkgICAjIFJlc3Q=" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Lett</span>
+            <span class="text-xs text-gray-400">#2.4</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Ein elev kjøper 3 bøker til 89 kr kvar og 2 pennar til 12 kr kvar. Rekn ut totalpris.</p>
+          <a href="koderom.html?kode=IyBIYW5kbGVsaXN0ZQpib2sgPSA4OQpwZW5uID0gMTIKIyBSZWtuIHV0IHRvdGFscHJpcw==" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Krevjande</span>
+            <span class="text-xs text-gray-400">#2.5</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Rekn ut kvadratrota av 144 og 225. Hint: <code class="text-xs bg-gray-100 px-1 rounded">** 0.5</code> eller <code class="text-xs bg-gray-100 px-1 rounded">math.sqrt()</code>.</p>
+          <a href="koderom.html?kode=aW1wb3J0IG1hdGgKcHJpbnQobWF0aC5zcXJ0KDE0NCkpCnByaW50KG1hdGguc3FydCgyMjUpKQ==" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Variablar -->
+    <section data-kategori="variablar">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center font-mono font-bold text-sm">03</div>
+        <h2 class="text-lg font-bold text-gray-800">Variablar</h2>
+        <a href="del1/variablar.html" class="text-xs text-blue-500 hover:underline ml-auto">→ Gå til modulen</a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Lett</span>
+            <span class="text-xs text-gray-400">#3.1</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Lag tre variablar: namn, alder og favorittfag. Skriv ut ei setning med alle tre.</p>
+          <a href="koderom.html?kode=IyBMYWcgdHJlIHZhcmlhYmxhcjogbmFtbiwgYWxkZXIsIGZhdm9yaXR0ZmFnCiMgU2tyaXYgdXQgZWkgc2V0bmluZyBtZWQgYWxsZSB0cmU=" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#3.2</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Byt verdiane i to variablar utan å miste nokon av dei. Sjekk at det fungerer med <code class="text-xs bg-gray-100 px-1 rounded">print()</code>.</p>
+          <a href="koderom.html?kode=IyBCeXQgdmVyZGlhbmUgaSB0byB2YXJpYWJsYXIKYSA9IDEwCmIgPSAyMAojIEJ5dCBzbGlrIGF0IGE9MjAgb2cgYj0xMApwcmludChhLCBiKQ==" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#3.3</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Lag ein variabel-kalkulator: lagre to tal i variablar og rekn ut +, −, × og ÷. Skriv ut alle fire svar.</p>
+          <a href="koderom.html?kode=IyBLYWxrdWxhdG9yIG1lZCB2YXJpYWJsYXIKdGFsMSA9IDE1CnRhbDIgPSA0CiMgUmVrbiB1dCArLCAtLCAqIG9nIC8gb2cgc2tyaXYgdXQ=" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Krevjande</span>
+            <span class="text-xs text-gray-400">#3.4</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Lagre ei temperatur i Celsius og rekn ut Fahrenheit. Formel: <em>F = C × 9/5 + 32</em>.</p>
+          <a href="koderom.html?kode=IyBDZWxzaXVzIHRpbCBGYWhyZW5oZWl0CmNlbHNpdXMgPSAyMgojIEZvcm1lbDogRiA9IEMgKiA5LzUgKyAzMg==" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Datatypar -->
+    <section data-kategori="datatypar">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center font-mono font-bold text-sm">04</div>
+        <h2 class="text-lg font-bold text-gray-800">Datatypar</h2>
+        <a href="del1/datatypar.html" class="text-xs text-blue-500 hover:underline ml-auto">→ Gå til modulen</a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Lett</span>
+            <span class="text-xs text-gray-400">#4.1</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Lag variablar med tre ulike datatypar og bruk <code class="text-xs bg-gray-100 px-1 rounded">type()</code> til å skrive ut typen på kvar.</p>
+          <a href="koderom.html?kode=IyBTamVrayBkYXRhdHlwYXIKYWxkZXIgPSAxMwp2ZWt0ID0gNTIuNQpuYXZuID0gIk9sYSIKIyBTa3JpdiB1dCB0eXBlKCkgZm9yIGFsbGUgdHJl" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#4.2</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Konverter strengen <code class="text-xs bg-gray-100 px-1 rounded">"42"</code> til eit heiltal og legg til 8. Kva vert resultatet?</p>
+          <a href="koderom.html?kode=IyBLb252ZXJ0ZXJpbmcgbWVsbG9tIHR5cGFyCnRla3N0ID0gIjQyIgp0YWwgPSBpbnQodGVrc3QpCnByaW50KHRhbCArIDgp" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#4.3</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Kva er <code class="text-xs bg-gray-100 px-1 rounded">10 + 5</code> vs <code class="text-xs bg-gray-100 px-1 rounded">"10" + "5"</code>? Prøv og forklar kvifor svara er ulike.</p>
+          <a href="koderom.html?kode=IyBLdmEgc2tqZXIgbWVkICsgZm9yIHVsaWtlIHR5cGFyPwpwcmludCgxMCArIDUpCnByaW50KCIxMCIgKyAiNSIpCiMgS3ZpZm9yIGVyIHN2YXJhIHVsaWtlPw==" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Krevjande</span>
+            <span class="text-xs text-gray-400">#4.4</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Kva gjev <code class="text-xs bg-gray-100 px-1 rounded">int(3.9)</code>? Og <code class="text-xs bg-gray-100 px-1 rounded">float("7")</code>? Prøv og undersøk.</p>
+          <a href="koderom.html?kode=cHJpbnQoaW50KDMuOSkpCnByaW50KGZsb2F0KCI3IikpCnByaW50KHN0cig0MikpCiMgS3ZhIHNlciBkdT8=" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Input -->
+    <section data-kategori="input">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center font-mono font-bold text-sm">05</div>
+        <h2 class="text-lg font-bold text-gray-800">input()</h2>
+        <a href="del1/input.html" class="text-xs text-blue-500 hover:underline ml-auto">→ Gå til modulen</a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Lett</span>
+            <span class="text-xs text-gray-400">#5.1</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Lag eit program som spør etter namn og alder, og skriv ut: «[namn] er [alder] år gamal.»</p>
+          <a href="koderom.html?kode=IyBTcMO4cmplc2tqZW1hCm5hdm4gPSBpbnB1dCgiS3ZhIGhlaXRlciBkdT8gIikKYWxkZXIgPSBpbnQoaW5wdXQoIktvciBnYW1hbCBlciBkdT8gIikpCnByaW50KG5hdm4sICJlciIsIGFsZGVyLCAiw6VyIGdhbWFsLiIp" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#5.2</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Lag ein summekalkulator som ber om to tal frå brukaren og skriv ut summen.</p>
+          <a href="koderom.html?kode=IyBLYWxrdWxhdG9yIG1lZCBpbnB1dAp0YWwxID0gZmxvYXQoaW5wdXQoIlNrcml2IHRhbCAxOiAiKSkKdGFsMiA9IGZsb2F0KGlucHV0KCJTa3JpdiB0YWwgMjogIikpCiMgUmVrbiB1dCBzdW1tZW4=" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#5.3</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Areal-kalkulator: be brukaren skrive inn breidde og høgd, og skriv ut arealet.</p>
+          <a href="koderom.html?kode=IyBBcmVhbC1rYWxrdWxhdG9yCmJyZWlkZGUgPSBmbG9hdChpbnB1dCgiQnJlaWRkZTogIikpCmhvZ2QgPSBmbG9hdChpbnB1dCgiSMO4Z2Q6ICIpKQojIFJla24gdXQgYXJlYWxldCBvZyBza3JpdiB1dA==" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Krevjande</span>
+            <span class="text-xs text-gray-400">#5.4</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Lag eit program som ber brukaren om to tal og ein rekneoperasjon (+, -, *, /) og utfører utrekninga.</p>
+          <a href="koderom.html?kode=dGFsMSA9IGZsb2F0KGlucHV0KCJUYWwgMTogIikpCm9wZXJhc2pvbiA9IGlucHV0KCJPcGVyYXNqb24gKCssIC0sICosIC8pOiAiKQp0YWwyID0gZmxvYXQoaW5wdXQoIlRhbCAyOiAiKSkKIyBTa3JpdiBrdmEgb3BlcmFzam9uZW4gZXIgb2cgcmVrbiB1dA==" target="_blank" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Skiljedivisjon Del 2 -->
+    <div class="border-t-2 border-dashed border-gray-200 pt-4">
+      <div class="inline-flex items-center gap-2 bg-violet-100 text-violet-700 text-xs font-bold px-4 py-2 rounded-full">
+        Del 2, Løkker og logikk
+      </div>
+    </div>
+
+    <!-- For-løkker -->
+    <section data-kategori="for">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-8 h-8 bg-violet-100 text-violet-600 rounded-lg flex items-center justify-center font-mono font-bold text-sm">06</div>
+        <h2 class="text-lg font-bold text-gray-800">For-løkker</h2>
+        <a href="del2/for-lokker.html" class="text-xs text-violet-500 hover:underline ml-auto">→ Gå til modulen</a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Lett</span>
+            <span class="text-xs text-gray-400">#6.1</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Skriv ut heile gongetabellen for 7 (frå 7×1 til 7×10).</p>
+          <a href="koderom.html?kode=IyBHb25nZXRhYmVsbGVuIGZvciA3CmZvciBpIGluIHJhbmdlKDEsIDExKToKICAgIHByaW50KCI3IHgiLCBpLCAiPSIsIDcgKiBpKQ==" target="_blank" class="text-xs bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Lett</span>
+            <span class="text-xs text-gray-400">#6.2</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Summer alle tal frå 1 til 100. Kva er svaret? (Og kvifor?)</p>
+          <a href="koderom.html?kode=IyBTdW1tZXIgMSB0aWwgMTAwCnN1bSA9IDAKZm9yIGkgaW4gcmFuZ2UoMSwgMTAxKToKICAgIHN1bSA9IHN1bSArIGkKcHJpbnQoIlN1bW1lbiBlcjoiLCBzdW0p" target="_blank" class="text-xs bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#6.3</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Skriv ut alle partala mellom 0 og 30. Bruk <code class="text-xs bg-gray-100 px-1 rounded">range(0, 31, 2)</code>.</p>
+          <a href="koderom.html?kode=IyBQYXJ0YWxhIG1lbGxvbSAwIG9nIDMwCmZvciBpIGluIHJhbmdlKDAsIDMxLCAyKToKICAgIHByaW50KGkp" target="_blank" class="text-xs bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#6.4</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Nedteljing frå 10 til 1, og skriv «Start!» på slutten.</p>
+          <a href="koderom.html?kode=IyBOZWR0ZWxqaW5nCmZvciBpIGluIHJhbmdlKDEwLCAwLCAtMSk6CiAgICBwcmludChpKQpwcmludCgiU3RhcnQhIik=" target="_blank" class="text-xs bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#6.5</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Rekn ut summen av kvadrattala 1² + 2² + 3² + … + 10².</p>
+          <a href="koderom.html?kode=IyBTdW1tZW4gYXYga3ZhZHJhdHRhbGEKc3VtID0gMApmb3IgaSBpbiByYW5nZSgxLCAxMSk6CiAgICBzdW0gPSBzdW0gKyBpICoqIDIKcHJpbnQoIlN1bW1lbiBlcjoiLCBzdW0p" target="_blank" class="text-xs bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Krevjande</span>
+            <span class="text-xs text-gray-400">#6.6</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Skriv ut alle tal frå 1-20. For kvart tal delelig med 3: skriv «Fizz». For delelig med 5: skriv «Buzz». For begge: «FizzBuzz».</p>
+          <a href="koderom.html?kode=IyBGaXp6QnV6egpmb3IgaSBpbiByYW5nZSgxLCAyMSk6CiAgICAjIFNqZWtrIGZvciBGaXp6QnV6eiBmw7hyc3QKICAgIHBhc3MgICMgRXJzdGF0dCBtZWQga29kZW4gZGluIQ==" target="_blank" class="text-xs bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- While-løkker -->
+    <section data-kategori="while">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-8 h-8 bg-violet-100 text-violet-600 rounded-lg flex items-center justify-center font-mono font-bold text-sm">07</div>
+        <h2 class="text-lg font-bold text-gray-800">While-løkker</h2>
+        <a href="del2/while-lokker.html" class="text-xs text-violet-500 hover:underline ml-auto">→ Gå til modulen</a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Lett</span>
+            <span class="text-xs text-gray-400">#7.1</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Bruk ei while-løkke til å telje opp til eit tal brukaren vel.</p>
+          <a href="koderom.html?kode=IyBUZWwgb3BwIHRpbCBlaXQgdGFsIGJydWthcmVuIHZlbApncmVuc2UgPSBpbnQoaW5wdXQoIlRlbGwgdGlsOiAiKSkKdGVsbGVyID0gMQp3aGlsZSB0ZWxsZXIgPD0gZ3JlbnNlOgogICAgcHJpbnQodGVsbGVyKQogICAgdGVsbGVyID0gdGVsbGVyICsgMQ==" target="_blank" class="text-xs bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#7.2</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Dobling-løkke: start med 1, doble for kvar runde og skriv ut, heilt til verdien passerer 1000.</p>
+          <a href="koderom.html?kode=IyBEb2JsaW5nLWzDuGtrZQp0YWwgPSAxCndoaWxlIHRhbCA8IDEwMDA6CiAgICBwcmludCh0YWwpCiAgICB0YWwgPSB0YWwgKiAy" target="_blank" class="text-xs bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#7.3</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Gjetteprogram: sett eit hemmeleg tal (t.d. 42), og la brukaren gjette til svaret er rett. Skriv ut kor mange forsøk det tok.</p>
+          <a href="koderom.html?kode=IyBHamV0dGVwcm9ncmFtCmhlbW1lbGVnX3RhbCA9IDQyCmZvcnNvayA9IDAKZ2plc3MgPSAtMQp3aGlsZSBnamVzcyAhPSBoZW1tZWxlZ190YWw6CiAgICBnamVzcyA9IGludChpbnB1dCgiR2plc3M6ICIpKQogICAgZm9yc29rID0gZm9yc29rICsgMQpwcmludCgiUmV0dCEgRHUgYnJ1a3RlIiwgZm9yc29rLCAiZm9yc8O4ayIp" target="_blank" class="text-xs bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Krevjande</span>
+            <span class="text-xs text-gray-400">#7.4</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Rekn ut den første Fibonacci-tala som er over 1000. (Hint: start med 0 og 1, og legg saman dei to siste.)</p>
+          <a href="koderom.html?kode=IyBGaWJvbmFjY2kKYSA9IDAKYiA9IDEKd2hpbGUgYiA8PSAxMDAwOgogICAgcHJpbnQoYikKICAgIGEsIGIgPSBiLCBhICsgYg==" target="_blank" class="text-xs bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Boolean -->
+    <section data-kategori="boolean">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-8 h-8 bg-violet-100 text-violet-600 rounded-lg flex items-center justify-center font-mono font-bold text-sm">08</div>
+        <h2 class="text-lg font-bold text-gray-800">Boolean og vilkår</h2>
+        <a href="del2/boolean.html" class="text-xs text-violet-500 hover:underline ml-auto">→ Gå til modulen</a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Lett</span>
+            <span class="text-xs text-gray-400">#8.1</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">For tala 1-10: skriv ut «Partal» eller «Oddeleg» for kvart tal.</p>
+          <a href="koderom.html?kode=IyBQYXJ0YWwgZWxsZXIgb2RkZWxlZz8KZm9yIGkgaW4gcmFuZ2UoMSwgMTEpOgogICAgaWYgaSAlIDIgPT0gMDoKICAgICAgICBwcmludChpLCAiZXIgcGFydGFsIikKICAgIGVsc2U6CiAgICAgICAgcHJpbnQoaSwgImVyIG9kZGVsZWciKQ==" target="_blank" class="text-xs bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#8.2</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Lag ein kalkulator med if/elif: be brukaren om to tal og ein operasjon (+, -, *, /) og skriv ut resultatet.</p>
+          <a href="koderom.html?kode=IyBFbmtlbCBrYWxrdWxhdG9yCnRhbDEgPSBmbG9hdChpbnB1dCgiVGFsIDE6ICIpKQpvcGVyYXNqb24gPSBpbnB1dCgiT3BlcmFzam9uICgrLCAtLCAqLCAvKTogIikKdGFsMiA9IGZsb2F0KGlucHV0KCJUYWwgMjogIikpCiMgQnJ1ayBpZi9lbGlmIGZvciBhIHJla25lIHV0IHN2YXJldA==" target="_blank" class="text-xs bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#8.3</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Gjetteprogram med hint: seier «For høgt!» eller «For lågt!», heilt til brukaren finn riktig svar.</p>
+          <a href="koderom.html?kode=IyBHamV0dGVwcm9ncmFtIG1lZCBoaW50CmZhc2l0ID0gNwpnamVzcyA9IC0xCndoaWxlIGdqZXNzICE9IGZhc2l0OgogICAgZ2plc3MgPSBpbnQoaW5wdXQoIkdqZXNzIGVpdCB0YWwgKDEtMTApOiAiKSkKICAgIGlmIGdqZXNzID4gZmFzaXQ6CiAgICAgICAgcHJpbnQoIkZvciBow7lndCEiKQogICAgZWxpZiBnamVzcyA8IGZhc2l0OgogICAgICAgIHByaW50KCJGb3IgbMOldCEiKQpwcmludCgiUmV0dCEiKQ==" target="_blank" class="text-xs bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#8.4</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Alderssjekk: program som skriv ut om brukaren er «barn» (under 13), «ungdomsskulelev» (13-15) eller «eldre».</p>
+          <a href="koderom.html?kode=YWxkZXIgPSBpbnQoaW5wdXQoIktvciBnYW1hbCBlciBkdT8gIikpCmlmIGFsZGVyIDwgMTM6CiAgICBwcmludCgiQmFybiIpCmVsaWYgYWxkZXIgPD0gMTU6CiAgICBwcmludCgiVW5nZG9tc3NrdWxlbGV2IikKZWxzZToKICAgIHByaW50KCJFbGRyZSIp" target="_blank" class="text-xs bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Krevjande</span>
+            <span class="text-xs text-gray-400">#8.5</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Klassifiser eit tal som «positivt», «negativt» eller «null». For positive tal: skriv om det er partal eller oddeleg i tillegg.</p>
+          <a href="koderom.html?kode=dGFsID0gaW50KGlucHV0KCJTa3JpdiBlaXQgaGVpbHRhbDogIikpCiMgU2plbmsgb20gdGFsZXQgZXIgcG9zaXRpdnQsIG5lZ2F0aXZ0IGVsbGVyIG51bGwKIyBWaXNzIHBvc2l0aXZ0OiBlamVrcyBwYXJ0YWwgZWxsZXIgb2RkZWxlZw==" target="_blank" class="text-xs bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg no-underline transition">▶ Prøv</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Turtle bonus -->
+    <section data-kategori="turtle">
+      <div class="border-t-2 border-dashed border-green-200 pt-4 mb-5">
+        <div class="inline-flex items-center gap-2 bg-green-100 text-green-700 text-xs font-bold px-4 py-2 rounded-full">
+          🐢 Bonusseksjon, Turtle-grafikk
+        </div>
+      </div>
+      <p class="text-sm text-gray-500 mb-5">Desse oppgåvene krev at du brukar <strong>Turtle-koderommet</strong>, trykk på knappen i koderommet for å bytte til Turtle-modus.</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <div class="task-card bg-white rounded-xl border border-green-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Lett</span>
+            <span class="text-xs text-gray-400">#T.1</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Teikn eit kvadrat med sidene 100. Bruk <code class="text-xs bg-gray-100 px-1 rounded">forward()</code> og <code class="text-xs bg-gray-100 px-1 rounded">left()</code>.</p>
+          <a href="koderom.html?turtle=1&kode=aW1wb3J0IHR1cnRsZQp0ID0gdHVydGxlLlR1cnRsZSgpCnQuc2hhcGUoInR1cnRsZSIpCiMgVGVpa24gZWl0IGt2YWRyYXQgbWVkIHNpZGUgPSAxMDA=" target="_blank" class="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg no-underline transition">🐢 Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-green-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Lett</span>
+            <span class="text-xs text-gray-400">#T.2</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Teikn eit likesida trekant med sider 150. (Hint: alle vinklane er 120°.)</p>
+          <a href="koderom.html?turtle=1&kode=aW1wb3J0IHR1cnRsZQp0ID0gdHVydGxlLlR1cnRsZSgpCnQuc3BlZWQoMykKIyBUZWlrbiBlaXQgbGlrZXNpZGEgdHJla2FudCBtZWQgc2lkZSA9IDE1MA==" target="_blank" class="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg no-underline transition">🐢 Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-green-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#T.3</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Bruk ei for-løkke til å teikne ein regulær sekskant. (Hint: utvendig vinkel = 360/6 = 60°.)</p>
+          <a href="koderom.html?turtle=1&kode=aW1wb3J0IHR1cnRsZQp0ID0gdHVydGxlLlR1cnRsZSgpCiMgQnJ1ayBlaS1mb3ItbMO4a2tlIHRpbCDDpSB0ZWlrbmUgZWluIHJlZ3Vsw6ZyIHNla3NrYW50" target="_blank" class="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg no-underline transition">🐢 Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-green-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">Medium</span>
+            <span class="text-xs text-gray-400">#T.4</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Teikn ei fargeleg spiralrose: i kvar runde av ei løkke, auk steglengda og roter litt. Eksperimenter med fargar!</p>
+          <a href="koderom.html?turtle=1&kode=aW1wb3J0IHR1cnRsZQp0ID0gdHVydGxlLlR1cnRsZSgpCnQuY29sb3IoImJsdWUiKQp0LnNwZWVkKDEwKQpmb3IgaSBpbiByYW5nZSgxMDApOgogICAgdC5mb3J3YXJkKGkgKiAyKQogICAgdC5sZWZ0KDkxKQ==" target="_blank" class="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg no-underline transition">🐢 Prøv</a>
+        </div>
+
+        <div class="task-card bg-white rounded-xl border border-green-200 p-4 shadow-sm">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Krevjande</span>
+            <span class="text-xs text-gray-400">#T.5</span>
+          </div>
+          <p class="text-sm text-gray-700 mb-3">Teikn ein fraktal: eit kvadrat inni eit kvadrat inni eit kvadrat (tre gonger). Roter 10° mellom kvart kvadrat.</p>
+          <a href="koderom.html?turtle=1&kode=aW1wb3J0IHR1cnRsZQp0ID0gdHVydGxlLlR1cnRsZSgpCnQuc3BlZWQoMTApCiMgVGVpa24gdHJlIGt2YWRyYXQgbWVkIHVsaWtlIHN0cmxpbCBvZyByb3Rlcg==" target="_blank" class="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg no-underline transition">🐢 Prøv</a>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Filter-styling og JS -->
+  <style>
+    .filter-btn { color: #6b7280; background: transparent; border: 1px solid transparent; }
+    .filter-btn.active { color: #4f46e5; background: #eef2ff; border-color: #c7d2fe; }
+    .filter-btn:hover:not(.active) { color: #374151; background: #f9fafb; }
+  </style>
+
+  <script>
+    function filtrer(kategori) {
+      // Oppdater aktiv knapp
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      // Vis/skjul seksjonar
+      document.querySelectorAll('#oppgave-innhald section[data-kategori]').forEach(seksjon => {
+        if (kategori === 'alle' || seksjon.dataset.kategori === kategori) {
+          seksjon.style.display = '';
+        } else {
+          seksjon.style.display = 'none';
+        }
+      });
+
+      // Skjul/vis skiljedivisjonsmerke
+      document.querySelectorAll('#oppgave-innhald > div.border-t-2').forEach(div => {
+        div.style.display = (kategori === 'alle' || ['for','while','boolean'].includes(kategori)) ? '' : 'none';
+      });
+    }
+
+    // --- Oppgåvetekst som kommentar i kodevindauget ---
+
+    function b64Decode(str) {
+      var bytes = Uint8Array.from(atob(str), c => c.charCodeAt(0));
+      return new TextDecoder().decode(bytes);
+    }
+
+    function b64Encode(str) {
+      var bytes = new TextEncoder().encode(str);
+      return btoa(String.fromCharCode(...bytes));
+    }
+
+    function wrapKommentar(tekst, breidde) {
+      // Del opp lang tekst i fleire kommentarlinjer
+      var ord = tekst.split(' ');
+      var linjer = [];
+      var linje = '# ';
+      ord.forEach(function(ord) {
+        if ((linje + ord).length > breidde) {
+          linjer.push(linje.trimEnd());
+          linje = '# ' + ord + ' ';
+        } else {
+          linje += ord + ' ';
+        }
+      });
+      if (linje.trim() !== '#') linjer.push(linje.trimEnd());
+      return linjer.join('\n');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('a[href*="koderom.html"]').forEach(function(lenke) {
+        lenke.addEventListener('click', function(e) {
+          e.preventDefault();
+
+          // Hent oppgåvetekst frå kortets <p>-element (strip HTML-taggar)
+          var kort = lenke.closest('.task-card');
+          var pEl = kort ? kort.querySelector('p') : null;
+          var oppgaveTekst = pEl ? pEl.textContent.trim() : '';
+
+          // Parse URL-parametrar frå href
+          var href = lenke.getAttribute('href');
+          var urlObj = new URL(href, window.location.href);
+          var kodeB64 = urlObj.searchParams.get('kode') || '';
+          var erTurtle = urlObj.searchParams.has('turtle') || urlObj.searchParams.get('modus') === 'turtle';
+
+          // Dekod startkode og fjern ev. eksisterande kort # Oppgåve-kommentar
+          var startkode = kodeB64 ? b64Decode(kodeB64) : '';
+          startkode = startkode.replace(/^# Oppgåve:.*\n\n?/, '');
+
+          // Bygg ny kommentarblokk med full oppgåvetekst
+          var kommentar = '';
+          if (oppgaveTekst) {
+            kommentar = '# ---\n' + wrapKommentar('Oppgåve: ' + oppgaveTekst, 65) + '\n# ---\n\n';
+          }
+
+          var samla = kommentar + startkode;
+          var nyUrl = 'koderom.html?kode=' + b64Encode(samla);
+          if (erTurtle) nyUrl += '&modus=turtle';
+
+          window.open(nyUrl, '_blank');
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
