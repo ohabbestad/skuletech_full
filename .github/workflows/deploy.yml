@@ -4,6 +4,10 @@ on:
     branches:
       - main
 
+# Dette fjerner advarselen og tvinger handlingene over på ny versjon
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   web-deploy:
     name: Build and Deploy
@@ -15,7 +19,7 @@ jobs:
     - name: Sett opp Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20' # Bruker en moderne og stabil Node-versjon
+        node-version: '24' # Oppdatert til versjon 24 her også
 
     - name: Installer avhengigheter
       run: npm install
@@ -29,7 +33,7 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /www/ # Husk å sjekke om dette er riktig mappe hos Domeneshop
+        server-dir: /www/ 
         exclude: |
           **/.git*
           **/.git*/**
