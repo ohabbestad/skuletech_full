@@ -750,14 +750,38 @@
   }
 
   function goToSlide(n) {
+    // Stopp YouTube-videoer i den noverande sliden før vi skifter
+    const currentSlide = document.getElementById('slide-' + current);
+    if (currentSlide) {
+      const iframes = currentSlide.querySelectorAll('iframe[src*="youtube.com"]');
+      iframes.forEach(function (iframe) {
+        try {
+          // Prøv å stoppe via YouTube API
+          iframe.contentWindow.postMessage('{"event":"command","func":"stopVideo","args":""}', '*');
+          // Som fallback, sett src til tom streng for å stoppe
+          setTimeout(() => {
+            const src = iframe.src;
+            iframe.src = '';
+            setTimeout(() => {
+              iframe.src = src;
+            }, 100);
+          }, 100);
+        } catch (e) {
+          // Fallback: fjern og legg tilbake iframe
+          const parent = iframe.parentNode;
+          const nextSibling = iframe.nextSibling;
+          parent.removeChild(iframe);
+          setTimeout(() => {
+            parent.insertBefore(iframe, nextSibling);
+          }, 100);
+        }
+      });
+    }
+
     document.getElementById('slide-' + current).classList.remove('active');
     current = n;
     document.getElementById('slide-' + current).classList.add('active');
     updateNav();
-    // Stopp YouTube-videoer når vi skifter slide
-    if (window.stoppYouTubeVideoer) {
-      window.stoppYouTubeVideoer();
-    }
   }
 
   function changeSlide(dir) {
