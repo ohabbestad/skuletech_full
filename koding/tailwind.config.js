@@ -6,9 +6,9 @@ module.exports = {
     "./del2/**/*.html",
     "../index.html",
     "../trafikk/*.html",
-    "../alf/*.html",
-    "../alf/hms/*.html",
-    "../alf/hygiene/*.html",
+    "../ALF/*.html",
+    "../ALF/hms/*.html",
+    "../ALF/hygiene/*.html",
   ],
   theme: {
     extend: {
