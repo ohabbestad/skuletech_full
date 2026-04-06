@@ -1,0 +1,19 @@
+{
+  "name": "skuletech",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "node node_modules/@tailwindcss/cli/dist/index.mjs -i css/input.css -o css/tailwind.css --minify",
+    "watch": "node node_modules/@tailwindcss/cli/dist/index.mjs -i css/input.css -o css/tailwind.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^4.2.1"
+  },
+  "dependencies": {
+    "@tailwindcss/cli": "^4.2.1"
+  }
+}

@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@layer theme {
+  :root {
+    --color-brand-dark: #0f172a;
+    --color-brand-blue: #1e3a8a;
+    --color-brand-red: #dc2626;
+    --color-brand-green: #059669;
+    --color-brand-yellow: #d97706;
+    --color-brand-purple: #6d28d9;
+    --color-brand-teal: #0f766e;
+    --color-brand-indigo: #6366f1;
+  }
+}
+
+@layer utilities {
+  .text-brand-dark { color: var(--color-brand-dark); }
+  .text-brand-blue { color: var(--color-brand-blue); }
+  .text-brand-red { color: var(--color-brand-red); }
+  .text-brand-green { color: var(--color-brand-green); }
+  .text-brand-yellow { color: var(--color-brand-yellow); }
+  .text-brand-purple { color: var(--color-brand-purple); }
+  .text-brand-teal { color: var(--color-brand-teal); }
+  .text-brand-indigo { color: var(--color-brand-indigo); }
+  .bg-brand-dark { background-color: var(--color-brand-dark); }
+  .bg-brand-blue { background-color: var(--color-brand-blue); }
+  .bg-brand-red { background-color: var(--color-brand-red); }
+  .bg-brand-green { background-color: var(--color-brand-green); }
+  .bg-brand-yellow { background-color: var(--color-brand-yellow); }
+  .bg-brand-purple { background-color: var(--color-brand-purple); }
+  .bg-brand-teal { background-color: var(--color-brand-teal); }
+  .bg-brand-indigo { background-color: var(--color-brand-indigo); }
+  .border-brand-blue { border-color: var(--color-brand-blue); }
+  .border-brand-teal { border-color: var(--color-brand-teal); }
+  .border-brand-yellow { border-color: var(--color-brand-yellow); }
+  .focus\:ring-brand-blue:focus { --tw-ring-color: var(--color-brand-blue); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color); }
+  .focus\:ring-brand-teal:focus { --tw-ring-color: var(--color-brand-teal); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color); }
+  .focus\:ring-brand-yellow:focus { --tw-ring-color: var(--color-brand-yellow); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color); }
+  .focus\:ring-brand-green:focus { --tw-ring-color: var(--color-brand-green); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color); }
+  .focus\:ring-brand-red:focus { --tw-ring-color: var(--color-brand-red); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color); }
+  .focus\:ring-brand-indigo:focus { --tw-ring-color: var(--color-brand-indigo); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color); }
+}
