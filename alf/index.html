@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arbeidslivsfag 8. trinn — SkuleTech</title>
+<meta name="description" content="Obligatoriske kurs i HMS og hygiene for Arbeidslivsfag 8. trinn. Interaktive presentasjonar og testar." />
+<meta property="og:title" content="Arbeidslivsfag — SkuleTech" />
+<meta property="og:description" content="HMS-kurs og Hygienekurs for Arbeidslivsfag 8. trinn." />
+<meta property="og:type" content="website" />
+<script src="../js/nav-global.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0f172a;
+    color: #f8fafc;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+  }
+
+  .header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 56px;
+    gap: 24px;
+  }
+
+  .header img {
+    height: 80px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    text-align: center;
+    color: #f8fafc;
+  }
+
+  .header p {
+    font-size: 1rem;
+    color: #94a3b8;
+    text-align: center;
+    margin-top: -8px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+    width: 100%;
+    max-width: 820px;
+  }
+
+  .card {
+    border-radius: 16px;
+    padding: 36px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .card--hms {
+    background: linear-gradient(135deg, #14532d 0%, #0f172a 100%);
+    border: 1px solid #16a34a40;
+  }
+
+  .card--hygiene {
+    background: linear-gradient(135deg, #1e3a5f 0%, #1a1a2e 100%);
+    border: 1px solid #2563eb40;
+  }
+
+  .card-icon {
+    font-size: 2.5rem;
+    line-height: 1;
+  }
+
+  .card h2 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .card p {
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .card-links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+
+  .btn:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+  }
+
+  .btn-primary--hms {
+    background: #16a34a;
+    color: #fff;
+  }
+
+  .btn-secondary--hms {
+    background: #16a34a20;
+    color: #4ade80;
+    border: 1px solid #16a34a60;
+  }
+
+  .btn-primary--hygiene {
+    background: #2563eb;
+    color: #fff;
+  }
+
+  .btn-secondary--hygiene {
+    background: #2563eb20;
+    color: #93c5fd;
+    border: 1px solid #2563eb60;
+  }
+
+  .btn-arrow {
+    margin-left: auto;
+    opacity: 0.7;
+  }
+
+  footer {
+    margin-top: 56px;
+    font-size: 0.8rem;
+    color: #475569;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <img src="media/logo.png" alt="Skulen sin logo">
+  <h1>Arbeidslivsfag – 8. trinn</h1>
+  <p>Vel eit kurs nedanfor for å starte</p>
+</header>
+
+<main class="grid">
+
+  <!-- HMS-kurs -->
+  <div class="card card--hms">
+    <div class="card-icon">🦺</div>
+    <h2>HMS-kurs (Sløydsal)</h2>
+    <p>Helse, miljø og tryggleik. Obligatorisk kurs for elevar som jobbar i sløydsal.</p>
+    <div class="card-links">
+      <a href="hms/HMSkurs_presentasjon.html" class="btn btn-primary--hms">
+        Gå til kurset
+        <span class="btn-arrow">→</span>
+      </a>
+      <a href="hms/HMSkurs_test.html" class="btn btn-secondary--hms">
+        Ta testen
+        <span class="btn-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Hygienekurs -->
+  <div class="card card--hygiene">
+    <div class="card-icon">🧼</div>
+    <h2>Hygienekurs</h2>
+    <p>Kurs i hygiene for kjøkken og kantine. Obligatorisk for alle som jobbar med mat og matservering.</p>
+    <div class="card-links">
+      <a href="hygiene/Hygienekurs_presentasjon.html" class="btn btn-primary--hygiene">
+        Gå til kurset
+        <span class="btn-arrow">→</span>
+      </a>
+      <a href="hygiene/Hygienekurs_test.html" class="btn btn-secondary--hygiene">
+        Ta testen
+        <span class="btn-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+</main>
+
+<footer>Arbeidslivsfag 8. trinn &nbsp;·&nbsp; 2025/2026 &nbsp;·&nbsp; <a href="../index.html" style="color:#475569;text-decoration:none;">SkuleTech</a></footer>
+
+</body>
+</html>
+                    

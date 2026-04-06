@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hygienekurs — Arbeidslivsfag · SkuleTech</title>
+<meta name="description" content="Interaktiv presentasjon om hygiene på kjøkken og kantine. For Arbeidslivsfag 8. trinn." />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0f172a;
+    color: #f8fafc;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .slide {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    padding: 60px 80px;
+    position: relative;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .slide.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Slide types */
+  .slide--title {
+    background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1a1a2e 100%);
+    text-align: center;
+  }
+
+  .slide--content {
+    background: #0f172a;
+    align-items: center;
+    text-align: left;
+  }
+
+  .slide--highlight {
+    background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+    text-align: center;
+  }
+
+  .slide--warning {
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    text-align: center;
+  }
+
+  .slide--summary {
+    background: linear-gradient(135deg, #059669 0%, #065f46 100%);
+  }
+
+  /* Typography */
+  .slide-number {
+    position: absolute;
+    top: 24px;
+    right: 36px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 600;
+  }
+
+  .category {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #60a5fa;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    font-size: clamp(28px, 3.5vw, 48px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+  }
+
+  .subtitle {
+    font-size: clamp(18px, 2vw, 24px);
+    color: rgba(255,255,255,0.7);
+    max-width: 700px;
+    line-height: 1.5;
+  }
+
+  .emoji-big {
+    font-size: 72px;
+    margin-bottom: 24px;
+  }
+
+  /* Content cards */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    width: 100%;
+    max-width: 1100px;
+    margin-top: 20px;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 28px;
+    transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    background: rgba(255,255,255,0.14);
+    box-shadow: 0 0 0 2px rgba(96,165,250,0.5);
+  }
+
+  .card-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+
+  .card h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .card p {
+    font-size: 16px;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.75);
+  }
+
+  /* List */
+  .point-list {
+    list-style: none;
+    width: 100%;
+    max-width: 900px;
+  }
+
+  .point-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 14px 0;
+    font-size: clamp(16px, 1.8vw, 22px);
+    line-height: 1.4;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    cursor: pointer;
+    border-radius: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
+    transition: background 0.2s;
+    position: relative;
+  }
+
+  .point-list li:last-child { border-bottom: none; }
+
+  .point-list li:hover {
+    background: rgba(255,255,255,0.07);
+  }
+
+  .point-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(96, 165, 250, 0.15);
+    border-radius: 8px;
+    font-size: 18px;
+  }
+
+  /* Info badge on clickable items */
+  .info-badge {
+    margin-left: auto;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(96,165,250,0.25);
+    color: #93c5fd;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    transition: background 0.2s;
+  }
+
+  .point-list li:hover .info-badge,
+  .card:hover .info-badge {
+    background: rgba(96,165,250,0.5);
+  }
+
+  .card .info-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+  }
+
+  .allergen-item .info-badge {
+    display: block;
+    margin: 8px auto 0;
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
+  }
+
+  /* Temperature zone */
+  .temp-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+  }
+
+  .temp-bar {
+    width: 100%;
+    padding: 24px 32px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    position: relative;
+  }
+
+  .temp-bar span {
+    display: block;
+    font-size: 14px;
+    font-weight: 400;
+    margin-top: 4px;
+    opacity: 0.8;
+  }
+
+  .temp-safe-hot {
+    background: #16a34a;
+    border-radius: 16px 16px 0 0;
+    color: white;
+  }
+
+  .temp-danger {
+    background: #dc2626;
+    color: white;
+    font-size: 26px;
+  }
+
+  .temp-safe-cold {
+    background: #2563eb;
+    border-radius: 0 0 16px 16px;
+    color: white;
+  }
+
+  /* Allergen grid */
+  .allergen-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 700px;
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  .allergen-item {
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+
+  .allergen-item:hover {
+    background: rgba(255,255,255,0.18);
+    box-shadow: 0 0 0 2px rgba(96,165,250,0.5);
+  }
+
+  .allergen-item .a-icon {
+    font-size: 36px;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  /* Navigation */
+  .nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 36px;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    z-index: 100;
+  }
+
+  .nav button {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #f8fafc;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .nav button:hover { background: rgba(255,255,255,0.2); }
+  .nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+
+  .logo-link {
+    position: fixed;
+    top: 14px;
+    left: 20px;
+    z-index: 200;
+    display: block;
+  }
+
+  .logo-fixed {
+    height: 36px;
+    width: auto;
+    opacity: 0.85;
+    display: block;
+    transition: opacity 0.2s;
+  }
+
+  .logo-link:hover .logo-fixed { opacity: 1; }
+
+  .progress {
+    display: flex;
+    gap: 6px;
+  }
+
+  .progress-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    transition: background 0.3s;
+  }
+
+  .progress-dot.active { background: #60a5fa; }
+  .progress-dot.visited { background: rgba(96, 165, 250, 0.5); }
+
+  /* Key message box */
+  .key-msg {
+    background: rgba(255, 255, 255, 0.1);
+    border-left: 4px solid #fbbf24;
+    padding: 20px 28px;
+    border-radius: 0 12px 12px 0;
+    margin-top: 20px;
+    max-width: 900px;
+    width: 100%;
+    font-size: 20px;
+    line-height: 1.5;
+  }
+
+  /* Two columns */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    width: 100%;
+    max-width: 1000px;
+  }
+
+  .col h3 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .col ul {
+    list-style: none;
+  }
+
+  .col ul li {
+    padding: 8px 0;
+    font-size: 18px;
+    line-height: 1.4;
+    color: rgba(255,255,255,0.85);
+    padding-left: 24px;
+    position: relative;
+    cursor: pointer;
+    border-radius: 6px;
+    padding-right: 8px;
+    transition: background 0.2s;
+  }
+
+  .col ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: #60a5fa;
+  }
+
+  .col ul li:hover {
+    background: rgba(255,255,255,0.08);
+  }
+
+  /* === MODAL === */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(4px);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    animation: overlayIn 0.2s ease;
+  }
+
+  .modal-overlay.open {
+    display: flex;
+  }
+
+  @keyframes overlayIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .modal-box {
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 40px 44px;
+    max-width: 560px;
+    width: 90%;
+    position: relative;
+    animation: boxIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  }
+
+  @keyframes boxIn {
+    from { opacity: 0; transform: scale(0.88) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+
+  .modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #f8fafc;
+  }
+
+  .modal-body {
+    font-size: 18px;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.82);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #f8fafc;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
+  .modal-close:hover { background: rgba(255,255,255,0.22); }
+
+  .modal-hint {
+    margin-top: 20px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+    text-align: center;
+  }
+
+  /* Video slide */
+  .slide--video {
+    background: linear-gradient(135deg, #0a0f1e 0%, #1e293b 100%);
+    text-align: center;
+  }
+
+  .video-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 780px;
+    height: 430px;
+    margin: 20px auto 0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .video-wrapper iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  @media (max-width: 900px) {
+    .video-wrapper { height: 300px; }
+  }
+
+  /* Mobile nav fix */
+  @media (max-width: 640px) {
+    .nav {
+      padding: 10px 12px;
+      gap: 8px;
+    }
+    .nav button {
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+    .progress {
+      display: none;
+    }
+    .slide {
+      padding: 60px 20px 80px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<a href="../index.html" class="logo-link"><img src="../media/logo.png" alt="Heim" class="logo-fixed"></a>
+
+<!-- SLIDE 1: Tittel -->
+<div class="slide slide--title active" id="slide-1">
+  <div class="slide-number">1 / 16</div>
+  <div class="emoji-big">🧼</div>
+  <h1>Hygienekurs</h1>
+  <p class="subtitle">For deg som skal jobbe på kjøkken og i kantine</p>
+  <p style="margin-top: 32px; color: rgba(255,255,255,0.4); font-size: 14px;">Arbeidslivsfag 8. trinn</p>
+</div>
+
+<!-- SLIDE 2: Kvifor hygiene? -->
+<div class="slide slide--content" id="slide-2">
+  <div class="slide-number">2 / 16</div>
+  <p class="category">Introduksjon</p>
+  <h2>Kvifor er hygiene viktig?</h2>
+  <div class="cards">
+    <div class="card" data-icon="🤢" data-title="Matforgifting" data-info="Matforgifting kan oppstå etter berre 2 timar i faresona (4–60 °C). Dei vanlegaste symptoma er kvalme, oppkast, magesmerter og diare. I alvorlege tilfelle kan det krevje sjukehusbehandling. Barn og eldre er særleg utsette.">
+      <div class="card-icon">🤢</div>
+      <h3>Matforgifting</h3>
+      <p>Kvart år blir tusenvis av nordmenn sjuke av dårleg mathygiene. Symptom: oppkast, diare, feber.</p>
+      <div class="info-badge">i</div>
+    </div>
+    <div class="card" data-icon="🦠" data-title="Bakteriar" data-info="Salmonella finst ofte i rått fjørfe og egg. E. coli kjem gjerne frå rått kjøt og kan smitte via hender og utstyr. Rett handvask og temperaturkontroll drep desse bakteriane. Bakteriar kan doble seg på under 20 minutt i faresona.">
+      <div class="card-icon">🦠</div>
+      <h3>Bakteriar</h3>
+      <p>Bakteriar som Salmonella og E. coli kan spreie seg raskt i mat som ikkje er handsama rett.</p>
+      <div class="info-badge">i</div>
+    </div>
+    <div class="card" data-icon="⚖️" data-title="Ansvar" data-info="Mattilsynet stiller krav til alle verksemder som handterer mat. Som tilsett har du plikt til å følgje hygienereglane. Brot på reglane kan føre til matskandalar og i verste fall sjukdom hos mange. Det gjeld deg – òg her på skulen.">
+      <div class="card-icon">⚖️</div>
+      <h3>Ansvar</h3>
+      <p>Alle som jobbar med mat har ansvar for at maten er trygg å ete. Det gjeld deg også!</p>
+      <div class="info-badge">i</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: Handvask -->
+<div class="slide slide--highlight" id="slide-3">
+  <div class="slide-number">3 / 16</div>
+  <div class="emoji-big">🖐️</div>
+  <h2>Regel nr. 1: Vask hendene!</h2>
+  <p class="subtitle" style="color: rgba(255,255,255,0.9);">Handvask er det viktigaste tiltaket mot spreiing av bakteriar.</p>
+  <div class="key-msg" style="max-width: 600px; margin-top: 32px; text-align: left; border-left-color: #fff;">
+    <strong>Når skal du vaske hendene?</strong><br>
+    FØR du tek i mat · ETTER toalettbesøk · ETTER at du har teke i rått kjøt eller fisk · Mellom ulike arbeidsoppgåver
+  </div>
+</div>
+
+<!-- SLIDE 4: Video – Den usynlege utfordringa -->
+<div class="slide slide--video" id="slide-4">
+  <div class="slide-number">4 / 16</div>
+  <p class="category">Handvask</p>
+  <h2>Sjå korleis bakteriane spreier seg</h2>
+  <div class="video-wrapper">
+    <iframe
+      src="https://www.youtube-nocookie.com/embed/TkjnUWvF4M4"
+      title="Den usynlige utfordringen I – Håndhygiene"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+  </div>
+  <p style="margin-top: 14px; font-size: 14px; color: rgba(255,255,255,0.4);">FHI – Folkehelseinstituttet · 1:53</p>
+</div>
+
+<!-- SLIDE 5: Personleg hygiene -->
+<div class="slide slide--content" id="slide-5">
+  <div class="slide-number">5 / 16</div>
+  <p class="category">Personleg hygiene</p>
+  <h2>Korleis ser du ut på jobb?</h2>
+  <ul class="point-list">
+    <li data-icon="👕" data-title="Arbeidstøy" data-info="Arbeidstøy beskyttar maten mot kontaminering frå kvardagsklede. Forkle eller kokkejakke skal vera reint kvar dag. Byt klede om du søler eller om dei blir skitne i løpet av vakta."><span class="point-icon">👕</span> Bruk reint arbeidstøy (forkle eller kokkejakke)<div class="info-badge">i</div></li>
+    <li data-icon="💇" data-title="Hår" data-info="Laust hår kan falle ned i maten utan at du merkar det. Hårband, lue eller hårnett sørgjer for at hår ikkje kjem i kontakt med mat eller utstyr. Alle med langt hår må ha det opp."><span class="point-icon">💇</span> Langt hår skal vera sett opp eller dekt med lue/hårnett<div class="info-badge">i</div></li>
+    <li data-icon="💍" data-title="Smykker og tilbehøyr" data-info="Under ringar og armband samlar det seg bakteriar som er svært vanskelege å vaske bort, sjølv med grundig handvask. Smykke kan òg falle av og hamne i maten utan at nokon merkar det."><span class="point-icon">💍</span> Ikkje bruk ringar, armband eller klokke under matarbeid<div class="info-badge">i</div></li>
+    <li data-icon="🩹" data-title="Sår og plaster" data-info="Sår er ei kjelde til bakteriar. Farga plaster (blå) er standard i matbransjen fordi dei er lette å sjå viss dei fell av i maten. Eingongshanskar over plasteret gir ekstra sikring og hindrar at søl kjem inn i såret."><span class="point-icon">🩹</span> Dekk sår med plaster og bruk eingongshanske over plasteret<div class="info-badge">i</div></li>
+    <li data-icon="🤒" data-title="Sjuk – ikkje jobb!" data-info="Norovirus og andre magesjukdommar smittar ekstremt lett. Éin sjuk tilsett kan smitte hundrevis av personar gjennom maten. Ver heime til du har vore symptomfri i minst 48 timar etter siste oppkast eller diare."><span class="point-icon">🤒</span> Er du sjuk (oppkast, diare)? Då skal du IKKJE jobbe med mat!<div class="info-badge">i</div></li>
+  </ul>
+</div>
+
+<!-- SLIDE 5: Personlege eigedelar -->
+<div class="slide slide--content" id="slide-6">
+  <div class="slide-number">6 / 16</div>
+  <p class="category">Personleg hygiene</p>
+  <h2>Personlege eigedelar og mat</h2>
+  <ul class="point-list">
+    <li data-icon="📱" data-title="Mobiltelefon" data-info="Studiar viser at ein mobiltelefon gjennomsnittleg har 10 gonger fleire bakteriar enn eit toalettsete. Legg telefonen bort under arbeid. Dersom du tek på han, MÅ du vaske hendene grundig etterpå før du rører mat."><span class="point-icon">📱</span> Telefonen er full av bakteriar. Tek du på telefonen, MÅ du vaske hendene etterpå<div class="info-badge">i</div></li>
+    <li data-icon="🎒" data-title="Sekk og jakke på kjøkkenet" data-info="Posar og jakkar ligg gjerne på golvet og samlar skit og bakteriar. Desse skal aldri inn på kjøkkenet. Ha alltid ein fast plass utanfor kjøkkenet for å leggje frå deg personlege ting."><span class="point-icon">🎒</span> Sekk, jakke og personlege ting skal ikkje liggje på kjøkkenet<div class="info-badge">i</div></li>
+    <li data-icon="📍" data-title="Fast plass for eigedelar" data-info="Ha ein fast plass utanfor kjøkkenet for personlege ting, til dømes i ein garderobe eller på eit eige bord. Dette gjer det lett å hugse kvar ting er, og hindrar at dei hamnar der mat blir handtert."><span class="point-icon">📍</span> Legg eigedelane dine i eit eige område utanfor arbeidsplassen<div class="info-badge">i</div></li>
+  </ul>
+  <div class="key-msg" style="margin-top: 28px;">
+    <strong>Kort sagt:</strong> Kjøkkenet er berre for mat og utstyr. Alt anna held du utanfor.
+  </div>
+</div>
+
+<!-- SLIDE 6: Temperaturar -->
+<div class="slide slide--content" id="slide-7">
+  <div class="slide-number">7 / 16</div>
+  <p class="category">Næringsmiddelhygiene</p>
+  <h2>Temperaturar du må hugse</h2>
+  <div style="display: flex; align-items: center; gap: 60px; margin-top: 20px;">
+    <div class="temp-zone">
+      <div class="temp-bar temp-safe-hot">Over 60 °C<span>Trygt (varmt)</span></div>
+      <div class="temp-bar temp-danger">4 – 60 °C<span>⚠️ FARESONA – bakteriar veks!</span></div>
+      <div class="temp-bar temp-safe-cold">Under 4 °C<span>Trygt (kaldt)</span></div>
+    </div>
+    <div style="max-width: 400px;">
+      <p style="font-size: 18px; line-height: 1.6; color: rgba(255,255,255,0.85);">
+        Mellom 4 °C og 60 °C trivst bakteriane best. Denne temperatursona kallar vi <strong>«faresona»</strong>. Mat skal ikkje stå i faresona lenger enn nødvendig.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 7: Oppbevaring og smaksprøver -->
+<div class="slide slide--content" id="slide-8">
+  <div class="slide-number">8 / 16</div>
+  <p class="category">Næringsmiddelhygiene</p>
+  <h2>Oppbevaring og smaksprøver</h2>
+  <ul class="point-list">
+    <li data-icon="🧊" data-title="Kjøleskåp og temperatur" data-info="Kjøleskåpet bremsar veksten av bakteriar. Temperaturen skal vera mellom 0 og 4 °C. Sjekk jamleg med termometer om temperaturen er rett. Ikkje la kjøleskapdøra stå open unødvendig."><span class="point-icon">🧊</span> Kalde matvarer skal oppbevarast i kjøleskåp under 4 °C<div class="info-badge">i</div></li>
+    <li data-icon="📅" data-title="Datomerking" data-info="«Best før» tyder at kvaliteten kan vera redusert etter datoen, men maten kan framleis vera trygg å ete. «Siste forbruksdag» er ein streng grense – etter denne datoen skal maten kastast utan unnatak, uavhengig av lukt eller utsjånad."><span class="point-icon">📅</span> Sjekk alltid «best før»- og «siste forbruksdag»-dato<div class="info-badge">i</div></li>
+    <li data-icon="🚫" data-title="Utgått dato" data-info="Sjølv om maten luktar og ser greitt ut, kan han innehalde farlege mengder bakteriar etter datoen. Kast utan unnatak. Å spare mat som har gått ut på dato er aldri verdt risikoen."><span class="point-icon">🚫</span> Ikkje bruk matvarer som har gått ut på dato<div class="info-badge">i</div></li>
+    <li data-icon="📦" data-title="Opna matvarer" data-info="Luft og fukt set i gang bakterievekst i opna emballasje. Dekk alltid til med plast eller lokk og skriv dato på emballasjen, so du veit kor lenge det har stått opna."><span class="point-icon">📦</span> Opna matvarer skal dekkast til og merkast med dato<div class="info-badge">i</div></li>
+    <li data-icon="🥄" data-title="Smaksprøver" data-info="Same skei i maten fleire gonger overfører bakteriar frå munnen din til heile porsjonen. Éin smak = éi rein skei. Ta ein rein skei for kvar gong du smakar, og legg aldri skeia attende i maten."><span class="point-icon">🥄</span> Smaksprøver: Bruk alltid rein skei. Aldri same skeia to gonger!<div class="info-badge">i</div></li>
+  </ul>
+</div>
+
+<!-- SLIDE 9: Stopp og tenk -->
+<div class="slide slide--highlight" id="slide-9">
+  <div class="slide-number">9 / 16</div>
+  <div class="emoji-big">🤔</div>
+  <h2>Stopp og tenk</h2>
+  <p class="subtitle" style="color: rgba(255,255,255,0.9); margin-bottom: 28px;">Diskuter med sidemannen — 2 minutt</p>
+  <div style="display: flex; flex-direction: column; gap: 16px; max-width: 700px; width: 100%; text-align: left;">
+    <div class="key-msg" style="border-left-color: #fff;">
+      🌡️ Kva er faresona, og kvifor skal mat ikkje stå der lenge?
+    </div>
+    <div class="key-msg" style="border-left-color: #fff;">
+      📱 Kva skjer med hygiena om du tek på telefonen og deretter tek i mat?
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 8: Kryssforureining -->
+<div class="slide slide--warning" id="slide-10">
+  <div class="slide-number">10 / 16</div>
+  <div class="emoji-big">⚠️</div>
+  <h2>Kryssforureining</h2>
+  <p class="subtitle" style="color: rgba(255,255,255,0.9); margin-bottom: 32px;">
+    Bakteriar kan smitte frå rått kjøt til ferdig mat via hender, knivar og skjerebrett.
+  </p>
+  <div class="two-col" style="max-width: 800px;">
+    <div class="col">
+      <h3>❌ Feil</h3>
+      <ul>
+        <li data-icon="❌" data-title="Same kniv til rått og ferdig mat" data-info="Rått kjøt kan innehalde Salmonella og Campylobacter. Bruker du same kniv til salaten rett etter, overfører du desse bakteriane direkte. Ha alltid eigne knivar og skjerebrett til rått kjøt og sjømat.">Same kniv til rått kjøt og salat</li>
+        <li data-icon="❌" data-title="Same skjerebrett utan vask" data-info="Skjerebrett av tre kan absorbere bakteriar og er spesielt vanskelege å reingjere. Bruk plastskjerebrett til rått kjøt og vask alt utstyr grundig med varmt vatn og såpe mellom kvar oppgåve.">Same skjerebrett utan vask</li>
+        <li data-icon="❌" data-title="Rått kjøt over ferdig mat" data-info="Blod og væske frå rått kjøt kan renne ned og forureine ferdig mat under. I kjøleskåpet skal rått kjøt alltid liggje nedst, gjerne på ei eiga hylle, for å unngå at væske dryp ned på annan mat.">Rått kjøt over ferdig mat i kjøleskåpet</li>
+      </ul>
+    </div>
+    <div class="col">
+      <h3>✅ Rett</h3>
+      <ul>
+        <li data-icon="✅" data-title="Eigne reiskap for rått og ferdig mat" data-info="Ha dedikerte knivar og skjerebrett for rått kjøt og fisk, og eigne for ferdig mat og grønnsaker. Fargekodar (til dømes raud for rått kjøt) er eit vanleg system i profesjonelle kjøkken.">Eigne reiskap til rått og ferdig mat</li>
+        <li data-icon="✅" data-title="Vask alt utstyr mellom oppgåver" data-info="Vask knivar, skjerebrett og anna utstyr med varmt vatn og oppvaskmiddel mellom kvar oppgåve. Bakteriar overlever ikkje ved høg varme og med såpe. Tørk med reint papir eller la det lufttørke.">Vask alt utstyr mellom oppgåver</li>
+        <li data-icon="✅" data-title="Rått kjøt nedst i kjøleskåpet" data-info="Rått kjøt skal alltid plasserast på lågaste hylle i kjøleskåpet, helst på ei eiga hylle. Slik unngår du at blod og væske dryp ned på ferdigmat, ost, pålegg eller grønnsaker.">Rått kjøt nedst i kjøleskåpet</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 9: iPad og kortbetaling -->
+<div class="slide slide--highlight" id="slide-11">
+  <div class="slide-number">11 / 16</div>
+  <div class="emoji-big">📱</div>
+  <h2>iPad og kortbetaling i kantina</h2>
+  <p class="subtitle" style="color: rgba(255,255,255,0.9);">iPaden blir teken på av mange elevar kvar dag og samlar bakteriar.</p>
+  <div class="two-col" style="max-width: 800px; margin-top: 32px; text-align: left;">
+    <div class="col">
+      <h3>Hugs dette</h3>
+      <ul>
+        <li data-icon="📱" data-title="Handvask etter iPad" data-info="Touchskjermar samlar feitt og bakteriar frå hundrevis av fingrar. Vask alltid hendene grundig etter du har brukt iPaden og FØR du tek i mat, servise eller andre ting på kjøkkenet.">Vask hendene ETTER du har brukt iPaden, FØR du tek i mat</li>
+        <li data-icon="🧹" data-title="Reinhald av iPad" data-info="Tørk av iPaden med ein desinfiserande klut (til dømes antibakteriell renseserviett) ved start og slutt på kvart skift. Dette reduserer bakteriemengda på skjermen betydeleg.">Tørk av iPaden med desinfiserande klut ved start og slutt på skiftet</li>
+      </ul>
+    </div>
+    <div class="col">
+      <h3>Fordel oppgåvene</h3>
+      <ul>
+        <li data-icon="👥" data-title="Del opp oppgåvene" data-info="Ideelt sett bør den som handterer pengar og iPad ikkje samstundes handtere mat. Ha klare roller i skiftet – éin betener betalingsløysinga, ein annan handterer maten. Byt gjerne roller mellom skifta.">Den som betener iPaden bør ikkje samstundes handtere mat</li>
+        <li data-icon="🔄" data-title="Roter på rollene" data-info="Roter på kven som gjer kva frå skift til skift. Alle lærer alle oppgåver, og det unngår at éin alltid sit med den «skitne» oppgåva medan ein annan berre handterer mat.">Byt på kven som har kva oppgåve</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 10: Reinhald og oppvask -->
+<div class="slide slide--content" id="slide-12">
+  <div class="slide-number">12 / 16</div>
+  <p class="category">Reinhald og orden</p>
+  <h2>Hald arbeidsplassen rein</h2>
+  <ul class="point-list">
+    <li data-icon="🧹" data-title="Benkar og overflater" data-info="Overflater i kontakt med mat skal reingjerast mellom kvart produkt og alltid ved start og slutt på vakta. Bruk godkjent reingjøringsmiddel og sørgje for at heile overflata blir tørka, ikkje berre der du ser søl."><span class="point-icon">🧹</span> Vask og tørk av benkar og overflater mellom kvar oppgåve<div class="info-badge">i</div></li>
+    <li data-icon="🧽" data-title="Klutar og kluttbruk" data-info="Ein klut som blir brukt til alt spreier bakteriar rundt heile kjøkkenet. Bruk gjerne fargekoda klutar til ulike formål (til dømes blå til benkar, raud til golv). Bytt klut ofte og vask dei ved høg temperatur."><span class="point-icon">🧽</span> Bruk reine klutar – bytt klut ofte og ikkje bruk same klut til alt<div class="info-badge">i</div></li>
+    <li data-icon="🗑️" data-title="Avfallshandtering" data-info="Matrester tiltrekkjer skadedyr som mus og kakerlakkar og er ein grobotn for bakteriar. Tøm søppelkasser regelmessig i løpet av vakta, ikkje berre ved slutt. Bruk alltid lokk på søppelkassene."><span class="point-icon">🗑️</span> Kast avfall ofte, ikkje la det hope seg opp<div class="info-badge">i</div></li>
+    <li data-icon="🧴" data-title="Korrekt oppvask" data-info="Varmt vatn (minimum 60 °C) drep dei fleste bakteriane. Godt skyll er viktig fordi restar av oppvaskmiddel kan overførast til maten. Lufttørking er meir hygienisk enn å tørke med klut, fordi klutar kan innehalde bakteriar."><span class="point-icon">🧴</span> Oppvask: Bruk varmt vatn og oppvaskmiddel. Skyl godt. La utstyret lufttørke<div class="info-badge">i</div></li>
+    <li data-icon="❄️" data-title="Reint kjøleskåp" data-info="Søl i kjøleskåpet kan spre bakteriar til annan mat. Vask innsida med varmt vatn og oppvaskmiddel kvar veke. Sjekk at temperaturen er mellom 0 og 4 °C med termometer."><span class="point-icon">❄️</span> Hald kjøleskåp reint og ryddig<div class="info-badge">i</div></li>
+  </ul>
+</div>
+
+<!-- SLIDE 11: Steamer -->
+<div class="slide slide--content" id="slide-13">
+  <div class="slide-number">13 / 16</div>
+  <p class="category">Reinhald og orden</p>
+  <h2>Bruk av steamer</h2>
+  <ul class="point-list">
+    <li data-icon="♨️" data-title="Kva gjer steameren?" data-info="Steameren bruker damp på over 100 °C og drep difor effektivt dei fleste bakteriar og virusar. Han er meir effektiv enn handvask åleine og sørgjer for at servise og utstyr er skikkeleg sterilisert."><span class="point-icon">♨️</span> Steameren bruker damp til å varme opp og sterilisere utstyr<div class="info-badge">i</div></li>
+    <li data-icon="🌡️" data-title="Temperatur og tid" data-info="For kort tid eller for låg temperatur tyder at utstyret ikkje er skikkeleg reingjort. Følg alltid instruksjonane som er klistra opp ved steameren. Ikkje snarveg – bruk anbefalt tid kvar gong."><span class="point-icon">🌡️</span> Følg instruksjonane for rett temperatur og tid<div class="info-badge">i</div></li>
+    <li data-icon="💧" data-title="Tøm og tørk etter bruk" data-info="Vatn som står stille i maskinen kan utvikle bakteriar og kalk. Tøm alltid vasstanken etter bruk og la lokket stå ope so maskinen kan tørke. Dette forlengjer òg levetida på utstyret."><span class="point-icon">💧</span> Tøm vassbehaldar og tørk av steameren etter bruk<div class="info-badge">i</div></li>
+    <li data-icon="⚠️" data-title="Meld frå om feil" data-info="Feil på utstyret kan bety at reinhaldet sviktar, sjølv om du gjer alt rett. Ikkje bruk utstyr du er usikker på – ta det opp med læraren umiddelbart. Det er betre å spørje ein gong for mykje enn å bruke defekt utstyr."><span class="point-icon">⚠️</span> Meld frå til læraren om noko ikkje fungerer som det skal<div class="info-badge">i</div></li>
+  </ul>
+</div>
+
+<!-- SLIDE 12: Allergi -->
+<div class="slide slide--content" id="slide-14">
+  <div class="slide-number">14 / 16</div>
+  <p class="category">Allergi og merking</p>
+  <h2>Allergen du MÅ kjenne til</h2>
+  <div class="allergen-grid">
+    <div class="allergen-item" data-icon="🥛" data-title="Mjølk" data-info="Mjølkeallergi og laktoseintoleranse er to ulike ting. Mjølkeallergi kan i verste fall utløyse anafylaktisk sjokk. Mjølk finst i smør, ost, fløyte, jogurt og mange bakte varer. Les alltid innhaldslista."><span class="a-icon">🥛</span>Mjølk<div class="info-badge">i</div></div>
+    <div class="allergen-item" data-icon="🥚" data-title="Egg" data-info="Egg finst i majones, bakevarer, pasta og mange sauser. Eggehvite er den vanlegaste årsaka til eggallergi. Vêr merksam på at «spor av egg» på emballasje òg kan utløyse reaksjonar."><span class="a-icon">🥚</span>Egg<div class="info-badge">i</div></div>
+    <div class="allergen-item" data-icon="🌾" data-title="Gluten" data-info="Gluten finst i kveite, rug og bygg. Personar med cøliaki kan få alvorleg tarmskade ved inntak. Glutenfri mat må lagast på reint utstyr for å unngå kryssforureining. Sjekk alltid at utstyr er grundig vaska."><span class="a-icon">🌾</span>Gluten<div class="info-badge">i</div></div>
+    <div class="allergen-item" data-icon="🥜" data-title="Nøtter" data-info="Nøtteallergi er ein av dei alvorlegaste matallergiane og kan utløyse anafylaksi. Jordnøtt er ein belgfrukt, men mange reagerer på han òg. Sjekk alltid ingredienslister nøye og vêr obs på «kan innehalde spor av nøtter»."><span class="a-icon">🥜</span>Nøtter<div class="info-badge">i</div></div>
+    <div class="allergen-item" data-icon="🦐" data-title="Skalldyr" data-info="Skalldyrallergi er vanleg og kan gi alvorlege reaksjonar. Rekjer, kreps og krabbe er vanlege utløysarar. Allergi mot skalldyr forsvinn sjeldan med alderen og krev streng unngåing."><span class="a-icon">🦐</span>Skalldyr<div class="info-badge">i</div></div>
+    <div class="allergen-item" data-icon="🫘" data-title="Soya" data-info="Soya finst i mange ferdigvarer, sauser og vegetarprodukt. Sojaprotein kan gi reaksjonar hos personar med sojaeallergi. Les innhaldslister nøye – soya er gjerne lista som «sojaprotein», «sojalesitin» eller liknande."><span class="a-icon">🫘</span>Soya<div class="info-badge">i</div></div>
+  </div>
+  <div class="key-msg" style="margin-top: 28px;">
+    <strong>Hugs:</strong> Du MÅ alltid informere om kva maten inneheld. Er du usikker? Spør læraren!
+  </div>
+</div>
+
+<!-- SLIDE 13: Oppsummering -->
+<div class="slide slide--summary" id="slide-15">
+  <div class="slide-number">15 / 16</div>
+  <p class="category" style="color: #a7f3d0;">Oppsummering</p>
+  <h2>Dei viktigaste reglane</h2>
+  <div class="cards" style="max-width: 900px;">
+    <div class="card" style="background: rgba(255,255,255,0.15);" data-icon="🖐️" data-title="Vask hendene" data-info="Handvask er det einskilde tiltaket som har størst effekt mot spreiing av matbårne sjukdommar. Bruk såpe og gnid hendene i minst 20 sekund. Husk mellom fingrane og under neglene.">
+      <div class="card-icon">🖐️</div>
+      <h3>Vask hendene</h3>
+      <p>Før matlaging, etter toalett, mellom oppgåver</p>
+      <div class="info-badge">i</div>
+    </div>
+    <div class="card" style="background: rgba(255,255,255,0.15);" data-icon="🌡️" data-title="Rett temperatur" data-info="Hald kald mat kald (under 4 °C) og varm mat varm (over 60 °C). Faresona er 4–60 °C der bakteriar trivst og formeirar seg raskt. Sjekk alltid med termometer.">
+      <div class="card-icon">🌡️</div>
+      <h3>Rett temperatur</h3>
+      <p>Kaldt under 4 °C, varmt over 60 °C</p>
+      <div class="info-badge">i</div>
+    </div>
+    <div class="card" style="background: rgba(255,255,255,0.15);" data-icon="🔀" data-title="Unngå kryssforureining" data-info="Bruk eigne knivar og skjerebrett for rått kjøt, sjømat og ferdig mat. Vask alltid utstyr mellom oppgåver. Legg aldri rått kjøt øvst i kjøleskåpet.">
+      <div class="card-icon">🔀</div>
+      <h3>Unngå kryssforureining</h3>
+      <p>Eigne reiskap for rått og ferdig mat</p>
+      <div class="info-badge">i</div>
+    </div>
+    <div class="card" style="background: rgba(255,255,255,0.15);" data-icon="🧹" data-title="Hald det reint" data-info="Reine benkar, reiskap og hender er grunnmuren i mathygiene. Vask og tørk av alle overflater mellom oppgåver. Bytt klutar ofte. Lufttørk servise og utstyr etter oppvask.">
+      <div class="card-icon">🧹</div>
+      <h3>Hald det reint</h3>
+      <p>Vask utstyr og overflater mellom oppgåver</p>
+      <div class="info-badge">i</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 14: Klar for test? -->
+<div class="slide slide--highlight" id="slide-16">
+  <div class="slide-number">16 / 16</div>
+  <div class="emoji-big">📝</div>
+  <h2>Klar for testen?</h2>
+  <p class="subtitle" style="color: rgba(255,255,255,0.9);">
+    Testen har 10 spørsmål. Alle må vera rette for å bestå.
+  </p>
+  <p style="margin-top: 24px; font-size: 20px; color: rgba(255,255,255,0.7);">
+    Du får testen på papir. Bruk det du har lært i dag!
+  </p>
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+  <button id="prev" onclick="changeSlide(-1)" disabled>← Førre</button>
+  <div class="progress" id="progress"></div>
+  <button id="next" onclick="changeSlide(1)">Neste →</button>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModalOnOverlay(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()" aria-label="Lukk">✕</button>
+    <div class="modal-icon" id="modal-icon"></div>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-body" id="modal-body"></div>
+    <p class="modal-hint">Trykk utanfor eller ESC for å lukke</p>
+  </div>
+</div>
+
+<script>
+  const totalSlides = 16;
+  let current = 1;
+
+  // Build progress dots
+  const progressEl = document.getElementById('progress');
+  for (let i = 1; i <= totalSlides; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot' + (i === 1 ? ' active' : '');
+    dot.dataset.slide = i;
+    dot.addEventListener('click', () => goToSlide(i));
+    dot.style.cursor = 'pointer';
+    progressEl.appendChild(dot);
+  }
+
+  function goToSlide(n) {
+    document.getElementById('slide-' + current).classList.remove('active');
+    current = n;
+    document.getElementById('slide-' + current).classList.add('active');
+    updateNav();
+  }
+
+  function changeSlide(dir) {
+    const next = current + dir;
+    if (next < 1 || next > totalSlides) return;
+    goToSlide(next);
+  }
+
+  function updateNav() {
+    document.getElementById('prev').disabled = current === 1;
+    const nextBtn = document.getElementById('next');
+    if (current === totalSlides) {
+      nextBtn.disabled = false;
+      nextBtn.textContent = 'Gå til testen →';
+      nextBtn.style.background = 'linear-gradient(135deg, #2563eb, #7c3aed)';
+      nextBtn.style.border = 'none';
+      nextBtn.onclick = () => window.location.href = 'Hygienekurs_test.html';
+    } else {
+      nextBtn.disabled = false;
+      nextBtn.textContent = 'Neste →';
+      nextBtn.style.background = '';
+      nextBtn.style.border = '';
+      nextBtn.onclick = () => changeSlide(1);
+    }
+    document.querySelectorAll('.progress-dot').forEach(dot => {
+      const s = parseInt(dot.dataset.slide);
+      dot.className = 'progress-dot';
+      if (s === current) dot.classList.add('active');
+      else if (s < current) dot.classList.add('visited');
+    });
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (document.getElementById('modal').classList.contains('open')) {
+      if (e.key === 'Escape') closeModal();
+      return;
+    }
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); }
+  });
+
+  // Modal logic
+  function openModal(icon, title, info) {
+    document.getElementById('modal-icon').textContent = icon;
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-body').textContent = info;
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+  }
+
+  function closeModalOnOverlay(e) {
+    if (e.target === document.getElementById('modal')) closeModal();
+  }
+
+  // Attach click handlers to all clickable info elements
+  document.querySelectorAll('[data-info]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openModal(
+        el.dataset.icon || 'ℹ️',
+        el.dataset.title || '',
+        el.dataset.info || ''
+      );
+    });
+  });
+</script>
+</body>
+</html>

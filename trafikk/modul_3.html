@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul 3: Etikk og gruppepress — Valfag Trafikk · SkuleTech</title>
+    <meta name="description" content="Etiske dilemma, gruppepress og korleis du kan handle modig i trafikken. Modul 3 i Valfag Trafikk." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#0f172a',
+                            blue: '#1e3a8a',
+                            red: '#dc2626',
+                            green: '#059669',
+                            yellow: '#d97706',
+                            purple: '#6d28d9',
+                            indigo: '#4f46e5'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { -webkit-font-smoothing: antialiased; }
+        .gradient-text {
+            background: linear-gradient(135deg, #a5b4fc, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* Modal animasjon */
+        .modal-enter { opacity: 0; transform: scale(0.95) translateY(10px); }
+        .modal-enter-active { opacity: 1; transform: scale(1) translateY(0); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .modal-leave { opacity: 1; transform: scale(1) translateY(0); }
+        .modal-leave-active { opacity: 0; transform: scale(0.95) translateY(10px); transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans selection:bg-brand-indigo selection:text-white relative">
+
+    <!-- Navigasjon -->
+    <nav class="fixed w-full z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all duration-300 shadow-sm" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <a href="index.html">
+                    <div class="flex-shrink-0 flex items-center font-bold text-xl tracking-tight text-brand-dark">
+                        <img src="bilete/Logo.svg" alt="Valfag Trafikk" class="w-7 h-7 mr-2" />
+                        Valfag<span class="text-brand-blue">Trafikk</span>
+                    </div>
+                </a>
+                <div class="hidden md:flex space-x-8 text-sm font-semibold text-slate-600">
+                    <a href="#frosk" class="hover:text-brand-indigo transition-colors">Haldningar</a>
+                    <a href="#dilemma" class="hover:text-brand-indigo transition-colors">Etiske Dilemma</a>
+                    <a href="#passasjer" class="hover:text-brand-indigo transition-colors">Den gode passasjer</a>
+                    <a href="#refleksjon" class="text-brand-indigo hover:text-indigo-800 transition-colors">Refleksjonsoppgåve</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Seksjon -->
+    <header class="relative pt-32 pb-20 lg:pt-40 lg:pb-28 bg-brand-dark overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-brand-dark"></div>
+        <div class="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M54.627 0l1.43 1.43-56.056 56.057L0 56.056 54.627 0zm-28.59 0l1.43 1.43-27.467 27.467L18.57 27.468 44.607 1.43 46.037 0h-20zM60 14.243l-1.43-1.43L31.103 40.28 29.673 41.71l28.897-28.897V14.243zM60 42.833l-1.43-1.43L46.037 53.936l1.43 1.43L60 42.833z\' fill=\'%23ffffff\' fill-rule=\'evenodd\'/%3E%3C/svg%3E')]"></div>
+        
+        <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <span class="inline-block py-1 px-3 rounded-full bg-indigo-500/20 text-indigo-300 font-semibold text-xs uppercase tracking-widest mb-6 border border-indigo-500/30">Modul 3 · Valfag Trafikk</span>
+            <h1 class="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-6 leading-tight">
+                Etikk, haldningar og <br>
+                <span class="gradient-text">gruppepress</span>
+            </h1>
+            <p class="mt-4 text-lg md:text-xl text-slate-300 mb-10 leading-relaxed max-w-3xl mx-auto">
+                Trafikktryggleik handlar ikkje berre om å kunne reglane. Det handlar om å ta dei rette vala når venene dine ser på, og å tore å seie ifrå når nokon set livet ditt i fare.
+            </p>
+        </div>
+    </header>
+
+    <!-- Hovedinnhold -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 -mt-10 relative z-10">
+        
+        <!-- Seksjon 1: Haldningar og FROSK -->
+        <h2 id="frosk" class="text-2xl font-bold text-slate-900 mb-6 flex items-center">
+            <span class="w-8 h-8 rounded-lg bg-brand-indigo flex items-center justify-center text-white mr-3 text-sm">1</span>
+            Haldningar i kvardagen (FROSK)
+        </h2>
+        
+        <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm mb-16">
+            <div class="max-w-3xl mb-8">
+                <p class="text-slate-600 leading-relaxed">
+                    Ulykker er sjeldan «berre eit uhell». Det ligg nesten alltid ei dårleg avgjerd bak. I Modul 1 lærte vi om FROSK-prinsippet. Her skal vi sjå korleis dårlege haldningar til Fart, Rus og Oppmerksemd utspelar seg i røynda.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Rus / Dagen derpå -->
+                <button onclick="openModal('dagen_derpa')" class="text-left bg-indigo-50 rounded-2xl p-6 border border-indigo-100 hover:shadow-md hover:-translate-y-1 transition-all group focus:outline-none focus:ring-2 focus:ring-brand-indigo">
+                    <div class="text-3xl mb-3">🍻</div>
+                    <h3 class="text-lg font-bold mb-2 text-indigo-900">Rus og «dagen derpå»</h3>
+                    <p class="text-slate-600 text-sm mb-4">Alkohol svekkar vurderingsevna di lenge etter at festen er over. Kva er reglane for dagen derpå?</p>
+                    <div class="text-brand-indigo text-sm font-semibold flex items-center">Les fakta <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></div>
+                </button>
+
+                <!-- Oppmerksemd / Mobil -->
+                <button onclick="openModal('mobilbruk')" class="text-left bg-indigo-50 rounded-2xl p-6 border border-indigo-100 hover:shadow-md hover:-translate-y-1 transition-all group focus:outline-none focus:ring-2 focus:ring-brand-indigo">
+                    <div class="text-3xl mb-3">📱</div>
+                    <h3 class="text-lg font-bold mb-2 text-indigo-900">Mobilen som drapsvåpen</h3>
+                    <p class="text-slate-600 text-sm mb-4">Det tek berre to sekund å sjekke ein Snap. Men kor langt køyrer bilen i blinde på dei to sekunda?</p>
+                    <div class="text-brand-indigo text-sm font-semibold flex items-center">Sjå reknestykket <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></div>
+                </button>
+
+                <!-- Fart / Ungdom -->
+                <button onclick="openModal('ungdomshjernen')" class="text-left bg-indigo-50 rounded-2xl p-6 border border-indigo-100 hover:shadow-md hover:-translate-y-1 transition-all group focus:outline-none focus:ring-2 focus:ring-brand-indigo">
+                    <div class="text-3xl mb-3">🧠</div>
+                    <h3 class="text-lg font-bold mb-2 text-indigo-900">Ungdomshjernen og fart</h3>
+                    <p class="text-slate-600 text-sm mb-4">Kvifor tek unge sjåførar oftare høg risiko i trafikken enn erfarne sjåførar?</p>
+                    <div class="text-brand-indigo text-sm font-semibold flex items-center">Les om psykologien <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Seksjon 2: Etiske Dilemma -->
+        <h2 id="dilemma" class="text-2xl font-bold text-slate-900 mb-6 flex items-center mt-12">
+            <span class="w-8 h-8 rounded-lg bg-brand-red flex items-center justify-center text-white mr-3 text-sm">2</span>
+            Etiske dilemma & Gruppepress
+        </h2>
+        
+        <p class="text-slate-600 mb-8 max-w-3xl">Korleis vil du reagere viss du hamnar i ein farleg situasjon forårsaka av dine eigne venner? Trykk på scenaria under for å drøfte dilemmaet og sjå korleis du best kan handtere det.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+            
+            <!-- Dilemma 1 -->
+            <button onclick="openModal('dilemma_fart')" class="text-left relative overflow-hidden bg-slate-900 rounded-3xl p-8 border border-slate-800 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all group focus:outline-none focus:ring-2 focus:ring-brand-red">
+                <div class="absolute top-0 right-0 p-6 opacity-20 text-white transform group-hover:scale-110 transition-transform">
+                    <svg class="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <div class="relative z-10">
+                    <span class="inline-block py-1 px-3 rounded-full bg-red-500/20 text-red-400 font-semibold text-xs uppercase tracking-widest mb-4 border border-red-500/30">Case 1: Fart & Tøffing</span>
+                    <h3 class="text-2xl font-bold text-white mb-3">«Sjå kor fort bilen går!»</h3>
+                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+                        Kompisen din har nettopp fått lappen. De er fire stykke i bilen, musikken er høg, og stemninga er god. Plutseleg gjev han full gass i ei 60-sone for å imponere dykk. Farten nærmar seg 120 km/t.
+                    </p>
+                    <div class="inline-flex items-center text-white font-semibold bg-white/10 px-4 py-2 rounded-lg group-hover:bg-white/20 transition-colors">
+                        Kva gjer du? <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </div>
+            </button>
+
+            <!-- Dilemma 2 -->
+            <button onclick="openModal('dilemma_rus')" class="text-left relative overflow-hidden bg-slate-900 rounded-3xl p-8 border border-slate-800 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all group focus:outline-none focus:ring-2 focus:ring-brand-yellow">
+                <div class="absolute top-0 right-0 p-6 opacity-20 text-white transform group-hover:scale-110 transition-transform">
+                    <svg class="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <div class="relative z-10">
+                    <span class="inline-block py-1 px-3 rounded-full bg-yellow-500/20 text-yellow-400 font-semibold text-xs uppercase tracking-widest mb-4 border border-yellow-500/30">Case 2: Elsparkesykkel & Rus</span>
+                    <h3 class="text-2xl font-bold text-white mb-3">Festen er ferdig</h3>
+                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+                        Klokka er 02:00 laurdag natt. De har vore på fest, og alle har drukke. De skal heim, og veninna din foreslår at de berre tek ein elsparkesykkel saman. "Det er jo berre fem minutt unna," seier ho, og låser opp sykkelen.
+                    </p>
+                    <div class="inline-flex items-center text-white font-semibold bg-white/10 px-4 py-2 rounded-lg group-hover:bg-white/20 transition-colors">
+                        Kva gjer du? <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </div>
+            </button>
+
+        </div>
+
+        <!-- Seksjon 3: Den gode passasjer -->
+        <h2 id="passasjer" class="text-2xl font-bold text-slate-900 mb-6 flex items-center mt-12">
+            <span class="w-8 h-8 rounded-lg bg-brand-green flex items-center justify-center text-white mr-3 text-sm">3</span>
+            Rolla som «Den gode passasjeren»
+        </h2>
+        
+        <div class="bg-emerald-50 rounded-3xl p-8 border border-emerald-100 flex flex-col lg:flex-row gap-10 items-center mb-16">
+            <div class="lg:w-1/2">
+                <h3 class="text-3xl font-bold text-emerald-950 mb-4">Du har også eit ansvar</h3>
+                <p class="text-emerald-800 mb-6 leading-relaxed">
+                    Sjølv om du ikkje held i rattet, påverkar du korleis føraren køyrer. Ein dårleg passasjer skapar farlege situasjonar. Ein god passasjer gjer køyreturen tryggare og meir behageleg for alle.
+                </p>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-emerald-100">
+                    <h4 class="font-bold text-slate-800 mb-4">Sjekkliste for gode passasjerar:</h4>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <svg class="w-6 h-6 text-brand-green mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-slate-700 text-sm"><strong>Ta over distraksjonane:</strong> Tilby deg å styre GPS-en, musikken, eller svare på førarens telefon viss den ringer. La føraren fokusere 100% på vegen.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="w-6 h-6 text-brand-green mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-slate-700 text-sm"><strong>Les situasjonen:</strong> Viss de køyrer i tett by-trafikk, leitar etter ein adresse, eller møter dårleg vêr – demp musikken og avslutt krevjande samtalar automatisk.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="w-6 h-6 text-brand-green mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-slate-700 text-sm"><strong>Null toleranse:</strong> Gi beskjed (på ein roleg måte) viss farten blir for høg. Du kan for eksempel seie: "Eg blir litt stressa av denne farten, kan du slakke av litt?"</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="lg:w-1/2 flex justify-center">
+                <!-- Dekorativt element -->
+                <div class="relative w-full max-w-sm">
+                    <div class="absolute inset-0 bg-emerald-200 rounded-full blur-3xl opacity-50"></div>
+                    <div class="relative bg-white border border-emerald-100 p-8 rounded-[3rem] shadow-xl text-center">
+                        <div class="text-6xl mb-4">🧭🎧</div>
+                        <h4 class="font-bold text-xl text-emerald-950 mb-2">Bli co-pilot</h4>
+                        <p class="text-emerald-800/80 text-sm">Som passasjer i forsetet er du førarens "co-pilot". Di oppgåve er å gjere reisa knirkefri, ikkje å dokumentere den på sosiale medium.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Refleksjonsoppgåve -->
+    <section id="refleksjon" class="py-20 bg-white border-t border-slate-200">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-center mb-6">
+                <div class="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center text-brand-indigo">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                </div>
+            </div>
+            <h2 class="text-3xl font-bold text-center text-slate-900 mb-4">Refleksjonsoppgåve: Mot til å bryte inn</h2>
+            <p class="text-center text-slate-600 mb-10 max-w-2xl mx-auto">Det krev enormt mykje mot å seie ifrå til venner når stemninga eigentleg er god. Men det motet kan redde livet ditt. Vurder casen under.</p>
+            
+            <div class="bg-slate-50 border border-slate-200 p-8 rounded-2xl shadow-sm">
+                <h3 class="font-bold text-lg text-slate-800 mb-3">Scenario:</h3>
+                <p class="text-slate-600 mb-8 bg-white p-6 rounded-xl border border-slate-100 italic shadow-sm">
+                    «Du sit på med ein kompis som nettopp har fått lappen. Han har to andre kompisar i baksetet som girer han opp og speler høg musikk. De køyrer på ein svingete landeveg. Føraren dreg fram mobilen for å filme at farten passerer 100 km/t (i ei 80-sone) for å legge på Snapchat. Han ser meir på skjermen enn på vegen. Du sit i passasjersetet og kjenner at du blir redd.»
+                </p>
+                
+                <div class="bg-brand-indigo/5 border border-brand-indigo/20 rounded-xl p-6">
+                    <h4 class="font-bold text-brand-indigo mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Oppgåve (Leverast på Itslearning):
+                    </h4>
+                    <ol class="list-decimal pl-5 space-y-3 text-slate-700">
+                        <li>Opne eit skriveprogram (som Word).</li>
+                        <li><strong>Analyse:</strong> Kva brot på FROSK-prinsippet skjer i dette scenarioet?</li>
+                        <li><strong>Dilemmaet:</strong> Kvifor er det vanskeleg for deg å seie ifrå i akkurat denne situasjonen? Kva slags press kjenner du på?</li>
+                        <li><strong>Handling:</strong> Skriv heilt konkret <em>kva du ville sagt</em> for å få han til å stoppe med filminga og slakke farten, utan å nødvendigvis skape dårleg stemning. Skriv ned sjølve replikken din.</li>
+                        <li>Lagre dokumentet og last det opp i oppgåvemappa for "Modul 3: Etikk" på Itslearning.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-10 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">Læringsressurs for Valfag Trafikk (LK20) &copy; 2026. Basert på opplæringsmål frå Trygg Trafikk.</p>
+        </div>
+    </footer>
+
+    <!-- MODAL OVERLAY -->
+    <div id="info-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 sm:p-6 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div id="modal-content-box" class="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col transform scale-95 translate-y-4 transition-all duration-300">
+            <div class="flex items-center justify-between p-6 border-b border-slate-100">
+                <div class="flex items-center">
+                    <span id="modal-icon" class="text-3xl mr-4"></span>
+                    <h3 id="modal-title" class="text-2xl font-bold text-slate-900">Tittel</h3>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full p-2 transition-colors focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div id="modal-body" class="p-6 md:p-8 overflow-y-auto text-slate-600 text-sm leading-relaxed space-y-5">
+                <!-- Content injected via JS -->
+            </div>
+            <div class="p-6 border-t border-slate-100 bg-slate-50 text-right">
+                <button onclick="closeModal()" class="px-6 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold rounded-lg transition-colors focus:outline-none">Lukk</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for Modals -->
+    <script>
+        // Data for modulane
+        const modalData = {
+            'dagen_derpa': {
+                icon: '🍻',
+                title: 'Rus og «Dagen derpå»',
+                content: `
+                    <p>Det er velkjent at ein ikkje skal køyre med promille, men mange ungdommar gløymer faren ved å køyre dagen derpå.</p>
+                    <div class="mt-4 p-4 bg-indigo-50 border border-indigo-100 rounded-xl">
+                        <h4 class="font-bold text-indigo-900 mb-2">Myte: Kaffi og dusj gjer deg edru</h4>
+                        <p class="text-indigo-800 text-sm">Feil. Levera forbrenner alkohol med ein konstant fart (ca. 0,15 promille i timen). Korkje kaffi, kald dusj, sveitte, mat eller søvn gjer at promillen forsvinn raskare.</p>
+                    </div>
+                    <ul class="list-disc pl-5 space-y-2 mt-4 text-slate-700">
+                        <li><strong>Dårlegare sjåfør uansett:</strong> Sjølv om "promille-kalkulatoren" seier du kanskje er nede på 0,0 i promille klokka 12 dagen etter ein fest, er du framleis ein dårleg sjåfør. Mangel på søvn, dehydrering og utmatting gjer at reaksjonstida di er redusert på nivå med fyllekøyring.</li>
+                        <li><strong>Regel:</strong> Viss du drakk mykje kvelden før, la bilen stå til langt utpå ettermiddagen, eller la vere å køyre heile den dagen.</li>
+                    </ul>
+                `
+            },
+            'mobilbruk': {
+                icon: '📱',
+                title: 'Mobilen som drapsvåpen',
+                content: `
+                    <p>Uoppmerksemd er no medverkande i rundt ein tredjedel av alle dødsulykker i trafikken. Og den største synderen er mobilen.</p>
+                    <div class="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-xl">
+                        <h4 class="font-bold text-red-900 mb-2">Det fatale reknestykket:</h4>
+                        <p class="text-red-800 text-sm mb-2">Du køyrer i 80 km/t. Det plingar i mobilen. Du ser ned på skjermen i berre <strong>2 sekund</strong> for å sjå kven det er.</p>
+                        <p class="text-red-900 font-bold">På dei to sekunda har bilen din køyrt heile 44 meter i blinde.</p>
+                    </div>
+                    <p class="mt-4">44 meter er nesten eit halvt fotballfelt. Om eit barn, eit dyr, eller ein møtande bil kjem over i ditt felt på denne strekninga, har du absolutt null sjanse til å unngå ulykka.</p>
+                `
+            },
+            'ungdomshjernen': {
+                icon: '🧠',
+                title: 'Ungdomshjernen og fart',
+                content: `
+                    <p>Sjåførar mellom 18 og 24 år er diverre kraftig overrepresentert i ulykkesstatistikken (særleg unge menn). Dette skuldast ofte ein kombinasjon av liten erfaring og biologi.</p>
+                    <ul class="list-disc pl-5 space-y-3 mt-4 text-slate-700">
+                        <li><strong>Hjernen er ikkje ferdigutvikla:</strong> Den fremre delen av hjernen (frontallappen) styrer konsekvenstenking, impulskontroll og risikovurdering. Denne delen av hjernen er faktisk ikkje heilt ferdig utvikla før ein er i midten av 20-åra.</li>
+                        <li><strong>Søker belønning:</strong> Ungdomshjernen frigjer meir dopamin ved spaning og fart. Belønninga (å tøffe seg, kjenne adrenalinet) overstyrer ofte fornufta og risikoforståinga der og då.</li>
+                        <li><strong>Gruppepress:</strong> Unge førarar har mykje høgare ulykkesrisiko når dei har jamnaldrande passasjerar i bilen, samanlikna med når dei køyrer åleine. Passasjerane har altså ei massiv påverkingskraft!</li>
+                    </ul>
+                `
+            },
+            'dilemma_fart': {
+                icon: '🔥',
+                title: 'Løysingsforslag: "Sjå kor fort bilen går!"',
+                content: `
+                    <p>Dette er ein av dei vanlegaste og farlegaste situasjonane for ungdomen. Her handlar det om å <strong>bryte mønsteret</strong> utan å framstå som ei "kjerring" viss du er redd for gruppepresset.</p>
+                    <div class="space-y-4 mt-4">
+                        <div class="p-4 bg-white border border-slate-200 rounded-xl">
+                            <h4 class="font-bold text-brand-blue mb-1">Taktikk 1: Skuld på deg sjølv (den diplomatiske)</h4>
+                            <p class="text-slate-600 text-sm">"Kan du slakke av litt? Eg blir skikkeleg bilsjuk / stressa av å køyre så fort." Det er vanskeleg for føraren å argumentere mot <em>di</em> kjensle.</p>
+                        </div>
+                        <div class="p-4 bg-white border border-slate-200 rounded-xl">
+                            <h4 class="font-bold text-brand-green mb-1">Taktikk 2: Appeller til konsekvensane (den rasjonelle)</h4>
+                            <p class="text-slate-600 text-sm">"Slakk ned, det er ofte fotoboks / kontroll her." eller "Ikkje mist lappen den første veka du har den, ro ned."</p>
+                        </div>
+                        <div class="p-4 bg-red-50 border border-red-200 rounded-xl">
+                            <h4 class="font-bold text-brand-red mb-1">Taktikk 3: Vis grenser (den bastante)</h4>
+                            <p class="text-slate-600 text-sm">Viss han nektar å høyre: Krev at han stoppar og slepp deg av. Livet ditt er meir verdt enn at han skal spele tøff.</p>
+                        </div>
+                    </div>
+                `
+            },
+            'dilemma_rus': {
+                icon: '🛴',
+                title: 'Løysingsforslag: Elsparkesykkel & Rus',
+                content: `
+                    <p>Dette verkar kanskje ufarleg i augeblikket, men er ulovleg og har store skadepotensiale.</p>
+                    <ul class="list-disc pl-5 space-y-3 mt-4 text-slate-700">
+                        <li><strong>Det etiske valet:</strong> Du bør absolutt seie nei. Det er lovbrot på tre punkt: Køyring i ruspåverka tilstand, å vere to på same sykkel, og truleg mangel på hjelm.</li>
+                        <li><strong>Konsekvensane:</strong> Viss politiet tek dykk, mistar føraren lappen (eller får utsett retten til å ta lappen) i tillegg til mangfaldige tusen i bot. Viss de krasjar, gjeld ikkje forsikringa på grunn av rus.</li>
+                        <li><strong>Kva du bør gjere:</strong> Foreslå eit alternativ. "Det er berre fem minutt å gå, vi drit i sparkesykkelen, la oss heller ta ein prat på vegen heim." eller "Eg spanderer taxien, det er ikkje verdt å miste lappen for."</li>
+                    </ul>
+                `
+            }
+        };
+
+        const modal = document.getElementById('info-modal');
+        const modalContentBox = document.getElementById('modal-content-box');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const modalIcon = document.getElementById('modal-icon');
+
+        function openModal(id) {
+            const data = modalData[id];
+            if (!data) return;
+            modalTitle.innerText = data.title;
+            modalBody.innerHTML = data.content;
+            modalIcon.innerText = data.icon;
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modalContentBox.classList.remove('scale-95', 'translate-y-4');
+                modalContentBox.classList.add('scale-100', 'translate-y-0');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modalContentBox.classList.remove('scale-100', 'translate-y-0');
+            modalContentBox.classList.add('scale-95', 'translate-y-4');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+            document.body.style.overflow = 'auto';
+        }
+        
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 10) { nav.classList.add('shadow-md'); } 
+            else { nav.classList.remove('shadow-md'); }
+        });
+    </script>
+</body>
+</html>

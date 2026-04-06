@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HMS-kurs — Presentasjon · SkuleTech</title>
+<meta name="description" content="Interaktiv presentasjon om HMS i sløydsal og arbeidsrom. For Arbeidslivsfag 8. trinn." />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0f172a;
+    color: #f8fafc;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .slide {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    padding: 60px 80px;
+    position: relative;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .slide.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .slide--title {
+    background: linear-gradient(135deg, #14532d 0%, #0f172a 50%, #1a1a2e 100%);
+    text-align: center;
+  }
+
+  .slide--content {
+    background: #0f172a;
+    align-items: center;
+    text-align: left;
+  }
+
+  .slide--highlight {
+    background: linear-gradient(135deg, #16a34a 0%, #065f46 100%);
+    text-align: center;
+  }
+
+  .slide--warning {
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    text-align: center;
+  }
+
+  .slide--caution {
+    background: linear-gradient(135deg, #b45309 0%, #78350f 100%);
+    text-align: center;
+  }
+
+  .slide--summary {
+    background: linear-gradient(135deg, #059669 0%, #065f46 100%);
+  }
+
+  .slide-number {
+    position: absolute;
+    top: 24px;
+    right: 36px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 600;
+  }
+
+  .category {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #4ade80;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    font-size: clamp(28px, 3.5vw, 48px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 24px;
+  }
+
+  .subtitle {
+    font-size: clamp(18px, 2vw, 24px);
+    color: rgba(255,255,255,0.7);
+    max-width: 700px;
+    line-height: 1.5;
+  }
+
+  .emoji-big {
+    font-size: 72px;
+    margin-bottom: 24px;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    width: 100%;
+    max-width: 1100px;
+    margin-top: 20px;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 28px;
+    transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    background: rgba(255,255,255,0.14);
+    box-shadow: 0 0 0 2px rgba(74,222,128,0.5);
+  }
+
+  .card-icon { font-size: 36px; margin-bottom: 12px; }
+
+  .card h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+
+  .card p { font-size: 16px; line-height: 1.5; color: rgba(255,255,255,0.75); }
+
+  .point-list {
+    list-style: none;
+    width: 100%;
+    max-width: 900px;
+  }
+
+  .point-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 14px 8px;
+    font-size: clamp(16px, 1.8vw, 22px);
+    line-height: 1.4;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s;
+    position: relative;
+  }
+
+  .point-list li:last-child { border-bottom: none; }
+  .point-list li:hover { background: rgba(255,255,255,0.07); }
+
+  .point-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(74,222,128,0.15);
+    border-radius: 8px;
+    font-size: 18px;
+  }
+
+  .info-badge {
+    margin-left: auto;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(74,222,128,0.25);
+    color: #86efac;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    transition: background 0.2s;
+  }
+
+  .point-list li:hover .info-badge,
+  .card:hover .info-badge { background: rgba(74,222,128,0.5); }
+
+  .card .info-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+  }
+
+  .key-msg {
+    background: rgba(255,255,255,0.1);
+    border-left: 4px solid #fbbf24;
+    padding: 20px 28px;
+    border-radius: 0 12px 12px 0;
+    margin-top: 20px;
+    max-width: 900px;
+    width: 100%;
+    font-size: 20px;
+    line-height: 1.5;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    width: 100%;
+    max-width: 1000px;
+  }
+
+  .col h3 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .col ul { list-style: none; }
+
+  .col ul li {
+    padding: 8px 0 8px 24px;
+    font-size: 18px;
+    line-height: 1.4;
+    color: rgba(255,255,255,0.85);
+    position: relative;
+    cursor: pointer;
+    border-radius: 6px;
+    padding-right: 8px;
+    transition: background 0.2s;
+  }
+
+  .col ul li::before { content: '→'; position: absolute; left: 0; color: #4ade80; }
+  .col ul li:hover { background: rgba(255,255,255,0.08); }
+
+  /* Navigation */
+  .nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 36px;
+    background: rgba(15,23,42,0.9);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    z-index: 100;
+  }
+
+  .nav button {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #f8fafc;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .nav button:hover { background: rgba(255,255,255,0.2); }
+  .nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+
+  .logo-link {
+    position: fixed;
+    top: 14px;
+    left: 20px;
+    z-index: 200;
+    display: block;
+  }
+
+  .logo-fixed {
+    height: 36px;
+    width: auto;
+    opacity: 0.85;
+    display: block;
+    transition: opacity 0.2s;
+  }
+
+  .logo-link:hover .logo-fixed { opacity: 1; }
+
+  .progress { display: flex; gap: 6px; }
+
+  .progress-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .progress-dot.active { background: #4ade80; }
+  .progress-dot.visited { background: rgba(74,222,128,0.5); }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(4px);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal-box {
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 40px 44px;
+    max-width: 560px;
+    width: 90%;
+    position: relative;
+    animation: boxIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  }
+
+  @keyframes boxIn {
+    from { opacity: 0; transform: scale(0.88) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-icon { font-size: 48px; margin-bottom: 16px; }
+  .modal-title { font-size: 24px; font-weight: 700; margin-bottom: 16px; color: #f8fafc; }
+  .modal-body { font-size: 18px; line-height: 1.65; color: rgba(255,255,255,0.82); }
+
+  .modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #f8fafc;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
+  .modal-close:hover { background: rgba(255,255,255,0.22); }
+
+  .modal-hint { margin-top: 20px; font-size: 13px; color: rgba(255,255,255,0.35); text-align: center; }
+
+
+  /* Video slide */
+  .slide--video {
+    background: linear-gradient(135deg, #0a0f1e 0%, #1e293b 100%);
+    text-align: center;
+  }
+
+  .video-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 780px;
+    height: 430px;
+    margin: 20px auto 0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .video-wrapper iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  @media (max-width: 900px) {
+    .video-wrapper { height: 300px; }
+  }
+  /* Mobile nav fix */
+  @media (max-width: 640px) {
+    .nav {
+      padding: 10px 12px;
+      gap: 8px;
+    }
+    .nav button {
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+    .progress {
+      display: none;
+    }
+    .slide {
+      padding: 60px 20px 80px;
+    }
+  }
+
+</style>
+</head>
+<body>
+
+<a href="../index.html" class="logo-link"><img src="../media/logo.png" alt="Heim" class="logo-fixed"></a>
+
+<!-- SLIDE 1: Tittel -->
+<div class="slide slide--title active" id="slide-1">
+  <div class="slide-number">1 / 17</div>
+  <div class="emoji-big">🦺</div>
+  <h1>HMS-kurs</h1>
+  <p class="subtitle">For deg som skal jobbe i sløydsal eller ute på byggjeplass</p>
+  <p style="margin-top: 32px; color: rgba(255,255,255,0.4); font-size: 14px;">Arbeidslivsfag 8. trinn</p>
+</div>
+
+<!-- SLIDE 2: Kvifor HMS? -->
+<div class="slide slide--content" id="slide-2">
+  <div class="slide-number">2 / 17</div>
+  <p class="category">Introduksjon</p>
+  <h2>Kvifor er HMS viktig?</h2>
+  <div class="cards">
+    <div class="card" data-icon="🤕" data-title="Skadar skjer fort" data-info="Dei fleste arbeidsulykker skjer ikkje fordi folk er dumme – dei skjer fordi nokon var uforsiktige eit sekund. Ein kniv som sklir, ein drill utan klemme, eit verktøy lagt feil frå seg. HMS handlar om å lage gode vanar som vernar deg kvar dag.">
+      <div class="card-icon">🤕</div>
+      <h3>Skadar skjer fort</h3>
+      <p>Dei fleste ulykker skjer i eit uoppmerksamt augeblink. Gode vanar vernar deg kvar dag.</p>
+      <div class="info-badge">i</div>
+    </div>
+    <div class="card" data-icon="🔇" data-title="Skjulte farar" data-info="Hørselskadar kjem gradvis og er permanente – du merkar det ikkje før det er for seint. Støv frå tre og betong kan skade lungene over tid. Skarpe kanter og elektriske farar er ikkje alltid synlege. HMS hjelper deg å sjå farene før dei ser deg.">
+      <div class="card-icon">🔇</div>
+      <h3>Skjulte farar</h3>
+      <p>Hørselskadar, støvlunger og elektriske farar er ikkje alltid synlege. Du må vite kva du ser etter.</p>
+      <div class="info-badge">i</div>
+    </div>
+    <div class="card" data-icon="👷" data-title="Ditt ansvar" data-info="På ein arbeidsplass er alle ansvarleg for si eiga og andre si sikkerheit. Du har rett til å seie ifrå om noko er utrygt. Det er ikkje svakt å spørje – det er profesjonelt. Eit trygt arbeidsmiljø er noko alle byggjer saman.">
+      <div class="card-icon">👷</div>
+      <h3>Ditt ansvar</h3>
+      <p>Alle på arbeidsplassen har ansvar for tryggleiken. Det gjeld deg – og dei rundt deg.</p>
+      <div class="info-badge">i</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: Verneutstyr – hovudregel -->
+<div class="slide slide--highlight" id="slide-3">
+  <div class="slide-number">3 / 17</div>
+  <div class="emoji-big">🦺</div>
+  <h2>Regel nr. 1: Ta på verneutstyret!</h2>
+  <p class="subtitle" style="color: rgba(255,255,255,0.9);">Verneutstyr beskyttar deg mot skadar du ikkje ser kome.</p>
+  <div class="key-msg" style="max-width: 640px; margin-top: 32px; text-align: left; border-left-color: #fff;">
+    <strong>Tre ting du alltid skal ha på deg:</strong><br>
+    🔇 Hørselvern ved støyande maskinar · 🧤 Hanskar ved grovt arbeid (men IKKJE ved roterende maskinar) · 👟 Lukka sko til ei kvar tid
+  </div>
+</div>
+
+<!-- SLIDE 4: Verneutstyrsoversikt -->
+<div class="slide slide--content" id="slide-4">
+  <div class="slide-number">4 / 17</div>
+  <p class="category">Verneutstyr</p>
+  <h2>Dette er verneutstyret ditt</h2>
+  <div class="cards" style="max-width: 900px; margin-top: 24px;">
+    <div class="card" data-icon="🎧" data-title="Hørselvern" data-info="Støy over 85 dB kan skade hørselen permanent. Pussemaskin og batteridrill lagar støy langt over denne grensa. Hørselvern skal alltid brukast når desse maskinene er i gang.">
+      <div class="card-icon">🎧</div>
+      <h3>Hørselvern</h3>
+      <p>Alltid ved maskinelt verktøy</p>
+      <div class="info-badge">i</div>
+    </div>
+    <div class="card" data-icon="🧤" data-title="Hanskar" data-info="Hanskar beskyttar mot splinter, skraper og skarpe kanter. Viktig unntak: Hanskar skal IKKJE brukast saman med roterende verktøy som batteridrill — dei kan setje seg fast i boret og dra handa inn.">
+      <div class="card-icon">🧤</div>
+      <h3>Hanskar</h3>
+      <p>Ved handarbeid — ikkje saman med drill</p>
+      <div class="info-badge">i</div>
+    </div>
+    <div class="card" data-icon="👟" data-title="Rette sko" data-info="Tunge materiale og verktøy som fell ned kan knuse tær. Sandalar og klipp-klapp er forbode i sløydsalen. Lukka sko med solid såle er påbode.">
+      <div class="card-icon">👟</div>
+      <h3>Rette sko</h3>
+      <p>Lukka sko med solid såle — alltid</p>
+      <div class="info-badge">i</div>
+    </div>
+  </div>
+  <div class="key-msg" style="margin-top: 24px;">
+    <strong>Hugs:</strong> Verneutstyr er ikkje valfritt. Ha det på FØR du startar arbeidet.
+  </div>
+</div>
+
+<!-- SLIDE 4: Hørselvern -->
+<div class="slide slide--content" id="slide-5">
+  <div class="slide-number">5 / 17</div>
+  <p class="category">Verneutstyr</p>
+  <h2>Hørselvern</h2>
+  <ul class="point-list">
+    <li data-icon="🔇" data-title="Kvifor hørselvern?" data-info="Hørselskadar er permanente – øyrene kan ikkje lækjast. Sjølv kortvarig eksponering for høg støy kan gi tinnitus (surring/pipelyd) eller varig hørseltap. Maskinar som pussemaskin og batteridrill kan liggje på 85–100 dB. Smerteterskelen er 120 dB – og skadar skjer lenge før du kjenner smerte."><span class="point-icon">🔇</span> Bruk alltid hørselvern ved bruk av pussemaskin og batteridrill<div class="info-badge">i</div></li>
+    <li data-icon="⏱️" data-title="Kortvarig støy skadar òg" data-info="Mange trur at hørselvern berre trengst ved langvarig støy. Det stemmer ikkje. Éin korthøg smell (som eit smell frå ei spikarpistol) kan i verste fall gi permanent skade. Vane med hørselvern er den beste beskyttelsen."><span class="point-icon">⏱️</span> Sjølv kortvarig støy kan gi varig hørselskadar – vær på den sikre sida<div class="info-badge">i</div></li>
+    <li data-icon="✅" data-title="Rett bruk av hørselvern" data-info="Hørselvern må sitje tett for å verke. Øyrepropper skal setjast inn til dei sitter godt. Øyrekopper skal dekkje heile øyret og ikkje kvile på toppen av hovudet. Sjekk alltid at hørselvernet sit rett FØR du startar maskinen."><span class="point-icon">✅</span> Hørselvernet skal sitje tett rundt øyra – ikkje berre kvile på hovudet<div class="info-badge">i</div></li>
+    <li data-icon="📢" data-title="Varsle andre" data-info="Ikkje berre tenkj på deg sjølv. Om du startar ei støyande maskin medan ein medelev er i nærleiken utan hørselvern, er det ditt ansvar å varsle. Rop tydeleg eller vent til dei har på seg hørselvern."><span class="point-icon">📢</span> Varsle andre i rommet FØR du startar ei støyande maskin<div class="info-badge">i</div></li>
+  </ul>
+</div>
+
+<!-- SLIDE 5: Hanskar -->
+<div class="slide slide--content" id="slide-6">
+  <div class="slide-number">6 / 17</div>
+  <p class="category">Verneutstyr</p>
+  <h2>Hanskar – når og kvifor IKKJE</h2>
+  <ul class="point-list">
+    <li data-icon="🧤" data-title="Bruk hanskar ved grove oppgåver" data-info="Vernehanskar beskyttar mot sår, fliser, betongstøv og kulde. Bruk dei ved muring, handtering av grovt tre, armering og kaldvær-arbeid. Hanskar reduserer risikoen for kutt og sår ved handtering av materialar."><span class="point-icon">🧤</span> Bruk hanskar ved muring, grovt trearbeid og handtering av materialar<div class="info-badge">i</div></li>
+    <li data-icon="🚫" data-title="ALDRI hanskar ved roterende maskinar" data-info="Dette er ein av dei viktigaste HMS-reglane: hanskar og roterende maskinar er ei farleg kombinasjon. Om hanskematerialet kjem i kontakt med eit roterende bor, kan hanskane bli drege med og dra handa inn i maskinen. Dette kan skje på under eitt sekund og gir alvorlege skadar."><span class="point-icon">🚫</span> ALDRI hanskar saman med batteridrill – hanskane kan setje seg fast i boret og dra handa inn<div class="info-badge">i</div></li>
+    <li data-icon="🤔" data-title="Usikker? Spør!" data-info="Ulike hansketypar passar til ulike oppgåver. Skjerhanskar, vernehanskar og eingongshanskar har ulike eigenskapar. Viss du er usikker på kva hanskar du skal bruke til ei oppgåve, spør læraren. Aldri gjer antagelser om verneutstyr."><span class="point-icon">🤔</span> Ulike hanskar til ulike oppgåver – spør læraren om du er usikker<div class="info-badge">i</div></li>
+  </ul>
+  <div class="key-msg" style="margin-top: 24px;">
+    <strong>Hugseregel:</strong> Roterer det → hanskane av.
+  </div>
+</div>
+
+<!-- SLIDE 6: Sko -->
+<div class="slide slide--content" id="slide-7">
+  <div class="slide-number">7 / 17</div>
+  <p class="category">Verneutstyr</p>
+  <h2>Fottøy på sløydsalen og byggjeplassen</h2>
+  <div class="cards">
+    <div class="card" data-icon="👟" data-title="Kvifor lukka sko?" data-info="Ope fottøy gir ingen beskyttelse mot fallande verktøy, spikrar på golvet eller glidande materialar. Sandalar og flip-flops er forbodne på alle arbeidsplassar. Tennissko og joggesko er greitt for dei fleste skuloppgåver.">
+      <div class="card-icon">👟</div>
+      <h3>Alltid lukka sko</h3>
+      <p>Sandalar og ope fottøy er forbode. Lukka sko beskyttar mot fallande verktøy og spikrar.</p>
+      <div class="info-badge">i</div>
+    </div>
+    <div class="card" data-icon="🦺" data-title="Ståltupp-sko" data-info="Ved handtering av tunge materialar som betongblokker, stålrøyr eller plankar, bør du bruke sko med ståltupp. Desse er designa for å ta imot eit trykk ein vanleg sko ikkje ville tolt. I ungdomsskulen er dette ikkje alltid eit krav, men det er god praksis.">
+      <div class="card-icon">🦺</div>
+      <h3>Ståltupp ved tungt arbeid</h3>
+      <p>Ved handtering av tunge blokker og materialar er sko med ståltupp anbefalt.</p>
+      <div class="info-badge">i</div>
+    </div>
+    <div class="card" data-icon="🧹" data-title="Ryddig golv = trygt golv" data-info="Spikrar, skruer og treplater på golvet er snublefare. Rydd opp etter deg sjølv løpande – ikkje berre på slutten av timen. Ei ryddig arbeidsplass gjer det lettare å arbeide trygt for alle.">
+      <div class="card-icon">🧹</div>
+      <h3>Ryddig golv</h3>
+      <p>Spikrar og skruer på golvet er snublefare. Rydd fortløpande, ikkje berre på slutten.</p>
+      <div class="info-badge">i</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 7: Skarpe verktøy – hovudregel -->
+<div class="slide slide--warning" id="slide-8">
+  <div class="slide-number">8 / 17</div>
+  <div class="emoji-big">🔪</div>
+  <h2>Skarpe verktøy: Aldri mot deg sjølv!</h2>
+  <p class="subtitle" style="color: rgba(255,255,255,0.9);">Skjer alltid bort frå kroppen – og tenk gjennom kvar verktøyet hamnar om det sklir.</p>
+  <div class="key-msg" style="max-width: 640px; margin-top: 32px; text-align: left; border-left-color: #fff; font-size: 18px;">
+    Før du set kniven i arbeidsstykket: <strong>kvar er hendene dine? Kvar er kroppen? Kvar er dei andre?</strong>
+  </div>
+</div>
+
+<!-- SLIDE 9: Skarpe verktøy – detaljar -->
+<div class="slide slide--content" id="slide-9">
+  <div class="slide-number">9 / 17</div>
+  <p class="category">Skarpe verktøy</p>
+  <h2>Rett bruk av skarpe verktøy</h2>
+  <ul class="point-list">
+    <li data-icon="✂️" data-title="Skjæreretning" data-info="Om verktøyet sklir, vil det halde fram i same retning som du skjer. Skjer du mot deg sjølv, er du i bana. Skjer du bort frå deg – og bort frå andre – er du trygg. Denne regelen gjeld kniv, stemmejern, hoggjarn og alle andre skarpe reiskapar."><span class="point-icon">✂️</span> Skjer alltid bort frå kroppen og bort frå medelevar<div class="info-badge">i</div></li>
+    <li data-icon="🗜️" data-title="Klem fast der det trengst" data-info="Bruk skrustikke, klemme eller pressjern når arbeidsstykket treng å haldast heilt stille – til dømes ved boring eller sagging. Ved andre oppgåver, til dømes å forme eit stykke med ein kniv, kan det vere naturleg å halde arbeidsstykket. Vurder alltid om du er trygg nok – aldri hald med handa i bana til verktøyet."><span class="point-icon">🗜️</span> Klem fast arbeidsstykket der det trengst – vurder alltid kvar hendene er<div class="info-badge">i</div></li>
+    <li data-icon="🛑" data-title="Legg frå deg verktøy trygt" data-info="Skarpe verktøy som ligg med eggen opp eller på kanten av ei hylle er ei skadefelle. Legg alltid skarpe verktøy med eggen ned eller bort frå kanten, og bruk slire der det er tilgjengeleg. Gi aldri ein kniv til nokon med eggen mot dei."><span class="point-icon">🛑</span> Legg skarpe verktøy frå deg med eggen ned – bruk slire der det er tilgjengeleg<div class="info-badge">i</div></li>
+  </ul>
+</div>
+
+<!-- SLIDE 10: Stopp og tenk -->
+<div class="slide slide--highlight" id="slide-10">
+  <div class="slide-number">10 / 17</div>
+  <div class="emoji-big">🤔</div>
+  <h2>Stopp og tenk</h2>
+  <p class="subtitle" style="color: rgba(255,255,255,0.9); margin-bottom: 28px;">Diskuter med sidemannen — 2 minutt</p>
+  <div style="display: flex; flex-direction: column; gap: 16px; max-width: 700px; width: 100%; text-align: left;">
+    <div class="key-msg" style="border-left-color: #fff;">
+      🧤 Kva verneutstyr skal du alltid ha på deg i sløydsalen, og kvifor?
+    </div>
+    <div class="key-msg" style="border-left-color: #fff;">
+      🔪 Kva gjer du dersom du skjer deg på ein kniv eller klemmer fingrane?
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 9: El-verktøy -->
+<div class="slide slide--content" id="slide-11">
+  <div class="slide-number">11 / 17</div>
+  <p class="category">El-verktøy</p>
+  <h2>Batteridrill og pussemaskin</h2>
+  <ul class="point-list">
+    <li data-icon="🔋" data-title="Ta ut batteriet FØR du byttar bit" data-info="Sjølv om maskinen er avslått kan ein utilsikta kontakt med bryteren starte han. Ta alltid ut batteriet før du byttar borbit eller gjer justeringar. Det tek to sekund og er den einaste sikre metoden."><span class="point-icon">🔋</span> Ta alltid ut batteriet FØR du byttar borbit eller gjer justeringar på drillen<div class="info-badge">i</div></li>
+    <li data-icon="🗜️" data-title="Klem fast ved boring" data-info="Eit arbeidsstykke som ikkje er festa kan plutseleg spinne rundt når boret set seg fast og gi deg ei kraftig vri. Aldri hald arbeidsstykket med handa under boring – bruk skrustikke eller klemme."><span class="point-icon">🗜️</span> Klem alltid fast arbeidsstykket ved boring – aldri hald det med berre handa<div class="info-badge">i</div></li>
+    <li data-icon="😷" data-title="Støv frå pussemaskin" data-info="Sliping produserer fint støv som er skadeleg for lungene over tid. Bruk støvmaske ved langvarig sliping, særleg innandørs. Kopla til støvsug om maskinen har dette, eller sørg for god ventilasjon. Stå ikkje i støvskya til naboen."><span class="point-icon">😷</span> Bruk støvmaske ved sliping – fint støv er skadeleg å puste inn<div class="info-badge">i</div></li>
+    <li data-icon="🧹" data-title="Ryddig arbeidsplass" data-info="Leidningar og batteri som ligg på golvet er snublefare. Sagflis og støv kan ta fyr. Hald arbeidsområdet ryddig og fritt for hindringer. Etter bruk: rydd opp og legg frå deg verktøyet trygt."><span class="point-icon">🧹</span> Hald arbeidsplassen ryddig – leidningar og batteri på golvet er snublefare<div class="info-badge">i</div></li>
+  </ul>
+</div>
+
+<!-- SLIDE 10: Rett og feil bruk av batteridrill -->
+<div class="slide slide--caution" id="slide-12">
+  <div class="slide-number">12 / 17</div>
+  <div class="emoji-big">🔩</div>
+  <h2>Batteridrill: rett og feil bruk</h2>
+  <div class="two-col" style="max-width: 800px; text-align: left;">
+    <div class="col">
+      <h3>❌ Aldri</h3>
+      <ul>
+        <li data-icon="❌" data-title="Hald arbeidsstykket med handa under boring" data-info="Når boret set seg fast kan arbeidsstykket brått spinne rundt. Om du held det med handa kan du pådra deg ei kraftig vri eller sår. Bruk alltid skrustikke eller klemme.">Hald arbeidsstykket med handa under boring</li>
+        <li data-icon="❌" data-title="Bytt borbit med batteriet inne" data-info="Sjølv om maskinen er avslått kan ein utilsikta kontakt med bryteren starte han. Ta alltid ut batteriet – det tek to sekund og er den einaste sikre metoden.">Bytt borbit med batteriet inne</li>
+        <li data-icon="❌" data-title="Bruk hanskar saman med drillen" data-info="Hanskar kan setje seg fast i boret og dra handa inn i maskinen. Arbeide alltid utan hanskar når du brukar batteridrill.">Bruk hanskar saman med drillen</li>
+      </ul>
+    </div>
+    <div class="col">
+      <h3>✅ Alltid</h3>
+      <ul>
+        <li data-icon="✅" data-title="Klem fast arbeidsstykket" data-info="Ei skrustikke eller klemme held arbeidsstykket stabilt og frigjer begge hendene til å styre maskinen kontrollert. Det gir òg betre resultat.">Klem fast arbeidsstykket</li>
+        <li data-icon="✅" data-title="Ta ut batteriet ved bytte" data-info="Ta alltid ut batteriet FØR du byttar borbit eller justerer maskinen. Det er den einaste 100% sikre metoden.">Ta ut batteriet FØR du byttar bit</li>
+        <li data-icon="✅" data-title="Varsle før start" data-info="Sei ifrå til dei rundt deg FØR du startar drillen, særleg om de er fleire i rommet. Ein drill som startar uventa kan skremme nokon til å bevege seg brått.">Varsle lærar og medelevar FØR start</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 11: Video – Korleis bruke ein drill -->
+<div class="slide slide--video" id="slide-13">
+  <div class="slide-number">13 / 17</div>
+  <p class="category">El-verktøy</p>
+  <h2>Sjå korleis du bruker ein drill rett</h2>
+  <div class="video-wrapper">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/kOXyYBgPBbA?si=Y-R3HYFUBIsGkR23" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+  </div>
+  <p style="margin-top: 14px; font-size: 14px; color: rgba(255,255,255,0.4);">Bygger'n</p>
+</div>
+
+<!-- SLIDE 12: Sår og klemskader – forebygging -->
+<div class="slide slide--content" id="slide-14">
+  <div class="slide-number">14 / 17</div>
+  <p class="category">Skadar</p>
+  <h2>Slik unngår du sår og klemskader</h2>
+  <ul class="point-list">
+    <li data-icon="🧠" data-title="Konsentrasjon er verneutstyr" data-info="Dei aller fleste skadar i sløydsalen skjer i eit uoppmerksamt sekund – ein tanke ein annan stad, eit blikk mot sida. Konsentrasjon er faktisk ditt viktigaste verneutstyr. Arbeid alltid med full merksemd, særleg med skarpe og elektriske verktøy."><span class="point-icon">🧠</span> Konsentrer deg om det du gjer – uforsiktigheit er hovudårsaka til skadar<div class="info-badge">i</div></li>
+    <li data-icon="📐" data-title="Tenk gjennom rørsla" data-info="Før du set i gang: kvar er verktøyet om det sklir? Kvar er hendene? Kvar er medelevar? Det tek berre eit sekund å tenkje gjennom handlinga, men kan spare deg for alvorlege skadar."><span class="point-icon">📐</span> Tenk gjennom rørsla FØR du set i gang – kvar er hendene om noko sklir?<div class="info-badge">i</div></li>
+    <li data-icon="🗜️" data-title="Klem fast der det trengst" data-info="Ved boring og sagging skal arbeidsstykket alltid klemmast fast. Ved andre oppgåver kan det vere naturleg å halde arbeidsstykket – men alltid med handa ute av bana til verktøyet. Bruk alltid riktig verktøy til riktig oppgåve."><span class="point-icon">🗜️</span> Bruk klemme ved boring – hald alltid handa ute av bana til verktøyet<div class="info-badge">i</div></li>
+    <li data-icon="🚫" data-title="Ikkje distrahér andre" data-info="Å klappe til ein medelev på skuldra medan han eller ho sagr eller borer er ein klassisk årsak til skadar. Vent alltid til dei er ferdige med den farlege operasjonen. Snakk til dei, ikkje rør dei."><span class="point-icon">🚫</span> Ikkje distrahér nokon som er i gang med farleg arbeid<div class="info-badge">i</div></li>
+  </ul>
+</div>
+
+<!-- SLIDE 12: Sår og klemskader – førstehjelp -->
+<div class="slide slide--highlight" id="slide-15">
+  <div class="slide-number">15 / 17</div>
+  <div class="emoji-big">🩹</div>
+  <h2>Om det skjer – kva gjer du?</h2>
+  <div class="two-col" style="max-width: 800px; margin-top: 20px; text-align: left;">
+    <div class="col">
+      <h3>🩸 Kutt og sår</h3>
+      <ul>
+        <li data-icon="🩸" data-title="Press på såret" data-info="Press med ein rein klut, eit papirark eller eit plaster. Slipp ikkje opp sjølv om det blør mykje – press held inn til legen overtek eller blødinga stoppar. Hald den skadde handa heva for å redusere blødinga.">Press med reint stoff – ikkje slipp opp</li>
+        <li data-icon="📣" data-title="Meld straks frå til lærar" data-info="Læraren skal alltid vitast om skadar, uavhengig av storleik. Det er ikkje ei bøn om hjelp, det er ein rutine. Læraren kan vurdere om det trengst meir hjelp og sørgjer for at det blir dokumentert.">Meld straks frå til lærar</li>
+        <li data-icon="📣" data-title="Varsle lærar straks" data-info="Uansett kor stor eller liten skaden er – varsle læraren umiddelbart. Læraren vurderer alvorsgrada og tek kontakt med helsepersonell ved behov. Di oppgåve er å seie ifrå, ikkje å handtere det åleine.">Varsle læraren straks – uansett storleik på skaden</li>
+      </ul>
+    </div>
+    <div class="col">
+      <h3>🔨 Klemskader og augeskade</h3>
+      <ul>
+        <li data-icon="🔨" data-title="Klemskade" data-info="Meld straks frå til læraren. Flytt ikkje den skadde kroppsdelen meir enn nødvendig. Køl ned med kaldt vatn om det brenn. Klemskader kan skjule beinbrot og bør alltid vurderast av legen.">Meld frå, flytt ikkje kroppsdelen unødig</li>
+        <li data-icon="👁️" data-title="Augeskade (spon, støv, kjemi)" data-info="Gni ALDRI i auget – det spreier skaden. Skyl roleg med mykje reint vatn i minimum 10–15 minutt. Om noko er festa i auget, ikkje prøv å fjerne det – søk lege. Vernebriller hadde hindra dette.">Ikkje gni – skyl med vatn. Søk lege</li>
+        <li data-icon="📣" data-title="Varsle læraren" data-info="Læraren skal alltid vite om skadar, òg augeskader. Ikkje prøv å handtere det åleine. Lærarens oppgåve er å vurdere og skaffe hjelp om det trengst.">Varsle læraren straks</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 13: Plassering -->
+<div class="slide slide--content" id="slide-16">
+  <div class="slide-number">16 / 17</div>
+  <p class="category">Plassering og romleg medvit</p>
+  <h2>Ver medviten om kvar du er – og kvar andre er</h2>
+  <ul class="point-list">
+    <li data-icon="📏" data-title="Hald avstand" data-info="Ein armlengds avstand til den som arbeider med verktøy er minimumsregelen. Faktisk er større avstand betre – det gir meir rom om noko uventa skjer. Du treng ikkje stå tett bak nokon for å sjå kva dei gjer."><span class="point-icon">📏</span> Hald alltid minst ein armlengd avstand frå nokon som brukar verktøy<div class="info-badge">i</div></li>
+    <li data-icon="🚫" data-title="Stå aldri i bana til verktøyet" data-info="Anten det er ein pussemaskin, ein batteridrill eller eit skarpt handverktøy – aldri plasser kroppen din der du kan bli treft om noko sklir eller losnar. Tenk alltid gjennom kvar verktøyet er på veg."><span class="point-icon">🚫</span> Stå aldri i bana til verktøyet – tenk gjennom kvar det er på veg<div class="info-badge">i</div></li>
+    <li data-icon="🏗️" data-title="Utvendig arbeid – fleirpersonsregelen" data-info="Når de er fleire ute og murer eller snikrar, ver alltid medviten om kvar dei andre er. Rop frå deg om du skal flytte på noko tungt, slå med ein slegge eller bruke ein vinkelsliper. Ikkje anta at dei andre ser deg."><span class="point-icon">🏗️</span> Ute på byggjeplass: alltid vite kvar medarbeidarane er<div class="info-badge">i</div></li>
+    <li data-icon="📢" data-title="Varsle FØR du startar maskinar" data-info="Ein maskin som startar utan varsel kan skremme nokon til å miste grepet om det dei held i. Sei alltid «Eg startar sag!», «Eg startar drill!» eller liknande – høgt nok til at alle i rommet høyrer det."><span class="point-icon">📢</span> Varsle tydeleg FØR du startar maskinar – høgt nok til at alle høyrer<div class="info-badge">i</div></li>
+  </ul>
+</div>
+
+<!-- SLIDE 14: Klar for test? -->
+<div class="slide slide--highlight" id="slide-17">
+  <div class="slide-number">17 / 17</div>
+  <div class="emoji-big">📝</div>
+  <h2>Klar for testen?</h2>
+  <p class="subtitle" style="color: rgba(255,255,255,0.9);">
+    Testen har 10 spørsmål. Alle må vera rette for å bestå og få diplom.
+  </p>
+  <p style="margin-top: 24px; font-size: 20px; color: rgba(255,255,255,0.7);">
+    Opne HMSkurs_test.html i nettlesaren. Bruk det du har lært i dag!
+  </p>
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+  <button id="prev" onclick="changeSlide(-1)" disabled>← Førre</button>
+  <div class="progress" id="progress"></div>
+  <button id="next" onclick="changeSlide(1)">Neste →</button>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModalOnOverlay(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()" aria-label="Lukk">✕</button>
+    <div class="modal-icon" id="modal-icon"></div>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-body" id="modal-body"></div>
+    <p class="modal-hint">Trykk utanfor eller ESC for å lukke</p>
+  </div>
+</div>
+
+<script>
+  const totalSlides = 17;
+  let current = 1;
+
+  const progressEl = document.getElementById('progress');
+  for (let i = 1; i <= totalSlides; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot' + (i === 1 ? ' active' : '');
+    dot.dataset.slide = i;
+    dot.addEventListener('click', () => goToSlide(i));
+    dot.style.cursor = 'pointer';
+    progressEl.appendChild(dot);
+  }
+
+  function goToSlide(n) {
+    document.getElementById('slide-' + current).classList.remove('active');
+    current = n;
+    document.getElementById('slide-' + current).classList.add('active');
+    updateNav();
+  }
+
+  function changeSlide(dir) {
+    const next = current + dir;
+    if (next < 1 || next > totalSlides) return;
+    goToSlide(next);
+  }
+
+  function updateNav() {
+    document.getElementById('prev').disabled = current === 1;
+    const nextBtn = document.getElementById('next');
+    if (current === totalSlides) {
+      nextBtn.disabled = false;
+      nextBtn.textContent = 'Gå til testen →';
+      nextBtn.style.background = 'linear-gradient(135deg, #16a34a, #065f46)';
+      nextBtn.style.border = 'none';
+      nextBtn.onclick = () => window.location.href = 'HMSkurs_test.html';
+    } else {
+      nextBtn.disabled = false;
+      nextBtn.textContent = 'Neste →';
+      nextBtn.style.background = '';
+      nextBtn.style.border = '';
+      nextBtn.onclick = () => changeSlide(1);
+    }
+    document.querySelectorAll('.progress-dot').forEach(dot => {
+      const s = parseInt(dot.dataset.slide);
+      dot.className = 'progress-dot';
+      if (s === current) dot.classList.add('active');
+      else if (s < current) dot.classList.add('visited');
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (document.getElementById('modal').classList.contains('open')) {
+      if (e.key === 'Escape') closeModal();
+      return;
+    }
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); }
+  });
+
+  function openModal(icon, title, info) {
+    document.getElementById('modal-icon').textContent = icon;
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-body').textContent = info;
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+  }
+
+  function closeModalOnOverlay(e) {
+    if (e.target === document.getElementById('modal')) closeModal();
+  }
+
+  document.querySelectorAll('[data-info]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openModal(
+        el.dataset.icon || '💡',
+        el.dataset.title || '',
+        el.dataset.info || ''
+      );
+    });
+  });
+</script>
+</body>
+</html>

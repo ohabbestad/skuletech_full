@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul 4: Trafikken i nærmiljøet — Valfag Trafikk · SkuleTech</title>
+    <meta name="description" content="Kartlegg trafikkfarlege punkt i ditt nærmiljø og foreslau løysingar. Modul 4 i Valfag Trafikk." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#0f172a',
+                            blue: '#1e3a8a',
+                            red: '#dc2626',
+                            green: '#059669',
+                            yellow: '#d97706',
+                            purple: '#6d28d9',
+                            indigo: '#4f46e5',
+                            teal: '#0f766e'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { -webkit-font-smoothing: antialiased; }
+        .gradient-text {
+            background: linear-gradient(135deg, #5eead4, #2dd4bf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* Modal animasjon */
+        .modal-enter { opacity: 0; transform: scale(0.95) translateY(10px); }
+        .modal-enter-active { opacity: 1; transform: scale(1) translateY(0); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .modal-leave { opacity: 1; transform: scale(1) translateY(0); }
+        .modal-leave-active { opacity: 0; transform: scale(0.95) translateY(10px); transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans selection:bg-brand-teal selection:text-white relative">
+
+    <!-- Navigasjon -->
+    <nav class="fixed w-full z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all duration-300 shadow-sm" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <a href="index.html">
+                    <div class="flex-shrink-0 flex items-center font-bold text-xl tracking-tight text-brand-dark">
+                        <img src="bilete/Logo.svg" alt="Valfag Trafikk" class="w-7 h-7 mr-2" />
+                        Valfag<span class="text-brand-blue">Trafikk</span>
+                    </div>
+                </a>
+                <div class="hidden md:flex space-x-8 text-sm font-semibold text-slate-600">
+                    <a href="#kartlegging" class="hover:text-brand-teal transition-colors">Kartlegging</a>
+                    <a href="#hjartesone" class="hover:text-brand-teal transition-colors">Hjartesone</a>
+                    <a href="#prosjekt" class="hover:text-brand-teal transition-colors">Bli høyrt!</a>
+                    <a href="#refleksjon" class="text-brand-teal hover:text-teal-800 transition-colors">Feltarbeidsoppgåve</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Seksjon -->
+    <header class="relative pt-32 pb-20 lg:pt-40 lg:pb-28 bg-brand-dark overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-teal-950 to-brand-dark"></div>
+        <div class="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M54.627 0l1.43 1.43-56.056 56.057L0 56.056 54.627 0zm-28.59 0l1.43 1.43-27.467 27.467L18.57 27.468 44.607 1.43 46.037 0h-20zM60 14.243l-1.43-1.43L31.103 40.28 29.673 41.71l28.897-28.897V14.243zM60 42.833l-1.43-1.43L46.037 53.936l1.43 1.43L60 42.833z\' fill=\'%23ffffff\' fill-rule=\'evenodd\'/%3E%3C/svg%3E')]"></div>
+        
+        <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <span class="inline-block py-1 px-3 rounded-full bg-teal-500/20 text-teal-300 font-semibold text-xs uppercase tracking-widest mb-6 border border-teal-500/30">Modul 4 · Valfag Trafikk</span>
+            <h1 class="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-6 leading-tight">
+                Trafikken i <br>
+                <span class="gradient-text">Nærmiljøet</span>
+            </h1>
+            <p class="mt-4 text-lg md:text-xl text-slate-300 mb-10 leading-relaxed max-w-3xl mx-auto">
+                No skal vi ut av klasserommet! Det er de som kjenner skulevegen best. Kvar er dei farlegaste punkta, og korleis kan de foreslå konkrete løysingar for å redde liv der de bur?
+            </p>
+        </div>
+    </header>
+
+    <!-- Hovedinnhold -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 -mt-10 relative z-10">
+        
+        <!-- Seksjon 1: Kartlegging -->
+        <h2 id="kartlegging" class="text-2xl font-bold text-slate-900 mb-6 flex items-center">
+            <span class="w-8 h-8 rounded-lg bg-brand-teal flex items-center justify-center text-white mr-3 text-sm">1</span>
+            Kartlegging av skulevegen (Risikovurdering)
+        </h2>
+        
+        <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm mb-16">
+            <p class="text-slate-600 leading-relaxed mb-8 max-w-3xl">
+                For å forbetre trafikktryggleiken må vi først vite kvar farane ligg. Eit «farleg punkt» på skulevegen oppstår oftast der bilar og mjuke trafikantar kryssar spor, eller der sikta er dårleg. Trykk på korta for å sjå kva du skal leite etter i ditt eige nærmiljø.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Farlege kryss -->
+                <button onclick="openModal('farlege_kryss')" class="text-left bg-teal-50 rounded-2xl p-6 border border-teal-100 hover:shadow-md hover:-translate-y-1 transition-all group focus:outline-none focus:ring-2 focus:ring-brand-teal">
+                    <div class="text-3xl mb-3">🚸</div>
+                    <h3 class="text-lg font-bold mb-2 text-teal-900">Uoversiktlege kryss</h3>
+                    <p class="text-slate-600 text-sm mb-4">Mange overgangsfelt gjev ein falsk tryggleik. Kva gjer eit kryss farleg?</p>
+                    <div class="text-brand-teal text-sm font-semibold flex items-center">Les meir <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></div>
+                </button>
+
+                <!-- Dårleg sikt -->
+                <button onclick="openModal('darlig_sikt')" class="text-left bg-teal-50 rounded-2xl p-6 border border-teal-100 hover:shadow-md hover:-translate-y-1 transition-all group focus:outline-none focus:ring-2 focus:ring-brand-teal">
+                    <div class="text-3xl mb-3">🌳</div>
+                    <h3 class="text-lg font-bold mb-2 text-teal-900">Sikt og hindringar</h3>
+                    <p class="text-slate-600 text-sm mb-4">Høge hekkar, parkerte bilar og manglande gatelys kan skule elevar for bilistane.</p>
+                    <div class="text-brand-teal text-sm font-semibold flex items-center">Sjå døme <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></div>
+                </button>
+
+                <!-- Fart og veg -->
+                <button onclick="openModal('fart_manglar')" class="text-left bg-teal-50 rounded-2xl p-6 border border-teal-100 hover:shadow-md hover:-translate-y-1 transition-all group focus:outline-none focus:ring-2 focus:ring-brand-teal">
+                    <div class="text-3xl mb-3">💨</div>
+                    <h3 class="text-lg font-bold mb-2 text-teal-900">Fart og fortau</h3>
+                    <p class="text-slate-600 text-sm mb-4">Kva skjer når mjuke trafikantar må dele vegbane med bilar i høg fart?</p>
+                    <div class="text-brand-teal text-sm font-semibold flex items-center">Les om manglar <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Seksjon 2: Hjartesone -->
+        <h2 id="hjartesone" class="text-2xl font-bold text-slate-900 mb-6 flex items-center mt-12">
+            <span class="w-8 h-8 rounded-lg bg-brand-red flex items-center justify-center text-white mr-3 text-sm">2</span>
+            Hjartesoner i praksis
+        </h2>
+        
+        <div class="bg-red-50 rounded-3xl p-8 border border-red-100 flex flex-col lg:flex-row gap-10 items-center mb-16">
+            <div class="lg:w-1/2">
+                <h3 class="text-3xl font-bold text-red-950 mb-4">Paradokset ved skuleporten</h3>
+                <p class="text-red-800 mb-6 leading-relaxed">
+                    Foreldre ønskjer at barna deira skal vere trygge, og difor vel mange å køyre dei heilt fram til skulen. Men når "alle" gjer dette, skaper dei eit enormt trafikkkaos, dårleg sikt og farlege rygge-situasjonar for dei barna som faktisk går.
+                </p>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-red-100">
+                    <h4 class="font-bold text-slate-800 mb-4">Slik fungerer ei Hjartesone:</h4>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <svg class="w-6 h-6 text-brand-red mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                            <span class="text-slate-700 text-sm"><strong>Bilfritt nærområde:</strong> Ein radius rundt skulen (t.d. 300 meter) blir erklært heilt bilfri ved skulestart og skuleslutt.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="w-6 h-6 text-brand-red mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span class="text-slate-700 text-sm"><strong>Droppsoner unna skulen:</strong> Det blir oppretta eigne "droppsoner" (Kiss & Ride) eit stykke vekk, der foreldre lovleg og trygt kan sleppe av barna. Barna går den siste biten.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="w-6 h-6 text-brand-red mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.514"></path></svg>
+                            <span class="text-slate-700 text-sm"><strong>Auka folkehelse:</strong> Når skuleområdet kjennest trygt, vil fleire velje å gå eller sykle heimanfrå. Det reduserer utslepp og aukar den fysiske aktiviteten.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="lg:w-1/2 flex justify-center">
+                <img src="media/drop-sone.jpg" alt="Skule med ring rundt og droppsone i ytterkanten" class="w-full h-64 object-cover rounded-xl border border-red-200 shadow-sm">
+            </div>
+        </div>
+
+        <!-- Seksjon 3: Bli høyrt av kommunen -->
+        <h2 id="prosjekt" class="text-2xl font-bold text-slate-900 mb-6 flex items-center mt-12">
+            <span class="w-8 h-8 rounded-lg bg-brand-yellow flex items-center justify-center text-white mr-3 text-sm">3</span>
+            Slik påverkar du (Prosjektmal)
+        </h2>
+        
+        <div class="bg-slate-900 rounded-3xl p-8 border border-slate-800 shadow-xl text-white mb-16 relative overflow-hidden">
+            <div class="absolute -right-6 -bottom-6 opacity-10">
+                <svg class="w-48 h-48" fill="currentColor" viewBox="0 0 24 24"><path d="M19 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h4l3 3 3-3h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 16H5V4h14v14z"></path><path d="M7 12h10v2H7zM7 8h10v2H7z"></path></svg>
+            </div>
+            
+            <h3 class="text-2xl font-bold mb-4 relative z-10">Korleis få politikarane til å lytte?</h3>
+            <p class="text-slate-300 mb-8 max-w-2xl relative z-10">
+                Å klage over at "krysset er farleg" er sjeldan nok. Viss du vil ha handling frå kommunen, må du skrive eit formelt forslag. Her er malen for korleis de byggjer opp ei god prosjektoppgåve eller eit brev til kommunen.
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-6 relative z-10">
+                <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+                    <h4 class="font-bold text-brand-yellow mb-2">Trinn 1: Dokumentasjon</h4>
+                    <p class="text-slate-400 text-sm">Identifiser nøyaktig kvar problemet er. Ta bilete av staden (gjerne når trafikken er som verst). Tel bilar vs. gåande i eit kvarter. Dette vert handfaste bevis du kan vise til.</p>
+                </div>
+                
+                <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+                    <h4 class="font-bold text-brand-yellow mb-2">Trinn 2: Finn årsaka</h4>
+                    <p class="text-slate-400 text-sm">Kvifor skjer det farlege situasjonar akkurat her? Manglar det spegel for å sjå rundt hekken? Går vegane for strakt slik at farten blir for høg? Er det dårleg belyst?</p>
+                </div>
+                
+                <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+                    <h4 class="font-bold text-brand-yellow mb-2">Trinn 3: Konkret løysingsforslag</h4>
+                    <p class="text-slate-400 text-sm">Ikkje berre be om at det "blir fiksa". Kom med konkrete tiltak: "Vi foreslår å opprette eit opphøgd gangfelt", "Sette ned fartsgrensa til 30 km/t", eller "Rydde skog på hjørnet for betre sikt".</p>
+                </div>
+                
+                <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+                    <h4 class="font-bold text-brand-yellow mb-2">Trinn 4: Send inn</h4>
+                    <p class="text-slate-400 text-sm">Bruk ordninga "Min sak" eller send det via elevrådet til teknisk etat i kommunen. Underskriftskampanjar frå skulen kan også hjelpe for å vise støtte.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Refleksjonsoppgåve (Feltarbeid) -->
+    <section id="refleksjon" class="py-20 bg-white border-t border-slate-200">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-center mb-6">
+                <div class="w-16 h-16 bg-teal-50 rounded-full flex items-center justify-center text-brand-teal">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                </div>
+            </div>
+            <h2 class="text-3xl font-bold text-center text-slate-900 mb-4">Feltarbeidsoppgåve: Bli trafikksjef</h2>
+            <p class="text-center text-slate-600 mb-10 max-w-2xl mx-auto">No er det opp til dykk å finne løysingane som manglar i dykkar lokalmiljø. Denne oppgåva skal løysast over to veker.</p>
+            
+            <div class="bg-slate-50 border border-slate-200 p-8 rounded-2xl shadow-sm">
+                
+                <div class="bg-brand-teal/5 border border-brand-teal/20 rounded-xl p-6">
+                    <h4 class="font-bold text-brand-teal mb-4 flex items-center text-lg">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Prosjekt: Skulevegen vår (Leverast på Itslearning):
+                    </h4>
+                    <p class="text-slate-700 mb-4 text-sm font-semibold">Jobb saman i par eller grupper på tre. Gjer følgjande:</p>
+                    <ol class="list-decimal pl-5 space-y-4 text-slate-700">
+                        <li><strong>Ut på tur (Kartlegging):</strong> Gå ein runde rundt skulen (eller ein rute heim). Finn det trafikkpunktet de meiner er farlegast. Ta eit bilete av staden som tydeleg viser utfordringa.</li>
+                        <li><strong>Opprett Word-dokument:</strong> Lim inn biletet og gi dokumentet overskrifta <em>"Forslag til utbetring av trafikkfarleg punkt ved [Namn på stad]"</em>.</li>
+                        <li><strong>Skildring:</strong> Forklar kva som gjer punktet farleg. Er det farten til bilane? Ein stor hekk som sperrar sikta? Mange som ryggar der elevar kjem gåande?</li>
+                        <li><strong>Løysing:</strong> Foreslå <em>to konkrete tiltak</em> som kommunen (eller huseigar) kan gjere for å fjerne eller redusere faren.</li>
+                        <li><strong>Hjartesone:</strong> Viss dykkar skule skulle oppretta ei "Hjartesone", kvar på eit kart ville det vere best å plassere "droppsona" for bilane? (Skriv berre namnet på gata/plassen og kvifor den passar bra).</li>
+                        <li>Lagre dokumentet og last det opp i oppgåvemappa for "Modul 4: Feltarbeid" på Itslearning. Dei beste forslaga vil bli sendt til ordføraren!</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-10 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">Læringsressurs for Valfag Trafikk (LK20) &copy; 2026. Basert på opplæringsmål frå Trygg Trafikk.</p>
+        </div>
+    </footer>
+
+    <!-- MODAL OVERLAY -->
+    <div id="info-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 sm:p-6 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div id="modal-content-box" class="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col transform scale-95 translate-y-4 transition-all duration-300">
+            <div class="flex items-center justify-between p-6 border-b border-slate-100">
+                <div class="flex items-center">
+                    <span id="modal-icon" class="text-3xl mr-4"></span>
+                    <h3 id="modal-title" class="text-2xl font-bold text-slate-900">Tittel</h3>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full p-2 transition-colors focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div id="modal-body" class="p-6 md:p-8 overflow-y-auto text-slate-600 text-sm leading-relaxed space-y-5">
+                <!-- Content injected via JS -->
+            </div>
+            <div class="p-6 border-t border-slate-100 bg-slate-50 text-right">
+                <button onclick="closeModal()" class="px-6 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold rounded-lg transition-colors focus:outline-none">Lukk</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for Modals -->
+    <script>
+        // Data for modulane
+        const modalData = {
+            'farlege_kryss': {
+                icon: '🚸',
+                title: 'Kva gjer eit kryss farleg?',
+                content: `
+                    <p>Ein av dei største fellene i trafikken er å tru at overgangsfelt (sebrastriper) automatisk gjer det trygt. Det er tvert i mot; ulykkesstatistikken er skyhøg akkurat her.</p>
+                    <ul class="list-disc pl-5 space-y-2 mt-4 text-slate-700">
+                        <li><strong>Den falske tryggleiken:</strong> Fotgjengarar trur ofte at bilane kan stoppe på sekundet fordi dei ser overgangsfeltet. Som vi lærte i Modul 2, brukar ein bil mange meter berre på reaksjonstida.</li>
+                        <li><strong>Blindsoner:</strong> Parkerte bilar, store varebilar eller bussar som stoppar rett foran eller i krysset, skuler barn som skal krysse vegen.</li>
+                        <li><strong>Løysing (Tiltak):</strong> Viss de finn eit slik kryss, kan eit godt tiltak vere å foreslå eit <em>opphøgd gangfelt</em> (fartshump og overgangsfelt i eitt), for å tvinge farten ned før krysset.</li>
+                    </ul>
+                `
+            },
+            'darlig_sikt': {
+                icon: '🌳',
+                title: 'Sikt og hindringar',
+                content: `
+                    <p>Sikt handlar ikkje berre om mørke og mangel på refleks. Det handlar vel så mykje om kva som står i vegen.</p>
+                    <div class="mt-4 p-4 bg-teal-50 border border-teal-100 rounded-xl">
+                        <h4 class="font-bold text-teal-900 mb-2">Tre klassiske hindringar:</h4>
+                        <ol class="list-decimal pl-5 space-y-2 text-teal-800 text-sm">
+                            <li><strong>Høge hekkar på hjørnet:</strong> Huseigarar har strengt lovpålagt ansvar for å klippe hekkane sine slik at siktlinjene ved kryss blir bevart. Mange gjer det ikkje.</li>
+                            <li><strong>Ulovleg parkering:</strong> Bilar parkert for nært kryss eller direkte på fortau tvingar fotgjengarar (og særleg dei med rullestol/barnevogn) ut i vegbanen.</li>
+                            <li><strong>Manglande gatelys:</strong> Særleg kritisk der skulebarn går langs vegar utan fortau.</li>
+                        </ol>
+                    </div>
+                    <p class="mt-4"><strong>Tiltak:</strong> Foreslå fjerning av p-plassar rett ved kryss, eller krevje at kommunen sender pålegg om klipping av hekkar til spesifikke adresser.</p>
+                `
+            },
+            'fart_manglar': {
+                icon: '💨',
+                title: 'Fart og manglande gangvegar',
+                content: `
+                    <p>Det er farten som drep. Å gå langs ein veg utan atskild gang- og sykkelsti kjennest svært utrygt, og er det òg viss fartsgrensa er høg.</p>
+                    <ul class="list-disc pl-5 space-y-3 mt-4 text-slate-700">
+                        <li><strong>Fartsgrenser:</strong> Ei gate forbi ein skule eller eit tett bustadfelt bør alltid vere 30 km/t. Kva er farten forbi dykkar skule?</li>
+                        <li><strong>"Snikkøyring" og snarvegar:</strong> Ofte nyttar bilistar tronge bustadgater som snarvegar (for å unngå kø på hovudvegen). Dette dreg gjennomgangstrafikk og fart inn i trygge nabolag.</li>
+                        <li><strong>Løysingsforslag:</strong> Foreslå fartsdumpar, innsnevring av vegen (som tvingar bilane til å køyre ein om gongen), eller skilting som forbyr gjennomkøyring.</li>
+                    </ul>
+                `
+            }
+        };
+
+        const modal = document.getElementById('info-modal');
+        const modalContentBox = document.getElementById('modal-content-box');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const modalIcon = document.getElementById('modal-icon');
+
+        function openModal(id) {
+            const data = modalData[id];
+            if (!data) return;
+            modalTitle.innerText = data.title;
+            modalBody.innerHTML = data.content;
+            modalIcon.innerText = data.icon;
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modalContentBox.classList.remove('scale-95', 'translate-y-4');
+                modalContentBox.classList.add('scale-100', 'translate-y-0');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modalContentBox.classList.remove('scale-100', 'translate-y-0');
+            modalContentBox.classList.add('scale-95', 'translate-y-4');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+            document.body.style.overflow = 'auto';
+        }
+        
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 10) { nav.classList.add('shadow-md'); } 
+            else { nav.classList.remove('shadow-md'); }
+        });
+    </script>
+</body>
+</html>

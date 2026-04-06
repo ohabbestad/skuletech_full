@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul 1: Førstemann på staden — Valfag Trafikk · SkuleTech</title>
+    <meta name="description" content="Lær livredande førstehjelp, ABC-prinsippet og handtering av ulukkesstad. Modul 1 i Valfag Trafikk." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#0f172a',
+                            blue: '#1e3a8a',
+                            red: '#dc2626',
+                            green: '#059669',
+                            yellow: '#d97706'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { -webkit-font-smoothing: antialiased; }
+        .gradient-text {
+            background: linear-gradient(135deg, #93c5fd, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* Modal animasjon */
+        .modal-enter { opacity: 0; transform: scale(0.95) translateY(10px); }
+        .modal-enter-active { opacity: 1; transform: scale(1) translateY(0); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .modal-leave { opacity: 1; transform: scale(1) translateY(0); }
+        .modal-leave-active { opacity: 0; transform: scale(0.95) translateY(10px); transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans selection:bg-brand-blue selection:text-white relative">
+
+    <!-- Navigasjon -->
+    <nav class="fixed w-full z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all duration-300 shadow-sm" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <a href="index.html">
+                    <div class="flex-shrink-0 flex items-center font-bold text-xl tracking-tight text-brand-dark">
+                        <img src="bilete/Logo.svg" alt="Valfag Trafikk" class="w-7 h-7 mr-2" />
+                        Valfag<span class="text-brand-blue">Trafikk</span>
+                    </div>
+                </a>
+                <div class="hidden md:flex space-x-8 text-sm font-semibold text-slate-600">
+                    <a href="#handlingsplan" class="hover:text-brand-blue transition-colors">Handlingsplan</a>
+                    <a href="#frosk" class="hover:text-brand-blue transition-colors">FROSK-prinsippet</a>
+                    <a href="#plikt" class="hover:text-brand-blue transition-colors">Lov og Plikt</a>
+                    <a href="#refleksjon" class="text-brand-blue hover:text-blue-800 transition-colors">Refleksjonsoppgåve</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Seksjon -->
+    <header class="relative pt-32 pb-20 lg:pt-40 lg:pb-28 bg-brand-dark overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-brand-dark via-slate-900 to-blue-900"></div>
+        <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <span class="inline-block py-1 px-3 rounded-full bg-slate-800 text-slate-300 font-semibold text-xs uppercase tracking-widest mb-6 border border-slate-700">Læringsressurs · Valfag Trafikk</span>
+            <h1 class="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-6 leading-tight">
+                Førstemann på staden <br>
+                <span class="gradient-text">Kunnskap reddar liv</span>
+            </h1>
+            <p class="mt-4 text-lg md:text-xl text-slate-300 mb-10 leading-relaxed">
+                Når ulykker skjer, tel kvart sekund. Som førar, passasjer eller vitne har du ei lovpålagd plikt til å hjelpe. Klikk på korta under for å djupdykke i kva du konkret skal gjere.
+            </p>
+        </div>
+    </header>
+
+    <!-- Hovedinnhold: Grid med klikkbare kort -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 -mt-10 relative z-10">
+        
+        <!-- Seksjon: Akuttfasen -->
+        <h2 id="handlingsplan" class="text-2xl font-bold text-slate-900 mb-6 flex items-center">
+            <span class="w-8 h-8 rounded-lg bg-brand-red flex items-center justify-center text-white mr-3 text-sm">1</span>
+            Den akutte fasen (Stans, Sikre, Varsle)
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+            <button onclick="openModal('oversikt')" class="text-left bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group focus:outline-none focus:ring-2 focus:ring-brand-blue">
+                <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center mb-4 text-slate-700 group-hover:bg-brand-blue group-hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Skaff oversikt</h3>
+                <p class="text-slate-500 text-sm mb-4">Kva gjer du dei aller første sekunda? Lær om plassering av bil og overblikk.</p>
+                <div class="text-brand-blue text-sm font-semibold flex items-center">Les meir <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></div>
+            </button>
+
+            <button onclick="openModal('sikre')" class="text-left bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group focus:outline-none focus:ring-2 focus:ring-brand-blue">
+                <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center mb-4 text-slate-700 group-hover:bg-brand-yellow group-hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Sikre skadestaden</h3>
+                <p class="text-slate-500 text-sm mb-4">Bruk av refleksvest, varseltrekant og etablering av trygge soner for å hindre fleire skadar.</p>
+                <div class="text-brand-blue text-sm font-semibold flex items-center">Les meir <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></div>
+            </button>
+
+            <button onclick="openModal('varsle')" class="text-left bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group focus:outline-none focus:ring-2 focus:ring-brand-blue">
+                <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center mb-4 text-slate-700 group-hover:bg-brand-red group-hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Varsle 113</h3>
+                <p class="text-slate-500 text-sm mb-4">Kven skal du ringe, og kva informasjon treng nødsentralen frå deg umiddelbart?</p>
+                <div class="text-brand-blue text-sm font-semibold flex items-center">Les meir <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></div>
+            </button>
+        </div>
+
+        <!-- Seksjon: Livreddande og psykologisk førstehjelp -->
+        <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center mt-12">
+            <span class="w-8 h-8 rounded-lg bg-brand-blue flex items-center justify-center text-white mr-3 text-sm">2</span>
+            Førstehjelp og omsorg
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+            <!-- ABC -->
+            <button onclick="openModal('abc')" class="col-span-1 md:col-span-2 lg:col-span-3 text-left bg-gradient-to-br from-slate-800 to-brand-dark rounded-2xl p-8 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all group focus:outline-none focus:ring-2 focus:ring-brand-blue">
+                <h3 class="text-2xl font-bold mb-3 text-white">Livreddande Førstehjelp (ABC)</h3>
+                <p class="text-slate-300 text-sm mb-6">Frie luftvegar reddar flest liv. Lær detaljane om Airway, Breathing og Circulation, og reglane for å handtere fastklemte personar.</p>
+                <div class="inline-flex bg-white/10 px-4 py-2 rounded-lg text-white text-sm font-semibold items-center hover:bg-white/20 transition-colors">
+                    Lær teknikkane <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </div>
+            </button>
+
+            <!-- MC Hjelm -->
+            <button onclick="openModal('mchjelm')" class="text-left bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group focus:outline-none focus:ring-2 focus:ring-brand-blue">
+                <div class="text-3xl mb-3">🏍️</div>
+                <h3 class="text-lg font-bold mb-2">Motorsykkelhjelm</h3>
+                <p class="text-slate-500 text-sm mb-4">Skal hjelmen av eller på? Lær rett prosedyre ved MC-ulykker.</p>
+                <div class="text-brand-blue text-sm font-semibold flex items-center">Les meir <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></div>
+            </button>
+
+            <!-- Nedkjøling -->
+            <button onclick="openModal('nedkjoling')" class="text-left bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group focus:outline-none focus:ring-2 focus:ring-brand-blue">
+                <div class="text-3xl mb-3">🥶</div>
+                <h3 class="text-lg font-bold mb-2">Hindre nedkjøling</h3>
+                <p class="text-slate-500 text-sm mb-4">Ein skjult fare ved trafikkulykker, sjølv midt på sommaren.</p>
+                <div class="text-brand-blue text-sm font-semibold flex items-center">Les meir <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></div>
+            </button>
+
+            <!-- Psykisk -->
+            <button onclick="openModal('psykisk')" class="text-left bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group focus:outline-none focus:ring-2 focus:ring-brand-blue">
+                <div class="text-3xl mb-3">🧠</div>
+                <h3 class="text-lg font-bold mb-2">Psykologisk støtte</h3>
+                <p class="text-slate-500 text-sm mb-4">Slik tryggar du personar i sjokk, og kvifor skjerming frå media er avgjerande.</p>
+                <div class="text-brand-blue text-sm font-semibold flex items-center">Les meir <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></div>
+            </button>
+        </div>
+
+        <!-- Seksjon: Ansvar og årsaker -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            <div id="frosk" class="bg-blue-50 rounded-2xl p-8 border border-blue-100">
+                <h2 class="text-2xl font-bold text-slate-900 mb-4">FROSK-prinsippet</h2>
+                <p class="text-slate-600 mb-6 text-sm">Ulykker skuldast nesten alltid føraren si feilvurdering, ikkje berre vêret eller vegen. Trygg Trafikk har utvikla FROSK for å minne oss på dei største risikofaktorane:</p>
+                <ul class="space-y-4">
+                    <li class="flex"><strong class="w-8 text-brand-blue font-black text-xl">F</strong> <span class="text-slate-700 text-sm"><b class="text-slate-900">Fart:</b> Høg fart reduserer reaksjonstida og aukar skadeomfanget dramatisk.</span></li>
+                    <li class="flex"><strong class="w-8 text-brand-blue font-black text-xl">R</strong> <span class="text-slate-700 text-sm"><b class="text-slate-900">Rus:</b> Alkohol og medisinar svekkar vurderingsevna di.</span></li>
+                    <li class="flex"><strong class="w-8 text-brand-blue font-black text-xl">O</strong> <span class="text-slate-700 text-sm"><b class="text-slate-900">Oppmerksemd:</b> Mobilbruk er ein snikande fare. Hald blikket på vegen.</span></li>
+                    <li class="flex"><strong class="w-8 text-brand-blue font-black text-xl">S</strong> <span class="text-slate-700 text-sm"><b class="text-slate-900">Sikring:</b> Bilbelte og sikring av laus last hindrar fatale skadar internt i bilen.</span></li>
+                    <li class="flex"><strong class="w-8 text-brand-blue font-black text-xl">K</strong> <span class="text-slate-700 text-sm"><b class="text-slate-900">Kunnskap:</b> Kjenn dine eigne grenser. Ungdom tek oftare ubevisst høg risiko.</span></li>
+                </ul>
+            </div>
+
+            <div id="plikt" class="bg-slate-800 rounded-2xl p-8 text-white relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 opacity-10">
+                    <svg class="w-48 h-48" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path></svg>
+                </div>
+                <h2 class="text-2xl font-bold mb-4 relative z-10">Lovfest hjelpeplikt</h2>
+                <p class="text-slate-300 text-sm mb-4 relative z-10">I Noreg er det ikkje valfritt å hjelpe. Det er lovpålagt.</p>
+                <div class="bg-slate-900/50 p-5 rounded-xl border border-slate-700 relative z-10 mb-4">
+                    <h4 class="font-bold text-brand-red mb-2 text-sm">Straffeloven § 287. Forsømmelse av hjelpeplikt</h4>
+                    <p class="text-sm text-slate-300 italic">«Med bot eller fengsel inntil 6 måneder straffes den som unnlater a) etter evne å hjelpe en person som er i åpenbar fare for å miste livet eller bli påført betydelig skade på kropp eller helse...»</p>
+                </div>
+                <p class="text-slate-400 text-xs relative z-10">Merk: Plikta gjeld berre så langt det kan gjerast utan å utsetje seg sjølv eller andre for særleg fare. Din tryggleik kjem først.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Refleksjonsoppgåve -->
+    <section id="refleksjon" class="py-20 bg-white border-t border-slate-200">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-center mb-6">
+                <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-brand-blue">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                </div>
+            </div>
+            <h2 class="text-3xl font-bold text-center text-slate-900 mb-4">Refleksjonsoppgåve</h2>
+            <p class="text-center text-slate-600 mb-10 max-w-2xl mx-auto">Teori er vel og bra, men korleis reagerer du i praksis? Tenk grundig gjennom scenarioet under.</p>
+            
+            <div class="bg-slate-50 border border-slate-200 p-8 rounded-2xl shadow-sm">
+                <h3 class="font-bold text-lg text-slate-800 mb-3">Scenario:</h3>
+                <p class="text-slate-600 mb-8 bg-white p-6 rounded-xl border border-slate-100 italic shadow-sm">
+                    «Du kjem køyrande på moped langs ein mørk landeveg ein haustkveld. I ein sving ser du brått lysa frå ein bil som har køyrt av vegen og står halvvegs nede i ei grøft. Det ryk lett frå panseret, og du kan sjå at det sit éin person inni bilen. Du er heilt åleine på staden.»
+                </p>
+                
+                <div class="bg-brand-blue/5 border border-brand-blue/20 rounded-xl p-6">
+                    <h4 class="font-bold text-brand-blue mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Slik leverer du oppgåva:
+                    </h4>
+                    <ol class="list-decimal pl-5 space-y-3 text-slate-700">
+                        <li>Opne eit skriveprogram (for eksempel <strong>Microsoft Word</strong> eller Google Docs).</li>
+                        <li>Skildre steg for steg korleis du vil handtere situasjonen i praksis, frå du først oppdagar bilen til ambulansen kjem på staden. Bruk kunnskapen frå denne læringsressursen.</li>
+                        <li>Lagre dokumentet på maskina di.</li>
+                        <li>Gå til valfag-rommet på <strong>Itslearning</strong>, finn innleveringsmappa for "Trafikalt Grunnkurs", og last opp dokumentet ditt der.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-10 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-sm">Læringsressurs for Valfag Trafikk &copy; 2026. Basert på retningslinjer frå Trygg Trafikk, Røde Kors og Norsk Luftambulanse.</p>
+        </div>
+    </footer>
+
+    <!-- MODAL OVERLAY -->
+    <div id="info-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 sm:p-6 opacity-0 pointer-events-none transition-opacity duration-300">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
+        
+        <!-- Modal Content Box -->
+        <div id="modal-content-box" class="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col transform scale-95 translate-y-4 transition-all duration-300">
+            
+            <!-- Header -->
+            <div class="flex items-center justify-between p-6 border-b border-slate-100">
+                <div class="flex items-center">
+                    <span id="modal-icon" class="text-3xl mr-4"></span>
+                    <h3 id="modal-title" class="text-2xl font-bold text-slate-900">Tittel</h3>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full p-2 transition-colors focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <!-- Body -->
+            <div id="modal-body" class="p-6 md:p-8 overflow-y-auto text-slate-600 text-sm leading-relaxed space-y-5">
+                <!-- Content injected via JS -->
+            </div>
+            
+            <!-- Footer -->
+            <div class="p-6 border-t border-slate-100 bg-slate-50 text-right">
+                <button onclick="closeModal()" class="px-6 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold rounded-lg transition-colors focus:outline-none">Lukk</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Data for modulane (Henta frå vedlagte kjelder)
+        const modalData = {
+            'oversikt': {
+                icon: '👁️',
+                title: 'Skaff oversikt og evaluer',
+                content: `
+                    <p>Det aller første du gjer når du ankommer ein ulykkesstad er å bruke sansane dine før du handlar impulsivt.</p>
+                    <ul class="list-disc pl-5 space-y-2 mt-4">
+                        <li><strong>Plasser eigen bil trygt:</strong> Stopp bilen i god avstand frå ulykka. Plasser den strategisk slik at den fungerer som ein fysisk barriere foran skadestaden, men hugs at ambulansen må ha plass til å passere! (Kjelde: Røde Kors)</li>
+                        <li><strong>Slå av tenninga:</strong> Hindre at det kjem gneistar, og syt for at ingen røykjer i nærleiken på grunn av fare for lekkasje av drivstoff.</li>
+                        <li><strong>Observer farar:</strong> Er det brannfare? Straum? Er bilane ustabile? Ligg det personar i vegbanen?</li>
+                        <li><strong>Ta leiinga:</strong> Viss fleire kjem til staden samtidig, og ingen har tatt ansvar, ta leiinga. Fordel oppgåver (t.d. "Du ringer 113, du set ut varseltrekant").</li>
+                    </ul>
+                `
+            },
+            'sikre': {
+                icon: '⚠️',
+                title: 'Sikre skadestaden',
+                content: `
+                    <p>Å sikre skadestaden forhindrar at det oppstår sekundære ulykker der fleire bilar køyrer inn i ulykkesstaden.</p>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 my-4">
+                        <strong>Hugs refleksvest!</strong> Ta alltid på refleksvesten <em>før</em> du går ut av bilen. Den bør difor oppbevarast i førardøra eller hanskerommet, ikkje i bagasjerommet.
+                    </div>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>Nødblink:</strong> Skru på bilens nødblink umiddelbart.</li>
+                        <li><strong>Varseltrekant:</strong> Sett ut varseltrekant på motsett side av skadestaden. Den skal setjast opp i god avstand – helst <strong>minst 150 meter</strong> før ulykkesstaden på vegar med høg fart, slik at bilar rekk å bremse (Kjelde: Trygg Trafikk / Røde Kors). Sett ut trekanter i begge køyreretningar om naudsynt.</li>
+                        <li><strong>Soner:</strong> Tenk på området i tre soner. Raud sone (fareområde, rett ved bilane der det er fare for eksplosjon/brann), Gul sone (arbeidsområde for førstehjelp), og Grøn sone (observasjonssone for vitne og pårørande). Hald uvedkomande i grøn sone.</li>
+                    </ul>
+                `
+            },
+            'varsle': {
+                icon: '📱',
+                title: 'Varsle nødetatane',
+                content: `
+                    <p>Når du har sikra deg sjølv og staden, må du få profesjonell hjelp på veg.</p>
+                    <ul class="list-disc pl-5 space-y-2 mt-4">
+                        <li><strong>Ring 113 (Ambulanse / Medisinsk nødtelefon):</strong> Ved alvorlege personskadar og behov for medisinsk hjelp. 113 besvarast av sjukepleiarar som guidar deg trygt gjennom førstehjelpa til ambulansen kjem.</li>
+                        <li><strong>Ring 112 (Politi):</strong> Ved fare for liv og alvorlege trafikkuhell for å sikre trafikkavvikling og dokumentasjon.</li>
+                        <li><strong>Ring 110 (Brannvesen):</strong> Ved brann, fare for eksplosjon, folk som sit fastklemte eller væskesøl.</li>
+                    </ul>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mt-4">
+                        <strong>Moderne bilar:</strong> Bruk SOS-knappen (eCall) i bilen viss du har det. Den koplar deg automatisk opp til sentralen og sender nøyaktig GPS-posisjon (Kjelde: KLP).
+                    </div>
+                    <p class="mt-4"><strong>Kva du skal seie:</strong> Kven du er, nøyaktig kvar ulykka har skjedd, kva som har skjedd (t.d. frontkollisjon), og kor mange som er involverte/skadde.</p>
+                `
+            },
+            'abc': {
+                icon: '❤️',
+                title: 'Akutt-ABC & Fastklemte',
+                content: `
+                    <p>Når staden er sikra og hjelp er på veg, gjer du livreddande tiltak. Følg <strong>A-B-C</strong>-prinsippet.</p>
+                    <div class="space-y-4 mt-4">
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                            <h4 class="font-bold text-brand-red mb-1">A - Airway (Luftvegar)</h4>
+                            <p>Ufri luftveg er den farlegaste konsekvensen av medvitløyse. Er nokon bevisstlaus med snorkande pust, er luftvegen delvis blokkert. Løft hovudet i nøytral posisjon. Trekk underkjeven fram (jaw-thrust) om naudsynt. Dette opnar luftvegen samtidig som eventuelle nakkeskadar skånast.</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                            <h4 class="font-bold text-brand-blue mb-1">B - Breathing (Pust)</h4>
+                            <p>Legg øyret inntil munnen deira. Sjå (på brystkassa), lytt og føl etter pust i inntil 10 sekund. Pustar dei ikkje normalt? Start hjarte- og lungeredning (HLR): 30 brystkompresjonar og 2 innblåsingar. (Takt: 100-120 i minuttet, 5-6 cm djupt).</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                            <h4 class="font-bold text-brand-green mb-1">C - Circulation (Sirkulasjon / Blødingar)</h4>
+                            <p>Stans store ytre blødingar med å presse eit tøystykke, bandasje eller hendene direkte mot kuttet. Bruk eingongshanskar om du har.</p>
+                        </div>
+                    </div>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 mt-4">
+                        <strong>VIKTIG OM FASTKLEMTE:</strong> Du skal <em>ikkje</em> flytte på personar som sit inni eit bilvrak med mindre det er overhengande fare for brann eller eksplosjon. Støtt hovudet i nøytral posisjon der dei sit for å forhindre skade på nakke/ryggmarg.
+                    </div>
+                `
+            },
+            'mchjelm': {
+                icon: '🏍️',
+                title: 'Skadde med motorsykkelhjelm',
+                content: `
+                    <p>Det florerer ein farleg, utdatert myte om at ein aldri skal ta av hjelmen på ein skadd motorsyklist på grunn av fare for nakkeskadar. Dette stemmer <em>ikkje</em>.</p>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 my-4">
+                        <strong>Myteknusing: Frie luftvegar er viktigare enn nakken!</strong> Viss du er usikker på om personen pustar, eller viss personen <em>ikkje</em> pustar, <strong>MÅ hjelmen av</strong> for å sikre frie luftvegar og eventuelt starte HLR. (Kjelde: Norsk Luftambulanse)
+                    </div>
+                    <ul class="list-disc pl-5 space-y-3 mt-4">
+                        <li><strong>Når skal hjelmen bli på?</strong> Viss pasienten er vaken, pustar normalt, og klagar over nakkesmerter. Då opnar du berre visiret, syt for at personen ikkje blir nedkjølt, og lèt personen ligge i ro.</li>
+                        <li><strong>Korleis ta av hjelmen (Er de to):</strong> Person 1 held under nakken og stabiliserer hovudet. Person 2 løyser stroppene, og dreg hjelmen forsiktig av. Legg noko (t.d. ei jakke) under hovudet i same høgde som hjelmen når den er av.</li>
+                        <li><strong>Korleis ta av hjelmen (Er du åleine):</strong> Hald eit fast, roleg grep under nakken, løys hakestroppa, og lirk hjelmen forsiktig av bakover. Pass på så hjelmen ikkje hektar i nasen. Legg hovudet skånsamt ned.</li>
+                    </ul>
+                    <p class="mt-4 text-sm text-slate-500">Tips: Sjå etter raude stropper under hjelmen (nødstropper) som kan dragast i for å løyse ut polstringa før du tek av ytterskallet.</p>
+                `
+            },
+            'nedkjoling': {
+                icon: '🥶',
+                title: 'Førebygg nedkjøling',
+                content: `
+                    <p>Å halde den skadde varm er livsviktig, men det blir ofte gløymt i kaoset.</p>
+                    <p class="mt-4">Personar med store skadar eller som er i sjokk, er ekstremt utsette for tap av kroppsvarme. Kroppen sluttar å regulere temperaturen normalt når blodtrykket fell.</p>
+                    <ul class="list-disc pl-5 space-y-2 mt-4">
+                        <li>Dette gjeld <strong>også midt på sommaren</strong>. Sjølv i 20 varmegrader vil ein skadd person bli raskt nedkjølt liggande på bakken.</li>
+                        <li><strong>Isolering andanfrå:</strong> Bakken stjel ekstremt mykje varme. Om mogleg, legg teppe, bobleplast, tjukke jakker eller matter <em>under</em> den skadde (utan å flytte dei uvørent).</li>
+                        <li><strong>Isolering ovanfrå:</strong> Legg varme teppe, klede, eller bruk ein varmeduk/redningsfolie (ofte gull/sølv-farga) over pasienten for å bevare kroppsvarmen (Kjelde: Norsk Luftambulanse).</li>
+                        <li>Hald miljøet lukka om dei sit i bilen (lukk dører om det ikkje er i vegen for førstehjelp).</li>
+                    </ul>
+                `
+            },
+            'psykisk': {
+                icon: '🧠',
+                title: 'Psykologisk førstehjelp i akuttfasen',
+                content: `
+                    <p>Den emosjonelle støtta i akuttfasen (psykologisk førstehjelp) legg til rette for meistring og forhindrar seinskadar.</p>
+                    <div class="space-y-4 mt-4">
+                        <div>
+                            <h4 class="font-bold text-slate-800">Skap tryggleik</h4>
+                            <p>Fysisk og psykisk tilstadevere er alfa og omega. Introduser deg med namn, og ha ei roleg framtoning. Fortell pasienten at 113 er ringt og at hjelpa er på veg. Ikkje forlat den kriseramma.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">Normaliser reaksjonane</h4>
+                            <p>Forsikre personen om at deira reaksjonar (som ukontrollert skjelving, gråt, apati, eller sinne) er heilt <em>normale reaksjonar på ein unormal situasjon</em>, og ikkje teikn på at dei er i ferd med å "bli galne" (Kjelde: Helsedirektoratet).</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">Beskytt mot ytterlegare stress (Skjerming)</h4>
+                            <p>Menneske i sjokk treng vern. Beskytt dei mot inngåande spørsmål frå nysgjerrige tilskodarar. Vær bestemt mot personar som tar fram mobilkamera: Be dei om å fjerne seg og minn dei på personvernet og verdigheita til dei skadde.</p>
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        // Modal Elements
+        const modal = document.getElementById('info-modal');
+        const modalContentBox = document.getElementById('modal-content-box');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const modalIcon = document.getElementById('modal-icon');
+
+        function openModal(id) {
+            const data = modalData[id];
+            if (!data) return;
+
+            // Fyll innhald
+            modalTitle.innerText = data.title;
+            modalBody.innerHTML = data.content;
+            modalIcon.innerText = data.icon;
+
+            // Vis modal
+            modal.classList.remove('hidden');
+            // Timeout for å la display:block registrere seg før transition
+            setTimeout(() => {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modalContentBox.classList.remove('scale-95', 'translate-y-4');
+                modalContentBox.classList.add('scale-100', 'translate-y-0');
+            }, 10);
+            
+            // Lås scroll på body
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            // Skjul animasjon
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modalContentBox.classList.remove('scale-100', 'translate-y-0');
+            modalContentBox.classList.add('scale-95', 'translate-y-4');
+            
+            // Skjul heilt etter animasjon er ferdig
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+
+            // Opne scroll igjen
+            document.body.style.overflow = 'auto';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hygienekurs — Test · SkuleTech</title>
+<meta name="description" content="Test kunnskapen din om mathygiene. Du må svare rett på alle 10 spørsmål for å bestå og få diplom." />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0f172a;
+    color: #f8fafc;
+    min-height: 100vh;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: flex; }
+
+  /* ── INTRO ── */
+  #screen-intro {
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1a1a2e 100%);
+    text-align: center;
+  }
+
+  .intro-icon { font-size: 64px; margin-bottom: 20px; }
+  .intro-title { font-size: clamp(28px, 5vw, 52px); font-weight: 900; margin-bottom: 12px; }
+  .intro-sub {
+    font-size: clamp(15px, 2vw, 19px);
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 40px;
+  }
+
+  .intro-card {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 36px 40px;
+    max-width: 460px;
+    width: 100%;
+  }
+
+  .intro-card label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #60a5fa;
+    margin-bottom: 10px;
+    text-align: left;
+  }
+
+  .intro-card input[type="text"] {
+    width: 100%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 18px;
+    font-family: 'Inter', sans-serif;
+    color: #f8fafc;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    margin-bottom: 20px;
+  }
+
+  .intro-card input[type="text"]:focus {
+    border-color: #60a5fa;
+    background: rgba(96,165,250,0.08);
+  }
+
+  .intro-card input::placeholder { color: rgba(255,255,255,0.3); }
+
+  .info-box {
+    background: rgba(96,165,250,0.1);
+    border-left: 3px solid #60a5fa;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 24px;
+    text-align: left;
+    line-height: 1.5;
+  }
+
+  .warn-text {
+    color: #fbbf24;
+    font-size: 14px;
+    margin-top: 10px;
+    display: none;
+  }
+
+  /* ── KNAPPAR ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+    width: 100%;
+  }
+
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(37,99,235,0.35);
+  }
+
+  .btn-secondary {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #f8fafc;
+  }
+
+  .btn-secondary:hover { background: rgba(255,255,255,0.16); }
+
+  .btn-retry {
+    background: linear-gradient(135deg, #b45309, #92400e);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(180,83,9,0.35);
+  }
+
+  .btn-success-main {
+    background: linear-gradient(135deg, #059669, #065f46);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(5,150,105,0.4);
+  }
+
+  /* ── QUIZ ── */
+  #screen-quiz {
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px 32px;
+    background: #0f172a;
+  }
+
+  .quiz-wrap {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  /* Framdriftsindikator */
+  .progress-bar-wrap {
+    width: 100%;
+  }
+
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .progress-label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #60a5fa;
+  }
+
+  .progress-count {
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
+    font-weight: 600;
+  }
+
+  .progress-track {
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2563eb, #7c3aed);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  /* Spørsmålskort */
+  .question-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 32px 32px 28px;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .question-text {
+    font-size: clamp(17px, 2.2vw, 21px);
+    font-weight: 700;
+    line-height: 1.5;
+    margin-bottom: 24px;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option-label {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1.4;
+    transition: background 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+
+  .option-label:hover { background: rgba(255,255,255,0.09); border-color: rgba(96,165,250,0.35); }
+
+  .option-label.selected {
+    background: rgba(37,99,235,0.18);
+    border-color: #2563eb;
+  }
+
+  .option-label input[type="radio"] { display: none; }
+
+  .radio-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.25);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .option-label.selected .radio-dot {
+    border-color: #60a5fa;
+    background: #2563eb;
+  }
+
+  .radio-dot::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: transparent;
+    transition: background 0.15s;
+  }
+
+  .option-label.selected .radio-dot::after { background: #fff; }
+
+  /* Navigasjon */
+  .quiz-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .quiz-nav .btn-primary { grid-column: 2; }
+  .quiz-nav .btn-secondary { grid-column: 1; }
+
+  .quiz-nav .btn-full { grid-column: 1 / -1; }
+
+  .no-answer-warn {
+    font-size: 14px;
+    color: #fbbf24;
+    text-align: center;
+    min-height: 20px;
+  }
+
+  /* ── RESULTAT ── */
+  #screen-results {
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+    background: linear-gradient(135deg, #431407 0%, #0f172a 65%);
+    text-align: center;
+  }
+
+  .result-icon { font-size: 72px; margin-bottom: 20px; }
+
+  .score-big {
+    font-size: clamp(52px, 10vw, 88px);
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+
+  .score-big span { color: #60a5fa; }
+
+  .result-msg {
+    font-size: clamp(17px, 2.2vw, 22px);
+    color: rgba(255,255,255,0.75);
+    max-width: 480px;
+    line-height: 1.55;
+    margin-bottom: 10px;
+  }
+
+  .result-encourage {
+    font-size: 15px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 36px;
+  }
+
+  .wrong-summary {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 20px 28px;
+    max-width: 440px;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 32px;
+  }
+
+  .wrong-summary h3 {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 12px;
+  }
+
+  .wrong-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .wrong-pill {
+    background: rgba(220,38,38,0.2);
+    border: 1px solid rgba(220,38,38,0.4);
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fca5a5;
+  }
+
+  .result-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  /* ── SUKSESS ── */
+  #screen-success {
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+    background: linear-gradient(135deg, #064e3b 0%, #0f172a 65%);
+    text-align: center;
+  }
+
+  .success-icon {
+    font-size: 84px;
+    margin-bottom: 20px;
+    animation: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes pop {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+
+  .success-title { font-size: clamp(36px, 6vw, 60px); font-weight: 900; margin-bottom: 14px; }
+
+  .success-sub {
+    font-size: clamp(16px, 2vw, 20px);
+    color: rgba(255,255,255,0.7);
+    max-width: 500px;
+    line-height: 1.55;
+    margin-bottom: 40px;
+  }
+
+  .success-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .btn-diploma {
+    background: linear-gradient(135deg, #b45309, #92400e);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(180,83,9,0.35);
+  }
+
+  .logo-fixed {
+    position: fixed;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 36px;
+    width: auto;
+    z-index: 200;
+    opacity: 0.85;
+    pointer-events: none;
+  }
+
+  .abort-link {
+    display: block;
+    text-align: center;
+    margin-top: 8px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.3);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .abort-link:hover { color: rgba(255,255,255,0.65); }
+
+  .btn-home {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+  }
+  .btn-home:hover { background: rgba(255,255,255,0.12); color: #f8fafc; }
+</style>
+</head>
+<body>
+
+<img src="../media/logo.png" alt="Logo" class="logo-fixed">
+
+<!-- ══════════════════════════════════════ -->
+<!-- SKJERM 1: INTRO                        -->
+<!-- ══════════════════════════════════════ -->
+<div id="screen-intro" class="screen active">
+  <div class="intro-icon">🧼</div>
+  <h1 class="intro-title">Hygienekurs – Test</h1>
+  <p class="intro-sub">Kjøkken og kantine &middot; Arbeidslivsfag 8. trinn</p>
+
+  <div class="intro-card">
+    <label for="name-input">Ditt namn</label>
+    <input type="text" id="name-input" placeholder="Førenamn Etternamn"
+           autocomplete="name" onkeydown="if(event.key==='Enter') startQuiz()" />
+
+    <div class="info-box">
+      📋 Testen har <strong>10 spørsmål</strong> – eitt og eitt om gongen.
+      Du må svare rett på alle for å bestå. Prøv så mange gonger du treng.
+    </div>
+
+    <button class="btn btn-primary" onclick="startQuiz()">Start testen →</button>
+    <div class="warn-text" id="name-warn">⚠️ Du må skrive inn namnet ditt først.</div>
+    <a href="../index.html" style="display:block;text-align:center;margin-top:8px;font-size:0.85rem;color:#94a3b8;text-decoration:none;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#94a3b8'">← Tilbake til framsida</a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SKJERM 2: QUIZ (eitt spørsmål om gongen) -->
+<!-- ══════════════════════════════════════ -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-wrap">
+
+    <div class="progress-bar-wrap">
+      <div class="progress-meta">
+        <span class="progress-label">Hygienekurs</span>
+        <span class="progress-count" id="progress-count"></span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="question-card">
+      <!-- Rendert dynamisk -->
+    </div>
+
+    <div class="no-answer-warn" id="no-answer-warn"></div>
+
+    <div class="quiz-nav" id="quiz-nav">
+      <!-- Knappane rendert dynamisk -->
+    </div>
+
+  </div>
+  <a class="abort-link" href="#" onclick="abortQuiz(); return false;">✕ Avbryt testen</a>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SKJERM 3: RESULTAT (ikkje bestått)     -->
+<!-- ══════════════════════════════════════ -->
+<div id="screen-results" class="screen">
+  <div class="result-icon">😬</div>
+  <div class="score-big"><span id="score-num">0</span> / 10</div>
+  <p class="result-msg" id="result-msg"></p>
+  <p class="result-encourage">Gå tilbake til presentasjonen og prøv igjen!</p>
+
+  <div class="wrong-summary">
+    <h3>Feil på desse spørsmåla</h3>
+    <div class="wrong-pills" id="wrong-pills"></div>
+  </div>
+
+  <div class="result-actions">
+    <button class="btn btn-retry" onclick="retryQuiz()">↩ Prøv igjen</button>
+    <a href="../index.html" class="btn btn-home" style="text-decoration:none;">⌂ Tilbake til framsida</a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SKJERM 4: SUKSESS (bestått)            -->
+<!-- ══════════════════════════════════════ -->
+<div id="screen-success" class="screen">
+  <div class="success-icon">🏆</div>
+  <h1 class="success-title">Bestått!</h1>
+  <p class="success-sub" id="success-msg"></p>
+
+  <div class="success-actions">
+    <button class="btn btn-diploma" onclick="downloadDiploma()">📄 Last ned diplom</button>
+    <a href="../index.html" class="btn btn-home" style="text-decoration:none;">⌂ Tilbake til framsida</a>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// SPØRSMÅL
+// ══════════════════════════════════════════
+const questions = [
+  {
+    text: 'Kva er temperaturområdet for «faresona» der bakteriar trivst og formeirar seg best?',
+    options: ['0 – 4 °C', '4 – 60 °C', '60 – 100 °C', 'Under 0 °C'],
+    correct: 1
+  },
+  {
+    text: 'Kva skal du alltid gjere FØR du tek i mat på kjøkkenet?',
+    options: [
+      'Ta på eingongshanskar',
+      'Vaske hendene med såpe og vatn',
+      'Sjekke at arbeidstøyet er reint',
+      'Tørke av benken'
+    ],
+    correct: 1
+  },
+  {
+    text: 'Kva gjer du med ein matvare du er usikker på om er dårleg?',
+    options: [
+      'Kastar han utan å smake',
+      'Smakar litt for å sjekke om han er god',
+      'Varmar han opp for å drepe eventuelle bakteriar',
+      'Bruker han likevel viss han ikkje luktar vondt'
+    ],
+    correct: 0
+  },
+  {
+    text: 'Kva temperatur skal eit kjøleskåp ha?',
+    options: ['5 – 10 °C', '0 – 4 °C', '4 – 8 °C', 'Under 0 °C'],
+    correct: 1
+  },
+  {
+    text: 'Du har brukt ein kniv til rått kjøt. No skal du skjere salat. Kva gjer du?',
+    options: [
+      'Vaskar kniven raskt med kaldt vatn',
+      'Tørkar av kniven med eit kjøkkenpapir',
+      'Vaskar kniven grundig med varmt vatn og oppvaskmiddel',
+      'Held fram – kniven er ikkje synleg skitten'
+    ],
+    correct: 2
+  },
+  {
+    text: 'Du kjenner deg sjuk med oppkast og diare. Kva skal du gjere?',
+    options: [
+      'Jobbe med eingongshanskar og maske',
+      'Berre jobbe med kalde matvarer',
+      'Ikkje jobbe med mat, og vente til du er symptomfri i 48 timar',
+      'Vaske hendene ekstra grundig og halde fram som vanleg'
+    ],
+    correct: 2
+  },
+  {
+    text: 'Kva er kryssforureining?',
+    options: [
+      'At mat fell på golvet og blir henta opp igjen',
+      'At bakteriar smittar frå éin matvare til ein annan via utstyr eller hender',
+      'At mat ikkje er ferdig stekt',
+      'At kjøleskåpet er stilt inn på feil temperatur'
+    ],
+    correct: 1
+  },
+  {
+    text: 'Kva er rett framgangsmåte når du skal ta ein smaksprøve?',
+    options: [
+      'Bruke ein finger og slukke han av etterpå',
+      'Bruke ein rein skei éin gong – aldri putte ho attende i gryta',
+      'Bruke same skei og putte ho attende i gryta',
+      'Pusse skeia i forkleet og bruke ho på nytt'
+    ],
+    correct: 1
+  },
+  {
+    text: 'Kva skal du gjere med langt hår når du jobbar på kjøkkenet?',
+    options: [
+      'Ingenting – hår er ikkje eit hygieneproblem',
+      'Berre vaske det godt om morgonen',
+      'Setje det opp eller bruke lue/hårnett',
+      'Binde det laust til sides'
+    ],
+    correct: 2
+  },
+  {
+    text: 'Kva gjer du etter å ha brukt iPaden i kantina, FØR du tek i mat?',
+    options: [
+      'Tørkar av skjermen med eit papir',
+      'Legg iPaden til sides',
+      'Bruker handdesinfeksjon',
+      'Vaskar hendene grundig med såpe og vatn'
+    ],
+    correct: 3
+  }
+];
+
+// ══════════════════════════════════════════
+// STOKKING AV SVARALTERNATIV
+// ══════════════════════════════════════════
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildShuffledQuestions() {
+  return questions.map(q => {
+    const indices    = shuffleArray([0, 1, 2, 3]);
+    const newOptions = indices.map(i => q.options[i]);
+    const newCorrect = indices.indexOf(q.correct);
+    return { text: q.text, options: newOptions, correct: newCorrect };
+  });
+}
+
+// ══════════════════════════════════════════
+// TILSTAND
+// ══════════════════════════════════════════
+let studentName       = '';
+let shuffledQuestions = [];
+let userAnswers       = [];
+let currentIndex      = 0;
+
+// ══════════════════════════════════════════
+// NAVIGASJON MELLOM SKJERMAR
+// ══════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ══════════════════════════════════════════
+// START
+// ══════════════════════════════════════════
+function startQuiz() {
+  const val = document.getElementById('name-input').value.trim();
+  if (!val) {
+    document.getElementById('name-warn').style.display = 'block';
+    document.getElementById('name-input').focus();
+    return;
+  }
+  document.getElementById('name-warn').style.display = 'none';
+  studentName       = val;
+  shuffledQuestions = buildShuffledQuestions();
+  userAnswers       = new Array(shuffledQuestions.length).fill(null);
+  currentIndex      = 0;
+  renderQuestion();
+  showScreen('screen-quiz');
+}
+
+// ══════════════════════════════════════════
+// RENDER SPØRSMÅL
+// ══════════════════════════════════════════
+function renderQuestion() {
+  const q   = shuffledQuestions[currentIndex];
+  const n   = shuffledQuestions.length;
+  const pct = ((currentIndex) / n) * 100;
+  const isLast = currentIndex === n - 1;
+
+  // Framdrift
+  document.getElementById('progress-count').textContent =
+    'Spørsmål ' + (currentIndex + 1) + ' av ' + n;
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  // Spørsmålskort
+  const card = document.getElementById('question-card');
+  card.innerHTML = '';
+
+  const qtxt = document.createElement('div');
+  qtxt.className = 'question-text';
+  qtxt.textContent = q.text;
+  card.appendChild(qtxt);
+
+  const opts = document.createElement('div');
+  opts.className = 'options';
+
+  q.options.forEach((opt, oi) => {
+    const lbl = document.createElement('label');
+    lbl.className = 'option-label' + (userAnswers[currentIndex] === oi ? ' selected' : '');
+
+    const radio = document.createElement('input');
+    radio.type  = 'radio';
+    radio.name  = 'current-q';
+    radio.value = oi;
+    if (userAnswers[currentIndex] === oi) radio.checked = true;
+
+    radio.addEventListener('change', () => {
+      userAnswers[currentIndex] = oi;
+      // Oppdater selected-klasse
+      opts.querySelectorAll('.option-label').forEach(l => l.classList.remove('selected'));
+      lbl.classList.add('selected');
+      document.getElementById('no-answer-warn').textContent = '';
+    });
+
+    const dot  = document.createElement('span');
+    dot.className = 'radio-dot';
+
+    const span = document.createElement('span');
+    span.textContent = opt;
+
+    lbl.appendChild(radio);
+    lbl.appendChild(dot);
+    lbl.appendChild(span);
+    opts.appendChild(lbl);
+  });
+
+  card.appendChild(opts);
+
+  // Åtvaringsmelding
+  document.getElementById('no-answer-warn').textContent = '';
+
+  // Navigasjonsknappar
+  const nav = document.getElementById('quiz-nav');
+  nav.innerHTML = '';
+
+  if (currentIndex > 0) {
+    const back = document.createElement('button');
+    back.className = 'btn btn-secondary';
+    back.textContent = '← Tilbake';
+    back.onclick = () => goBack();
+    nav.appendChild(back);
+  }
+
+  if (!isLast) {
+    const next = document.createElement('button');
+    next.className = 'btn btn-primary' + (currentIndex === 0 ? ' btn-full' : '');
+    next.textContent = 'Neste →';
+    next.onclick = () => goNext();
+    nav.appendChild(next);
+  } else {
+    const submit = document.createElement('button');
+    submit.className = 'btn btn-primary' + (currentIndex === 0 ? ' btn-full' : '');
+    submit.textContent = 'Lever inn ✓';
+    submit.onclick = () => submitQuiz();
+    nav.appendChild(submit);
+  }
+}
+
+// ══════════════════════════════════════════
+// NAVIGASJON I QUIZ
+// ══════════════════════════════════════════
+function goNext() {
+  if (userAnswers[currentIndex] === null) {
+    document.getElementById('no-answer-warn').textContent =
+      '⚠️ Du må velje eit svar før du går vidare.';
+    return;
+  }
+  currentIndex++;
+  renderQuestion();
+}
+
+function goBack() {
+  currentIndex--;
+  renderQuestion();
+}
+
+// ══════════════════════════════════════════
+// LEVER INN
+// ══════════════════════════════════════════
+function submitQuiz() {
+  if (userAnswers[currentIndex] === null) {
+    document.getElementById('no-answer-warn').textContent =
+      '⚠️ Du må velje eit svar før du leverer inn.';
+    return;
+  }
+
+  const wrongIndices = [];
+  shuffledQuestions.forEach((q, i) => {
+    if (userAnswers[i] !== q.correct) wrongIndices.push(i);
+  });
+
+  const score = shuffledQuestions.length - wrongIndices.length;
+
+  if (score === shuffledQuestions.length) {
+    showSuccess();
+  } else {
+    showResults(score, wrongIndices);
+  }
+}
+
+// ══════════════════════════════════════════
+// RESULTAT (ikkje bestått)
+// ══════════════════════════════════════════
+function showResults(score, wrongIndices) {
+  document.getElementById('score-num').textContent = score;
+
+  const n   = shuffledQuestions.length;
+  const msg = score >= n - 2
+    ? 'Nesten! Du hadde ' + (n - score) + ' feil. Sjå gjennom stoffet og prøv igjen.'
+    : 'Du hadde ' + (n - score) + ' feil. Les gjennom presentasjonen og prøv ein gong til.';
+  document.getElementById('result-msg').textContent = msg;
+
+  const pills = document.getElementById('wrong-pills');
+  pills.innerHTML = '';
+  wrongIndices.forEach(i => {
+    const pill = document.createElement('span');
+    pill.className = 'wrong-pill';
+    pill.textContent = 'Spørsmål ' + (i + 1);
+    pills.appendChild(pill);
+  });
+
+  showScreen('screen-results');
+}
+
+// ══════════════════════════════════════════
+// PRØV IGJEN
+// ══════════════════════════════════════════
+function abortQuiz() {
+  if (confirm('Vil du avbryte testen? Framgangen din blir ikkje lagra.')) {
+    showScreen('screen-intro');
+  }
+}
+
+function retryQuiz() {
+  shuffledQuestions = buildShuffledQuestions();
+  userAnswers       = new Array(shuffledQuestions.length).fill(null);
+  currentIndex      = 0;
+  renderQuestion();
+  showScreen('screen-quiz');
+}
+
+// ══════════════════════════════════════════
+// SUKSESS
+// ══════════════════════════════════════════
+function showSuccess() {
+  document.getElementById('success-msg').textContent =
+    studentName + ' har svart rett på alle ' + shuffledQuestions.length +
+    ' spørsmåla og bestått hygienekurset!';
+  showScreen('screen-success');
+}
+
+// ══════════════════════════════════════════
+// DIPLOM
+// ══════════════════════════════════════════
+function downloadDiploma() {
+  const logoPath = '../media/logo.png';
+  const dato = new Date().toLocaleDateString('nn-NO', {
+    day: '2-digit', month: 'long', year: 'numeric'
+  });
+
+  const html = `<!DOCTYPE html>
+<html lang="nn">
+<head>
+<meta charset="UTF-8">
+<title>Diplom – ${studentName}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:#fff; }
+  @page { size: A4 landscape; margin: 0; }
+  .diploma {
+    width: 297mm; height: 210mm;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 20mm 28mm;
+    border: 16px solid #1e3a5f;
+    outline: 4px solid #c8a84b;
+    outline-offset: -22px;
+    background: #fafaf7;
+    color: #1e293b;
+  }
+  .logo { height: 56px; margin-bottom: 20px; object-fit: contain; }
+  .course-label {
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: #64748b; margin-bottom: 8px;
+  }
+  .diploma-title {
+    font-size: 58px; font-weight: 900;
+    color: #1e3a5f; margin-bottom: 4px;
+  }
+  .this-is { font-size: 16px; color: #64748b; margin-bottom: 4px; }
+  .student-name {
+    font-size: 42px; font-weight: 700;
+    color: #2563eb; font-style: italic;
+    margin-bottom: 20px;
+  }
+  .diploma-body {
+    font-size: 15px; color: #475569;
+    text-align: center; line-height: 1.65;
+    max-width: 200mm; margin-bottom: 20px;
+  }
+  .competencies {
+    background: #f1f5f9;
+    border-left: 4px solid #2563eb;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 18px;
+    max-width: 200mm; width: 100%;
+    margin-bottom: 20px;
+    font-size: 13px; color: #334155; line-height: 1.7;
+  }
+  .comp-label {
+    display: block; font-size: 10px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: #94a3b8; margin-bottom: 5px;
+  }
+  .footer {
+    display: flex; justify-content: space-between;
+    width: 100%; max-width: 200mm;
+    font-size: 12px; color: #94a3b8;
+    border-top: 1px solid #e2e8f0; padding-top: 10px;
+  }
+</style>
+</head>
+<body>
+<div class="diploma">
+  <img class="logo" src="${logoPath}" alt="Logo" onerror="this.style.display='none'">
+  <div class="course-label">Hygienekurs – Kjøkken og kantine · Arbeidslivsfag 8. trinn</div>
+  <div class="diploma-title">Diplom</div>
+  <div class="this-is">tildelt</div>
+  <div class="student-name">${studentName}</div>
+  <p class="diploma-body">
+    for å ha gjennomført og bestått hygienekurset for kjøkken og kantine.
+  </p>
+  <div class="competencies">
+    <span class="comp-label">Kompetansemål</span>
+    Kjenner til hygienereglane for matomsetnad · handterer mat trygt og unngår kryssforureining · forstår faresona for bakterievekst (4–60 °C) · veit korleis sjukdom påverkar arbeid med mat · praktiserer god handvask og personleg hygiene på kjøkkenet.
+  </div>
+  <div class="footer">
+    <span>${dato}</span>
+    <span>Arbeidslivsfag 8. trinn</span>
+  </div>
+</div>
+<script>window.onload = function(){ window.print(); }<\/script>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+}
+</script>
+</body>
+</html>
