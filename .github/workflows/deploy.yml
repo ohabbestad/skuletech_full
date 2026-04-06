@@ -6,11 +6,22 @@ on:
 
 jobs:
   web-deploy:
-    name: Deploy
+    name: Build and Deploy
     runs-on: ubuntu-latest
     steps:
     - name: Checkout kode
       uses: actions/checkout@v4
+
+    - name: Sett opp Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20' # Bruker en moderne og stabil Node-versjon
+
+    - name: Installer avhengigheter
+      run: npm install
+
+    - name: Bygg Tailwind CSS
+      run: npm run build
 
     - name: Synkroniser filer via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -18,6 +29,12 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        # Viktig: Domeneshop legger ofte filene i en www-mappe. 
-        # Hvis filene dine skal ligge i roten av hotellet, bruk /www/
-        server-dir: /www/
+        server-dir: /www/ # Husk å sjekke om dette er riktig mappe hos Domeneshop
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          package.json
+          package-lock.json
+          tailwind.config.js
+          css/input.css
