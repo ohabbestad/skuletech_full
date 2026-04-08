@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="nn">
 
 <head>
@@ -357,7 +357,19 @@
                 await this.fetchData();
                 document.getElementById('loading-screen').classList.add('hidden');
                 document.getElementById('main-view').classList.remove('hidden');
-                setInterval(() => this.fetchData(), 30000);
+                this.scheduleNextPoll();
+            },
+
+            scheduleNextPoll() {
+                const now = new Date();
+                const totalMins = now.getHours() * 60 + now.getMinutes();
+                // Aktiv tid: frå 10:55 til 11:45
+                const isActiveTime = (totalMins >= 655 && totalMins <= 705);
+                const delay = isActiveTime ? 10000 : 300000; // 10 sek i aktiv tid, 5 min elles
+                
+                setTimeout(() => {
+                    this.fetchData().finally(() => this.scheduleNextPoll());
+                }, delay);
             }
         };
 
