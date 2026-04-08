@@ -329,12 +329,23 @@ const app = {
             }).join('');
         };
 
-        // Sjekkliste — tilsett kan krysse av, men berre for dagen i dag
-        const todayId = this.getTodayId();
-        const canEditTasks = (dateId === todayId);
+        // Sjekkliste — tilsett kan krysse av, men berre på spesifikke tider same dag
+        const today = new Date();
+        const todayId = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        const isToday = (dateId === todayId);
+        
+        const now = new Date();
+        const totalMins = now.getHours() * 60 + now.getMinutes();
+
+        // Tidlegvakt: 11:00 - 11:30 (660 til 690 minutt)
+        const isEarlyTime = isToday && (totalMins >= 660 && totalMins <= 690);
+        // Seinvakt: 11:25 - 11:40 (685 til 700 minutt)
+        const isLateTime = isToday && (totalMins >= 685 && totalMins <= 700);
 
         const renderTasks = (type, list) => list.map((task, i) => {
             const done = this.state.tasks[dateId]?.[`${type}_${i}`] || false;
+            const canEditTasks = (type === 'early') ? isEarlyTime : isLateTime;
+            
             if (canEditTasks) {
                 return `<label class="flex items-start space-x-3 p-2 rounded transition cursor-pointer hover:bg-slate-50">
                           <input type="checkbox" onchange="app.toggleTask('${type}',${i})" ${done ? 'checked' : ''}
@@ -342,7 +353,8 @@ const app = {
                           <span class="${done ? 'line-through text-slate-400' : 'text-slate-700'}">${this.esc(task)}</span>
                         </label>`;
             } else {
-                return `<label class="flex items-start space-x-3 p-2 rounded cursor-default opacity-80 title="Kan berre redigerast på dagen det gjeld">
+                let reason = !isToday ? "Kan berre redigerast på dagen det gjeld" : (type === 'early' ? "Kan berre redigerast mellom 11:00 og 11:30" : "Kan berre redigerast mellom 11:25 og 11:40");
+                return `<label class="flex items-start space-x-3 p-2 rounded cursor-default opacity-80" title="${reason}">
                           <input type="checkbox" disabled ${done ? 'checked' : ''}
                                  class="mt-1 w-5 h-5 text-indigo-600 border-slate-300 rounded bg-slate-100 cursor-not-allowed">
                           <span class="${done ? 'line-through text-slate-400' : 'text-slate-700'}">${this.esc(task)}</span>

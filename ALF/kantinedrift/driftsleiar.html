@@ -380,13 +380,13 @@ const app = {
         const { tidleg, seint } = this.getDayStaffing(dateId);
 
         // Elevar — klikk registrerer fråvær
-        const todayId = this.getTodayId();
+        const today = new Date();
+        const todayId = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
         let canEditAttendance = false;
         if (dateId > todayId) {
             canEditAttendance = true; // Alltid lov i framtida
         } else if (dateId === todayId) {
-            const now = new Date();
-            if (now.getHours() < 12) {
+            if (today.getHours() < 12) {
                 canEditAttendance = true; // Lov før kl 12 i dag
             }
         }
