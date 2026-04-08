@@ -87,7 +87,8 @@
                 currentDateId: null,
                 attendance: {},
                 tasks: {},
-                menus: {}
+                menus: {},
+                isSaving: false
             },
             data: {
                 driftsleiarar: {
@@ -188,6 +189,7 @@
             },
 
             async fetchDataFromAPI(silent = false) {
+                if (this.state.isSaving) return;
                 if (!silent) document.getElementById('sync-status').textContent = '⏳ Hentar data...';
                 try {
                     const res = await fetch(API_URL, {
@@ -209,6 +211,7 @@
             },
 
             async pushDataToAPI(dateId, taskKey, value) {
+                this.state.isSaving = true;
                 document.getElementById('sync-status').textContent = '⏳ Lagrar...';
                 try {
                     await fetch(API_URL, {
@@ -219,6 +222,8 @@
                     document.getElementById('sync-status').textContent = '🟢 Oppdatert';
                 } catch (e) {
                     document.getElementById('sync-status').textContent = '🔴 Feil ved lagring';
+                } finally {
+                    this.state.isSaving = false;
                 }
             },
 
