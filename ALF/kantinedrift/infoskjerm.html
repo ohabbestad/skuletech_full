@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kantina ALF8 — Vekas Plan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,.4); }
+            50%      { box-shadow: 0 0 20px 6px rgba(99,102,241,.15); }
+        }
+        .today-card { animation: pulseGlow 3s ease-in-out infinite; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .day-card { animation: fadeUp .5s ease-out both; }
+        .day-card:nth-child(1) { animation-delay: .05s; }
+        .day-card:nth-child(2) { animation-delay: .12s; }
+        .day-card:nth-child(3) { animation-delay: .19s; }
+        .day-card:nth-child(4) { animation-delay: .26s; }
+        .day-card:nth-child(5) { animation-delay: .33s; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 text-white min-h-screen antialiased">
+
+<!-- ── Ladeskjerm ──────────────────────────────────────── -->
+<div id="loading-screen" class="min-h-screen flex items-center justify-center">
+    <div class="text-center">
+        <span class="text-6xl block mb-4">🍽️</span>
+        <p class="text-xl text-slate-300 animate-pulse">Lastar kantineplanen…</p>
+    </div>
+</div>
+
+<!-- ── Hovudvisning ────────────────────────────────────── -->
+<div id="main-view" class="hidden min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white/5 backdrop-blur-md border-b border-white/10 py-5 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <span class="text-4xl">🍽️</span>
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Kantina ALF8</h1>
+                    <p class="text-slate-400 text-sm font-medium">Vekas kantineplan</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div id="week-badge" class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-4 py-2 rounded-full text-sm font-bold"></div>
+                <div id="clock" class="text-slate-400 text-sm font-mono tabular-nums"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Dagkort -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="week-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5"></div>
+        <div id="no-data-msg" class="hidden text-center py-20">
+            <span class="text-6xl block mb-4">📋</span>
+            <h2 class="text-2xl font-bold text-slate-300 mb-2">Ingen plan denne veka</h2>
+            <p class="text-slate-500">Kantineplanen er ikkje publisert enno.</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white/5 backdrop-blur-md border-t border-white/10 py-3 px-6 text-center">
+        <p class="text-slate-500 text-xs">Oppdaterer automatisk · <span id="sync-indicator" class="text-emerald-400">● Tilkopla</span></p>
+    </footer>
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbwVI5VvoU9NvGylw0wD7AeTJO5t9nHxQBcHHFT3JdOgzLfNLEf1XGV7P3jOOZ1S3BetnA/exec';
+
+const screen = {
+
+    state: {
+        kalender: [],
+        menus:    {},
+        bemanning: { driftsleiarar: {}, turnus: { A: {}, B: {}, C: {} } }
+    },
+
+    /* ── Hjelparar ──────────────────────────────────────── */
+    esc: str => String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'),
+
+    getWeekdayName(dateId) {
+        const d = new Date(dateId + 'T12:00:00');
+        return ['Sundag','Måndag','Tysdag','Onsdag','Torsdag','Fredag','Laurdag'][d.getDay()];
+    },
+
+    getWeekdayShort(dateId) {
+        const d = new Date(dateId + 'T12:00:00');
+        return ['sun','mån','tys','ons','tor','fre','lau'][d.getDay()];
+    },
+
+    getDateStr(dateId) {
+        const [, m, d] = dateId.split('-');
+        return `${d}.${m}`;
+    },
+
+    getTodayId() {
+        const t = new Date();
+        const y = t.getFullYear();
+        const m = String(t.getMonth() + 1).padStart(2, '0');
+        const d = String(t.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    },
+
+    getWeekNumber(dateId) {
+        const d = new Date(dateId + 'T12:00:00');
+        const oneJan = new Date(d.getFullYear(), 0, 1);
+        const days = Math.floor((d - oneJan) / 86400000);
+        return Math.ceil((days + oneJan.getDay() + 1) / 7);
+    },
+
+    /* Finn veka som inneheld «i dag», eller neste framtidige veke */
+    getCurrentWeekDays() {
+        const todayId = this.getTodayId();
+        const today = new Date(todayId + 'T12:00:00');
+
+        // Finn måndag i inneverande veke
+        const dayOfWeek = today.getDay(); // 0=sun
+        const diffToMonday = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek;
+        const monday = new Date(today);
+        monday.setDate(today.getDate() + diffToMonday);
+
+        const friday = new Date(monday);
+        friday.setDate(monday.getDate() + 4);
+
+        const mondayId = this._toId(monday);
+        const fridayId = this._toId(friday);
+
+        // Filtrer dagar i denne veka
+        let weekDays = this.state.kalender.filter(d => d.id >= mondayId && d.id <= fridayId);
+
+        // Viss ingen dagar denne veka, finn neste tilgjengelege veke
+        if (!weekDays.length) {
+            const futureDays = this.state.kalender.filter(d => d.id > todayId);
+            if (futureDays.length) {
+                const firstFuture = futureDays[0];
+                weekDays = this.state.kalender.filter(d => d.veke === firstFuture.veke);
+            }
+        }
+
+        return weekDays.sort((a, b) => a.id.localeCompare(b.id));
+    },
+
+    _toId(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    },
+
+    /* ── API ─────────────────────────────────────────────── */
+    async fetchData() {
+        try {
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ role: 'infoskjerm', action: 'load' })
+            });
+            const json = await res.json();
+            if (json.error) return;
+            this.state.kalender  = json.kalender  || [];
+            this.state.menus     = json.menus      || {};
+            this.state.bemanning = json.bemanning  || { driftsleiarar: {}, turnus: { A:{}, B:{}, C:{} } };
+            this.render();
+            document.getElementById('sync-indicator').textContent = '● Tilkopla';
+            document.getElementById('sync-indicator').className = 'text-emerald-400';
+        } catch {
+            document.getElementById('sync-indicator').textContent = '● Frakopla';
+            document.getElementById('sync-indicator').className = 'text-amber-400';
+        }
+    },
+
+    /* ── Render ───────────────────────────────────────────── */
+    render() {
+        const grid    = document.getElementById('week-grid');
+        const noData  = document.getElementById('no-data-msg');
+        const weekDays = this.getCurrentWeekDays();
+
+        if (!weekDays.length) {
+            grid.classList.add('hidden');
+            noData.classList.remove('hidden');
+            document.getElementById('week-badge').textContent = 'Ingen plan';
+            return;
+        }
+
+        noData.classList.add('hidden');
+        grid.classList.remove('hidden');
+
+        const todayId = this.getTodayId();
+        const firstDay = weekDays[0];
+        document.getElementById('week-badge').textContent = `Veke ${firstDay.veke} · Turnus ${firstDay.turnusType}`;
+
+        grid.innerHTML = weekDays.map(day => {
+            const isToday  = day.id === todayId;
+            const isClosed = day.status === 'closed';
+            const weekday  = this.getWeekdayName(day.id);
+            const dateStr  = this.getDateStr(day.id);
+            const meny     = this.state.menus[day.id]?.['dagens'] || '';
+
+            // Card styling
+            let cardBg, border, todayClass;
+            if (isToday && !isClosed) {
+                cardBg     = 'bg-gradient-to-br from-indigo-600/30 to-purple-600/20';
+                border     = 'border-indigo-400/50';
+                todayClass = 'today-card';
+            } else if (isClosed) {
+                cardBg     = 'bg-white/[.03]';
+                border     = 'border-white/[.06]';
+                todayClass = '';
+            } else {
+                cardBg     = 'bg-white/[.07]';
+                border     = 'border-white/10';
+                todayClass = '';
+            }
+
+            // Status badge
+            const statusBadge = isClosed
+                ? `<span class="inline-flex items-center gap-1 bg-red-500/20 text-red-300 border border-red-500/30 text-xs font-bold px-3 py-1 rounded-full">🚫 Stengt</span>`
+                : `<span class="inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold px-3 py-1 rounded-full">✅ Open</span>`;
+
+            // Today label
+            const todayLabel = isToday
+                ? `<span class="bg-indigo-500 text-white text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full shadow-lg">I dag</span>`
+                : '';
+
+            // Menu section
+            let menyHtml;
+            if (isClosed) {
+                const reason = day.merknad || 'Fri dag';
+                menyHtml = `
+                    <div class="mt-auto pt-4">
+                        <p class="text-slate-500 text-sm italic">${this.esc(reason)}</p>
+                    </div>`;
+            } else if (meny) {
+                menyHtml = `
+                    <div class="mt-auto pt-4 border-t border-white/10">
+                        <p class="text-[11px] font-bold uppercase tracking-wider text-amber-400/80 mb-1.5">🍲 Dagens meny</p>
+                        <p class="text-white/90 font-medium leading-relaxed">${this.esc(meny)}</p>
+                    </div>`;
+            } else {
+                menyHtml = `
+                    <div class="mt-auto pt-4 border-t border-white/10">
+                        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">🍲 Dagens meny</p>
+                        <p class="text-slate-500 text-sm italic">Ikkje lagt inn enno</p>
+                    </div>`;
+            }
+
+            return `
+                <div class="day-card ${todayClass} ${cardBg} border ${border} rounded-2xl p-5 sm:p-6 flex flex-col backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:border-white/20 ${isClosed ? 'opacity-60' : ''}">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-lg sm:text-xl font-extrabold ${isToday ? 'text-indigo-300' : 'text-white'}">${weekday}</p>
+                            <p class="text-slate-400 text-sm font-medium">${dateStr}</p>
+                        </div>
+                        <div class="flex flex-col items-end gap-1.5">
+                            ${todayLabel}
+                            ${statusBadge}
+                        </div>
+                    </div>
+                    ${menyHtml}
+                </div>`;
+        }).join('');
+    },
+
+    /* ── Klokke ──────────────────────────────────────────── */
+    startClock() {
+        const tick = () => {
+            const now = new Date();
+            document.getElementById('clock').textContent =
+                now.toLocaleTimeString('no', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        };
+        tick();
+        setInterval(tick, 1000);
+    },
+
+    /* ── Init ────────────────────────────────────────────── */
+    async init() {
+        this.startClock();
+        await this.fetchData();
+        document.getElementById('loading-screen').classList.add('hidden');
+        document.getElementById('main-view').classList.remove('hidden');
+        setInterval(() => this.fetchData(), 30000);
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => screen.init());
+</script>
+</body>
+</html>
