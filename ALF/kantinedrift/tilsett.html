@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="nn">
 <head>
     <meta charset="UTF-8">
@@ -329,14 +329,25 @@ const app = {
             }).join('');
         };
 
-        // Sjekkliste — tilsett kan krysse av
+        // Sjekkliste — tilsett kan krysse av, men berre for dagen i dag
+        const todayId = this.getTodayId();
+        const canEditTasks = (dateId === todayId);
+
         const renderTasks = (type, list) => list.map((task, i) => {
             const done = this.state.tasks[dateId]?.[`${type}_${i}`] || false;
-            return `<label class="flex items-start space-x-3 p-2 rounded transition cursor-pointer hover:bg-slate-50">
-                      <input type="checkbox" onchange="app.toggleTask('${type}',${i})" ${done ? 'checked' : ''}
-                             class="mt-1 w-5 h-5 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500">
-                      <span class="${done ? 'line-through text-slate-400' : 'text-slate-700'}">${this.esc(task)}</span>
-                    </label>`;
+            if (canEditTasks) {
+                return `<label class="flex items-start space-x-3 p-2 rounded transition cursor-pointer hover:bg-slate-50">
+                          <input type="checkbox" onchange="app.toggleTask('${type}',${i})" ${done ? 'checked' : ''}
+                                 class="mt-1 w-5 h-5 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500">
+                          <span class="${done ? 'line-through text-slate-400' : 'text-slate-700'}">${this.esc(task)}</span>
+                        </label>`;
+            } else {
+                return `<label class="flex items-start space-x-3 p-2 rounded cursor-default opacity-80 title="Kan berre redigerast på dagen det gjeld">
+                          <input type="checkbox" disabled ${done ? 'checked' : ''}
+                                 class="mt-1 w-5 h-5 text-indigo-600 border-slate-300 rounded bg-slate-100 cursor-not-allowed">
+                          <span class="${done ? 'line-through text-slate-400' : 'text-slate-700'}">${this.esc(task)}</span>
+                        </label>`;
+            }
         }).join('');
 
         contentEl.innerHTML = `
