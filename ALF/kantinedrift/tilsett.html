@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="nn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kantineplan ALF8 – Tilsett</title>
+    <title>Kantineplan – Tilsett</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased">
@@ -13,7 +13,7 @@
     <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-8 w-full max-w-sm mx-4">
         <div class="text-center mb-6">
             <span class="text-4xl">🍽️</span>
-            <h1 class="text-2xl font-bold text-slate-800 mt-2">Kantineturnus ALF8</h1>
+            <h1 class="text-2xl font-bold text-slate-800 mt-2">KantineVeke</h1>
             <p class="text-slate-500 text-sm mt-1">Logg inn som Tilsett</p>
         </div>
         <label class="block text-sm font-medium text-slate-700 mb-1">Passord</label>
@@ -37,7 +37,7 @@
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center space-x-3">
                     <span class="text-2xl">🍽️</span>
-                    <span class="font-bold text-xl tracking-wide">Kantineturnus ALF8</span>
+                    <span class="font-bold text-xl tracking-wide">KantineVeke</span>
                     <span class="ml-4 px-2 py-1 bg-indigo-500 rounded text-xs font-bold uppercase tracking-wider">Tilsett</span>
                 </div>
                 <div id="sync-status" class="text-sm font-medium opacity-80">🟢 Oppdatert</div>
@@ -343,7 +343,7 @@ const app = {
           <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
             <div class="flex items-center mb-4">
               <span class="text-2xl mr-3">☀️</span>
-              <div><h3 class="text-xl font-bold text-slate-800">Tidleg Vakt</h3>
+              <div><h3 class="text-xl font-bold text-slate-800">Tidlegvakt</h3>
                    <p class="text-sm font-medium text-indigo-600">11:00 – 11:30</p></div>
             </div>
             <div class="space-y-2">${renderStudents(tidleg)}</div>
@@ -352,7 +352,7 @@ const app = {
           <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
             <div class="flex items-center mb-4">
               <span class="text-2xl mr-3">🌙</span>
-              <div><h3 class="text-xl font-bold text-slate-800">Seint Vakt</h3>
+              <div><h3 class="text-xl font-bold text-slate-800">Seinvakt</h3>
                    <p class="text-sm font-medium text-indigo-600">11:25 – 11:40</p></div>
             </div>
             <div class="space-y-2">${renderStudents(seint)}</div>
@@ -364,11 +364,11 @@ const app = {
               <h3 class="text-xl font-bold text-slate-800">Sjekkliste</h3>
             </div>
             <div class="mb-4">
-              <p class="font-semibold text-slate-800 border-b border-slate-300 pb-1 mb-2">Tidleg vakt:</p>
+              <p class="font-semibold text-slate-800 border-b border-slate-300 pb-1 mb-2">Tidlegvakt:</p>
               <div class="space-y-1">${renderTasks('early', this.state.tasksList.early)}</div>
             </div>
             <div>
-              <p class="font-semibold text-slate-800 border-b border-slate-300 pb-1 mb-2">Seint vakt:</p>
+              <p class="font-semibold text-slate-800 border-b border-slate-300 pb-1 mb-2">Seinvakt:</p>
               <div class="space-y-1">${renderTasks('late', this.state.tasksList.late)}</div>
             </div>
           </div>`;
