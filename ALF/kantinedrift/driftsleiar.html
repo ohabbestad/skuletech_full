@@ -3,502 +3,517 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kantineplan ALF8 - Driftsleiar</title>
+    <title>Kantineplan ALF8 – Driftsleiar</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased">
 
-    <!-- Innloggingsskjerm -->
-    <div id="login-screen" class="min-h-screen flex items-center justify-center bg-slate-100">
-        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-8 w-full max-w-sm mx-4">
-            <div class="text-center mb-6">
-                <span class="text-4xl">🍽️</span>
-                <h1 class="text-2xl font-bold text-slate-800 mt-2">Kantineturnus ALF8</h1>
-                <p class="text-slate-500 text-sm mt-1">Logg inn som Driftsleiar</p>
-            </div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Passord</label>
-            <input type="password" id="password-input"
-                   class="w-full border border-slate-300 rounded-md p-3 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-                   placeholder="Skriv inn passord..."
-                   onkeydown="if(event.key==='Enter') app.login()">
-            <p id="login-error" class="hidden mt-2 text-sm text-red-600 font-medium"></p>
-            <button id="login-btn" onclick="app.login()"
-                    class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition">
-                Logg inn
-            </button>
+<!-- ── Innlogging ─────────────────────────────────────────── -->
+<div id="login-screen" class="min-h-screen flex items-center justify-center bg-slate-100">
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-8 w-full max-w-sm mx-4">
+        <div class="text-center mb-6">
+            <span class="text-4xl">🍽️</span>
+            <h1 class="text-2xl font-bold text-slate-800 mt-2">Kantineturnus ALF8</h1>
+            <p class="text-slate-500 text-sm mt-1">Logg inn som Driftsleiar</p>
         </div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Passord</label>
+        <input type="password" id="password-input"
+               class="w-full border border-slate-300 rounded-md p-3 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+               placeholder="Skriv inn passord..."
+               onkeydown="if(event.key==='Enter') app.login()">
+        <p id="login-error" class="hidden mt-2 text-sm text-red-600 font-medium"></p>
+        <button id="login-btn" onclick="app.login()"
+                class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition">
+            Logg inn
+        </button>
     </div>
+</div>
 
-    <!-- Dashbord (skjult til innlogging er OK) -->
-    <div id="dashboard" class="hidden">
+<!-- ── Dashbord ───────────────────────────────────────────── -->
+<div id="dashboard" class="hidden">
 
-        <nav class="bg-indigo-700 text-white shadow-md">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16 items-center">
-                    <div class="flex items-center space-x-3">
-                        <span class="text-2xl">🍽️</span>
-                        <span class="font-bold text-xl tracking-wide">Kantineturnus ALF8</span>
-                        <span class="ml-4 px-2 py-1 bg-indigo-500 rounded text-xs font-bold uppercase tracking-wider">Driftsleiar</span>
-                    </div>
-                    <div id="sync-status" class="text-sm font-medium opacity-80">🟢 Oppdatert</div>
+    <nav class="bg-indigo-700 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">🍽️</span>
+                    <span class="font-bold text-xl tracking-wide">Kantineturnus ALF8</span>
+                    <span class="ml-4 px-2 py-1 bg-indigo-500 rounded text-xs font-bold uppercase tracking-wider">Driftsleiar</span>
                 </div>
+                <div id="sync-status" class="text-sm font-medium opacity-80">🟢 Oppdatert</div>
             </div>
-        </nav>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-            <!-- Fane-navigasjon -->
-            <div class="mb-8 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="flex border-b border-slate-200">
-                    <button onclick="app.switchTab('today')" id="tab-today" class="flex-1 py-4 px-6 text-center font-medium focus:outline-none bg-indigo-50 text-indigo-700">
-                        📅 Dagens Oversikt
-                    </button>
-                    <button onclick="app.switchTab('semester')" id="tab-semester" class="flex-1 py-4 px-6 text-center font-medium text-slate-500 hover:text-indigo-700 hover:bg-slate-50 transition focus:outline-none">
-                        📋 Semesterplan
-                    </button>
-                </div>
-            </div>
-
-            <!-- TAB 1: Dagens Oversikt -->
-            <div id="view-today" class="block space-y-6">
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
-
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-slate-200 pb-6">
-                        <div>
-                            <h2 class="text-2xl font-bold text-slate-800 mb-2">Personal, Meny & Drift</h2>
-                            <p class="text-slate-600 max-w-2xl">Trykk på namnet til elevar som ikkje møter til vakta si. Du kan òg leggje inn dagens meny. Følg med på at sjekklista blir gjort.</p>
-                        </div>
-                        <div class="mt-4 md:mt-0 bg-indigo-50 border border-indigo-100 p-3 rounded-lg text-center min-w-[200px]">
-                            <p class="text-xs text-indigo-600 font-bold uppercase tracking-wide mb-1">Driftsleiar på vakt</p>
-                            <p id="driftsleiar-name" class="text-lg font-bold text-indigo-900"></p>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between bg-slate-100 p-4 rounded-lg mb-8">
-                        <div class="mb-4 md:mb-0 w-full md:w-auto">
-                            <label for="date-selector" class="block text-sm font-medium text-slate-700 mb-1">Velg arbeidsdag:</label>
-                            <select id="date-selector" class="bg-white border border-slate-300 text-slate-900 text-base rounded-md focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 shadow-sm min-w-[250px]" onchange="app.selectDate(this.value)"></select>
-                        </div>
-                        <div class="text-left md:text-right w-full md:w-auto mt-2 md:mt-0">
-                            <span id="current-week-badge" class="inline-block bg-indigo-100 text-indigo-800 text-sm font-semibold px-3 py-1 rounded-full">Veke -- (Turnus --)</span>
-                            <div id="current-date-display" class="text-xl font-bold text-slate-800 mt-1">--.--.----</div>
-                        </div>
-                    </div>
-
-                    <div id="menu-container" class="mb-6"></div>
-                    <div id="today-content" class="grid grid-cols-1 lg:grid-cols-3 gap-6"></div>
-
-                </div>
-            </div>
-
-            <!-- TAB 2: Semesterplan -->
-            <div id="view-semester" class="hidden space-y-6">
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
-                    <h2 class="text-2xl font-bold text-slate-800 mb-2">Heile Semesterplanen</h2>
-                    <p class="text-slate-600 mb-6">Få eit komplett overblikk over alle vekene, turnusane (A, B, C) og inneklemte dagar. Menyar som er lagt inn i systemet vil visast her automatisk.</p>
-                    <div class="mb-4">
-                        <input type="text" id="search-schedule" placeholder="Søk etter elevnamn eller meny..." class="w-full md:w-1/3 border border-slate-300 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500" onkeyup="app.filterSemester()">
-                    </div>
-                    <div id="semester-accordion" class="space-y-4"></div>
-                </div>
-            </div>
-
         </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Faner -->
+        <div class="mb-8 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="flex border-b border-slate-200">
+                <button onclick="app.switchTab('today')" id="tab-today"
+                        class="flex-1 py-4 px-6 text-center font-medium focus:outline-none bg-indigo-50 text-indigo-700">
+                    📅 Dagens Oversikt
+                </button>
+                <button onclick="app.switchTab('semester')" id="tab-semester"
+                        class="flex-1 py-4 px-6 text-center font-medium text-slate-500 hover:text-indigo-700 hover:bg-slate-50 transition focus:outline-none">
+                    📋 Semesterplan
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB: Dagens Oversikt -->
+        <div id="view-today" class="block space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
+
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-slate-200 pb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800 mb-2">Personal, Meny & Drift</h2>
+                        <p class="text-slate-600 max-w-2xl">Trykk på namnet til elevar som ikkje møter. Du kan òg leggje inn dagens meny. Følg med på at sjekklista blir gjort.</p>
+                    </div>
+                    <div class="mt-4 md:mt-0 bg-indigo-50 border border-indigo-100 p-3 rounded-lg text-center min-w-[200px]">
+                        <p class="text-xs text-indigo-600 font-bold uppercase tracking-wide mb-1">Driftsleiar på vakt</p>
+                        <p id="driftsleiar-name" class="text-lg font-bold text-indigo-900">–</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between bg-slate-100 p-4 rounded-lg mb-8">
+                    <div class="mb-4 md:mb-0 w-full md:w-auto">
+                        <label for="date-selector" class="block text-sm font-medium text-slate-700 mb-1">Velg arbeidsdag:</label>
+                        <select id="date-selector"
+                                class="bg-white border border-slate-300 text-slate-900 text-base rounded-md focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 shadow-sm min-w-[250px]"
+                                onchange="app.selectDate(this.value)"></select>
+                    </div>
+                    <div class="text-left md:text-right w-full md:w-auto mt-2 md:mt-0">
+                        <span id="current-week-badge" class="inline-block bg-indigo-100 text-indigo-800 text-sm font-semibold px-3 py-1 rounded-full">–</span>
+                        <div id="current-date-display" class="text-xl font-bold text-slate-800 mt-1">–</div>
+                    </div>
+                </div>
+
+                <div id="menu-container" class="mb-6"></div>
+                <div id="today-content" class="grid grid-cols-1 lg:grid-cols-3 gap-6"></div>
+            </div>
+        </div>
+
+        <!-- TAB: Semesterplan -->
+        <div id="view-semester" class="hidden space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">Heile Semesterplanen</h2>
+                <p class="text-slate-600 mb-6">Komplett oversikt over alle vekene og turnusane. Menyar visast automatisk.</p>
+                <div class="mb-4">
+                    <input type="text" id="search-schedule"
+                           placeholder="Søk etter elevnamn eller meny..."
+                           class="w-full md:w-1/3 border border-slate-300 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                           onkeyup="app.filterSemester()">
+                </div>
+                <div id="semester-accordion" class="space-y-4"></div>
+            </div>
+        </div>
+
     </div>
+</div><!-- /dashboard -->
 
-    <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwVI5VvoU9NvGylw0wD7AeTJO5t9nHxQBcHHFT3JdOgzLfNLEf1XGV7P3jOOZ1S3BetnA/exec';
-        const APP_ROLE = 'driftsleiar';
+<script>
+const API_URL  = 'https://script.google.com/macros/s/AKfycbwVI5VvoU9NvGylw0wD7AeTJO5t9nHxQBcHHFT3JdOgzLfNLEf1XGV7P3jOOZ1S3BetnA/exec';
+const APP_ROLE = 'driftsleiar';
 
-        const app = {
-            state: {
-                password: null,
-                currentTab: 'today',
-                currentDateId: null,
-                attendance: {},
-                tasks: {},
-                menus: {},
-                isSaving: false
-            },
-            data: {
-                driftsleiarar: {
-                    'Måndag': 'Kari (9A)',
-                    'Tysdag': 'Ola (9B)',
-                    'Onsdag': 'Silje (9C)',
-                    'Torsdag': 'Petter (9A)',
-                    'Fredag': 'Amalie (9C)'
-                },
-                tasksList: {
-                    early: [
-                        "Dele ut skulemjølk",
-                        "Opne kantina",
-                        "Gjere varmmat klar til servering",
-                        "Drive sal i luka"
-                    ],
-                    late: [
-                        "Rydde i heile kantineområdet",
-                        "Vaske av bord og kantinedisk",
-                        "Ta eventuell oppvask"
-                    ]
-                },
-                schedule: [
-                    { week: 16, type: 'C', days: [
-                        { id: '2026-04-13', dateStr: '13.04', day: 'Måndag', early: 'Linnea, Magnus, Emilia', late: 'Kamilla, Johannes F, Johannes L', status: 'open' },
-                        { id: '2026-04-14', dateStr: '14.04', day: 'Tysdag', early: 'Jacob, Cecilie, Kasper', late: 'Emil, Nora, Noa', status: 'open' },
-                        { id: '2026-04-15', dateStr: '15.04', day: 'Onsdag', early: 'Inga vakt', late: 'Inga vakt', status: 'closed', note: 'Løp for Livet' },
-                        { id: '2026-04-16', dateStr: '16.04', day: 'Torsdag', early: 'Cassie, Lone, Johannes L', late: 'Sivert, Serina, Emma', status: 'open' },
-                        { id: '2026-04-17', dateStr: '17.04', day: 'Fredag', early: 'Emil, Johannes F', late: 'Cecilie, Magnus', status: 'open' }
-                    ]},
-                    { week: 17, type: 'A', days: [
-                        { id: '2026-04-20', dateStr: '20.04', day: 'Måndag', early: 'Nora, Emilia, Kasper', late: 'Kamilla, Lone, Serina', status: 'open' },
-                        { id: '2026-04-21', dateStr: '21.04', day: 'Tysdag', early: 'Noa, Johannes L, Loke', late: 'Sivert, Cassie, Enea', status: 'open' },
-                        { id: '2026-04-22', dateStr: '22.04', day: 'Onsdag', early: 'Emil, Linnea, Emma', late: 'Cecilie, Celina, Nora', status: 'open' },
-                        { id: '2026-04-23', dateStr: '23.04', day: 'Torsdag', early: 'Magnus, Hanna, Serina', late: 'Jacob, Emilia, Noa', status: 'open' },
-                        { id: '2026-04-24', dateStr: '24.04', day: 'Fredag', early: 'Sivert, Lone', late: 'Johannes F, Kasper', status: 'open' }
-                    ]},
-                    { week: 18, type: 'B', days: [
-                        { id: '2026-04-27', dateStr: '27.04', day: 'Måndag', early: 'Jacob, Johannes F, Hanna', late: 'Cassie, Emma, Johannes L', status: 'open' },
-                        { id: '2026-04-28', dateStr: '28.04', day: 'Tysdag', early: 'Nora, Noa, Serina', late: 'Linnea, Magnus, Celina', status: 'open' },
-                        { id: '2026-04-29', dateStr: '29.04', day: 'Onsdag', early: 'Cassie, Emma, Loke', late: 'Hanna, Enea, Kasper', status: 'open' },
-                        { id: '2026-04-30', dateStr: '30.04', day: 'Torsdag', early: 'Sivert, Cecilie, Kamilla', late: 'Lone, Emil, Emilia', status: 'open' },
-                        { id: '2026-05-01', dateStr: '01.05', day: 'Fredag', early: 'Inga vakt', late: 'Inga vakt', status: 'closed', note: 'Offentleg høgtidsdag' }
-                    ]}
-                ]
-            },
+const app = {
 
-            init() {
-                document.getElementById('password-input').focus();
-            },
+    /* ── State ─────────────────────────────────────────────── */
+    state: {
+        password:      null,
+        currentTab:    'today',
+        currentDateId: null,
+        isSaving:      false,
+        kalender:      [],
+        bemanning:     { driftsleiarar: {}, turnus: { A: {}, B: {}, C: {} } },
+        tasksList:     { early: [], late: [] },
+        attendance:    {},
+        tasks:         {},
+        menus:         {}
+    },
 
-            async login() {
-                const password = document.getElementById('password-input').value.trim();
-                if (!password) return;
+    /* ── Auth ──────────────────────────────────────────────── */
+    init() { document.getElementById('password-input').focus(); },
 
-                const btn = document.getElementById('login-btn');
-                const errEl = document.getElementById('login-error');
-                btn.textContent = '⏳ Logger inn...';
-                btn.disabled = true;
-                errEl.classList.add('hidden');
-
-                try {
-                    const res = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'load', role: APP_ROLE, password })
-                    });
-                    const json = await res.json();
-
-                    if (json.error) {
-                        errEl.textContent = json.error;
-                        errEl.classList.remove('hidden');
-                        btn.textContent = 'Logg inn';
-                        btn.disabled = false;
-                        return;
-                    }
-
-                    this.state.password = password;
-                    this.state.attendance = json.attendance || {};
-                    this.state.tasks = json.tasks || {};
-                    this.state.menus = json.menus || {};
-
-                    document.getElementById('login-screen').classList.add('hidden');
-                    document.getElementById('dashboard').classList.remove('hidden');
-
-                    this.state.currentDateId = this.getInitialDateId();
-                    this.populateDateSelector();
-                    this.renderToday();
-
-                    setInterval(() => this.fetchDataFromAPI(true), 10000);
-
-                } catch (e) {
-                    errEl.textContent = 'Kunne ikkje nå serveren. Prøv igjen.';
-                    errEl.classList.remove('hidden');
-                    btn.textContent = 'Logg inn';
-                    btn.disabled = false;
-                }
-            },
-
-            async fetchDataFromAPI(silent = false) {
-                if (this.state.isSaving) return;
-                if (!silent) document.getElementById('sync-status').textContent = '⏳ Hentar data...';
-                try {
-                    const res = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'load', role: APP_ROLE, password: this.state.password })
-                    });
-                    const json = await res.json();
-                    if (json.error) return;
-
-                    this.state.attendance = json.attendance || {};
-                    this.state.tasks = json.tasks || {};
-                    this.state.menus = json.menus || {};
-
-                    if (this.state.currentTab === 'today') {
-                        this.renderToday();
-                    } else if (this.state.currentTab === 'semester' && !silent) {
-                        this.renderSemester();
-                    }
-                    document.getElementById('sync-status').textContent = '🟢 Oppdatert';
-                } catch (e) {
-                    document.getElementById('sync-status').textContent = '🟡 Frakobla';
-                }
-            },
-
-            async pushDataToAPI(type, dateId, key, value) {
-                this.state.isSaving = true;
-                document.getElementById('sync-status').textContent = '⏳ Lagrar...';
-                try {
-                    await fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'save', role: APP_ROLE, password: this.state.password, type, dateId, key, value })
-                    });
-                    document.getElementById('sync-status').textContent = '🟢 Oppdatert';
-                } catch (e) {
-                    document.getElementById('sync-status').textContent = '🔴 Feil ved lagring';
-                } finally {
-                    this.state.isSaving = false;
-                }
-            },
-
-            saveMenu(dateId) {
-                const val = document.getElementById(`menu-input-${dateId}`).value;
-                if (!this.state.menus[dateId]) this.state.menus[dateId] = {};
-                this.state.menus[dateId]['dagens'] = val;
-
-                const msg = document.getElementById('save-menu-msg');
-                msg.style.opacity = '1';
-                setTimeout(() => msg.style.opacity = '0', 2000);
-
-                this.pushDataToAPI('menus', dateId, 'dagens', val);
-                this.renderSemester();
-            },
-
-            getInitialDateId() {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                for (const week of this.data.schedule) {
-                    for (const day of week.days) {
-                        if (new Date(day.id) >= today && day.status === 'open') return day.id;
-                    }
-                }
-                return this.data.schedule[0].days[0].id;
-            },
-
-            switchTab(tabId) {
-                this.state.currentTab = tabId;
-                ['today', 'semester'].forEach(id => {
-                    document.getElementById(`view-${id}`).classList.add('hidden');
-                    const btn = document.getElementById(`tab-${id}`);
-                    btn.classList.remove('bg-indigo-50', 'text-indigo-700');
-                    btn.classList.add('text-slate-500', 'hover:bg-slate-50');
-                });
-                document.getElementById(`view-${tabId}`).classList.remove('hidden');
-                const activeBtn = document.getElementById(`tab-${tabId}`);
-                activeBtn.classList.remove('text-slate-500', 'hover:bg-slate-50');
-                activeBtn.classList.add('bg-indigo-50', 'text-indigo-700');
-                if (tabId === 'semester') this.renderSemester();
-            },
-
-            getDayData(dateId) {
-                for (const week of this.data.schedule) {
-                    const day = week.days.find(d => d.id === dateId);
-                    if (day) return { day, week };
-                }
-                return null;
-            },
-
-            populateDateSelector() {
-                const selector = document.getElementById('date-selector');
-                selector.innerHTML = '';
-                this.data.schedule.forEach(week => {
-                    const optgroup = document.createElement('optgroup');
-                    optgroup.label = `Veke ${week.week} (Turnus ${week.type})`;
-                    week.days.forEach(day => {
-                        const option = document.createElement('option');
-                        option.value = day.id;
-                        option.textContent = `${day.day} ${day.dateStr}`;
-                        if (day.id === this.state.currentDateId) option.selected = true;
-                        optgroup.appendChild(option);
-                    });
-                    selector.appendChild(optgroup);
-                });
-            },
-
-            selectDate(dateId) {
-                this.state.currentDateId = dateId;
-                this.renderToday();
-            },
-
-            toggleAttendance(name) {
-                const dateId = this.state.currentDateId;
-                if (!this.state.attendance[dateId]) this.state.attendance[dateId] = {};
-                const isPresent = this.state.attendance[dateId][name] ?? true;
-                const newValue = !isPresent;
-                this.state.attendance[dateId][name] = newValue;
-                this.renderToday();
-                this.pushDataToAPI('attendance', dateId, name, newValue);
-            },
-
-            renderToday() {
-                const data = this.getDayData(this.state.currentDateId);
-                if (!data) return;
-                const { day, week } = data;
-                const dateId = day.id;
-
-                document.getElementById('current-week-badge').textContent = `Veke ${week.week} (Turnus ${week.type})`;
-                document.getElementById('current-date-display').textContent = `${day.day} ${day.dateStr}`;
-                document.getElementById('driftsleiar-name').textContent = this.data.driftsleiarar[day.day] || 'Ingen satt';
-
-                const contentDiv = document.getElementById('today-content');
-                const menuContainer = document.getElementById('menu-container');
-
-                if (day.status === 'closed') {
-                    menuContainer.innerHTML = '';
-                    contentDiv.innerHTML = `
-                        <div class="lg:col-span-3 bg-red-50 border border-red-200 rounded-xl p-8 text-center">
-                            <span class="text-4xl mb-4 block">🚫</span>
-                            <h3 class="text-2xl font-bold text-red-800 mb-2">Kantina er stengt</h3>
-                            <p class="text-red-600 text-lg">${day.note || 'Fri'}</p>
-                        </div>`;
-                    return;
-                }
-
-                const currentMenuText = this.state.menus[dateId]?.['dagens'] || '';
-                menuContainer.innerHTML = `
-                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 shadow-sm">
-                        <div class="flex items-center mb-3">
-                            <span class="text-2xl mr-3">🍲</span>
-                            <h3 class="text-xl font-bold text-amber-900">Dagens Meny</h3>
-                        </div>
-                        <input type="text" id="menu-input-${dateId}" class="w-full p-3 border border-amber-300 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-white" placeholder="Skriv inn kva som skal serverast i dag..." value="${currentMenuText}">
-                        <div class="mt-3 flex items-center">
-                            <button onclick="app.saveMenu('${dateId}')" class="bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 px-6 rounded transition">Lagra Meny</button>
-                            <span id="save-menu-msg" class="ml-4 text-emerald-700 font-bold opacity-0 transition-opacity duration-300">✅ Lagra!</span>
-                        </div>
-                    </div>`;
-
-                const renderStudents = (studentString) => {
-                    return studentString.split(',').map(n => {
-                        const name = n.trim();
-                        const isPresent = this.state.attendance[dateId]?.[name] ?? true;
-                        const btnClass = isPresent
-                            ? 'bg-emerald-50 text-emerald-900 border-emerald-200 shadow-sm hover:bg-emerald-100 cursor-pointer'
-                            : 'bg-red-50 text-red-800 border-red-200 opacity-60 hover:bg-red-100 cursor-pointer';
-                        const icon = isPresent ? '✅' : '❌ Fråvær';
-                        const textDecor = isPresent ? '' : 'line-through text-red-500';
-                        return `
-                            <button onclick="app.toggleAttendance('${name}')"
-                                    class="w-full text-left px-4 py-3 rounded-lg border transition duration-150 flex items-center justify-between focus:outline-none ${btnClass}">
-                                <span class="font-medium ${textDecor}">${name}</span>
-                                <span class="text-sm font-bold">${icon}</span>
-                            </button>`;
-                    }).join('');
-                };
-
-                // Sjekkliste — berre visning for driftsleiar
-                const renderTasks = (type, tasksList) => {
-                    return tasksList.map((task, index) => {
-                        const taskKey = `${type}_${index}`;
-                        const isDone = this.state.tasks[dateId]?.[taskKey] || false;
-                        return `
-                            <label class="flex items-start space-x-3 p-2 rounded cursor-default opacity-90">
-                                <input type="checkbox" disabled ${isDone ? 'checked' : ''}
-                                    class="mt-1 w-5 h-5 text-indigo-600 border-slate-300 rounded bg-slate-200">
-                                <span class="${isDone ? 'line-through text-slate-400' : 'text-slate-700'}">${task}</span>
-                            </label>`;
-                    }).join('');
-                };
-
-                contentDiv.innerHTML = `
-                    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                        <div class="flex items-center mb-4">
-                            <span class="text-2xl mr-3">☀️</span>
-                            <div>
-                                <h3 class="text-xl font-bold text-slate-800">Tidleg Vakt</h3>
-                                <p class="text-sm font-medium text-indigo-600">11:00 – 11:30</p>
-                            </div>
-                        </div>
-                        <p class="text-xs text-slate-500 mb-3">Trykk på namn for å registrere fråvær</p>
-                        <div class="space-y-2 mt-2">${renderStudents(day.early)}</div>
-                    </div>
-                    <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                        <div class="flex items-center mb-4">
-                            <span class="text-2xl mr-3">🌙</span>
-                            <div>
-                                <h3 class="text-xl font-bold text-slate-800">Seint Vakt</h3>
-                                <p class="text-sm font-medium text-indigo-600">11:25 – 11:40</p>
-                            </div>
-                        </div>
-                        <p class="text-xs text-slate-500 mb-3">Trykk på namn for å registrere fråvær</p>
-                        <div class="space-y-2 mt-2">${renderStudents(day.late)}</div>
-                    </div>
-                    <div class="bg-slate-100 border border-slate-200 rounded-xl p-6 shadow-inner">
-                        <div class="flex items-center mb-4">
-                            <span class="text-2xl mr-3">📋</span>
-                            <h3 class="text-xl font-bold text-slate-800">Sjekkliste</h3>
-                        </div>
-                        <div class="mb-4">
-                            <p class="font-semibold text-slate-800 border-b border-slate-300 pb-1 mb-2">Tidleg vakt oppgåver:</p>
-                            <div class="space-y-1">${renderTasks('early', this.data.tasksList.early)}</div>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-slate-800 border-b border-slate-300 pb-1 mb-2">Seint vakt oppgåver:</p>
-                            <div class="space-y-1">${renderTasks('late', this.data.tasksList.late)}</div>
-                        </div>
-                    </div>`;
-            },
-
-            renderSemester() {
-                const acc = document.getElementById('semester-accordion');
-                acc.innerHTML = '';
-                this.data.schedule.forEach(week => {
-                    const weekDiv = document.createElement('div');
-                    weekDiv.className = 'border border-slate-200 rounded-lg overflow-hidden week-card';
-
-                    const searchableWeek = JSON.parse(JSON.stringify(week));
-                    searchableWeek.days.forEach(d => { d.menu = this.state.menus[d.id]?.['dagens'] || ''; });
-                    weekDiv.dataset.weekData = JSON.stringify(searchableWeek).toLowerCase();
-
-                    const isSpecial = week.days.some(d => d.status === 'closed');
-                    const badge = isSpecial ? `<span class="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded ml-3">Inneheld fridagar</span>` : '';
-
-                    let daysHtml = '';
-                    week.days.forEach(day => {
-                        const closedHtml = day.status === 'closed' ? `<span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded ml-2 font-bold">${day.note}</span>` : '';
-                        const dagensMeny = this.state.menus[day.id]?.['dagens'];
-                        const menyHtml = dagensMeny
-                            ? `<div class="col-span-1 md:col-span-3 mt-2 text-sm bg-amber-50 p-2 rounded border border-amber-100"><span class="font-bold text-amber-900 mr-2">🍲 Meny:</span><span class="text-amber-800">${dagensMeny}</span></div>`
-                            : '';
-                        daysHtml += `
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 p-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition cursor-pointer" onclick="app.selectDate('${day.id}'); app.switchTab('today');">
-                                <div class="font-medium text-slate-800">${day.day} ${day.dateStr} ${closedHtml}</div>
-                                <div class="text-sm text-indigo-700"><span class="font-semibold text-slate-500 mr-1">Tidleg:</span> ${day.early}</div>
-                                <div class="text-sm text-slate-600"><span class="font-semibold text-slate-500 mr-1">Seint:</span> ${day.late}</div>
-                                ${menyHtml}
-                            </div>`;
-                    });
-
-                    weekDiv.innerHTML = `
-                        <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="w-full text-left bg-slate-50 hover:bg-slate-100 p-4 font-bold text-slate-800 flex justify-between items-center transition focus:outline-none">
-                            <span>Veke ${week.week} - Turnus ${week.type} ${badge}</span>
-                            <span class="text-slate-400">▼</span>
-                        </button>
-                        <div class="hidden bg-white px-2 pb-2">${daysHtml}</div>`;
-                    acc.appendChild(weekDiv);
-                });
-            },
-
-            filterSemester() {
-                const term = document.getElementById('search-schedule').value.toLowerCase();
-                document.querySelectorAll('.week-card').forEach(card => {
-                    card.style.display = card.dataset.weekData.includes(term) ? 'block' : 'none';
-                });
+    async login() {
+        const pwd   = document.getElementById('password-input').value.trim();
+        if (!pwd) return;
+        const btn   = document.getElementById('login-btn');
+        const errEl = document.getElementById('login-error');
+        btn.textContent = '⏳ Logger inn...';
+        btn.disabled = true;
+        errEl.classList.add('hidden');
+        try {
+            const json = await this._post({ action: 'load', password: pwd });
+            if (json.error) {
+                errEl.textContent = json.error;
+                errEl.classList.remove('hidden');
+                btn.textContent = 'Logg inn';
+                btn.disabled = false;
+                return;
             }
+            this.state.password = pwd;
+            this._applyResponse(json);
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            this.state.currentDateId = this.getInitialDateId();
+            this.populateDateSelector();
+            this.renderToday();
+            setInterval(() => this.fetchDataFromAPI(true), 10000);
+        } catch {
+            errEl.textContent = 'Kunne ikkje nå serveren. Prøv igjen.';
+            errEl.classList.remove('hidden');
+            btn.textContent = 'Logg inn';
+            btn.disabled = false;
+        }
+    },
+
+    /* ── API ────────────────────────────────────────────────── */
+    async _post(extra) {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ role: APP_ROLE, password: this.state.password, ...extra })
+        });
+        return res.json();
+    },
+
+    async fetchDataFromAPI(silent = false) {
+        if (this.state.isSaving) return;
+        if (!silent) document.getElementById('sync-status').textContent = '⏳ Hentar data...';
+        try {
+            const json = await this._post({ action: 'load' });
+            if (json.error) return;
+            this._applyResponse(json);
+            if (this.state.currentTab === 'today') this.renderToday();
+            else if (this.state.currentTab === 'semester' && !silent) this.renderSemester();
+            document.getElementById('sync-status').textContent = '🟢 Oppdatert';
+        } catch { document.getElementById('sync-status').textContent = '🟡 Frakobla'; }
+    },
+
+    quickSave(payload) {
+        this.state.isSaving = true;
+        document.getElementById('sync-status').textContent = '⏳ Lagrar...';
+        this._post({ action: 'save', ...payload })
+            .then(() => { document.getElementById('sync-status').textContent = '🟢 Oppdatert'; })
+            .catch(() => { document.getElementById('sync-status').textContent = '🔴 Feil ved lagring'; })
+            .finally(() => { this.state.isSaving = false; });
+    },
+
+    _applyResponse(json) {
+        this.state.kalender   = json.kalender   || [];
+        this.state.bemanning  = json.bemanning  || { driftsleiarar: {}, turnus: { A:{}, B:{}, C:{} } };
+        this.state.tasksList  = json.tasksList  || { early: [], late: [] };
+        this.state.attendance = json.attendance || {};
+        this.state.tasks      = json.tasks      || {};
+        this.state.menus      = json.menus      || {};
+    },
+
+    /* ── Hjelpar ────────────────────────────────────────────── */
+    esc: str => String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'),
+
+    getWeekdayName(dateId) {
+        const d = new Date(dateId + 'T12:00:00');
+        return ['Sundag','Måndag','Tysdag','Onsdag','Torsdag','Fredag','Laurdag'][d.getDay()];
+    },
+
+    getDateStr(dateId) {
+        const [, m, d] = dateId.split('-');
+        return `${d}.${m}`;
+    },
+
+    getDayData(dateId) {
+        return this.state.kalender.find(d => d.id === dateId) ?? null;
+    },
+
+    getDayStaffing(dateId) {
+        const day = this.getDayData(dateId);
+        if (!day) return { tidleg: '', seint: '' };
+        if (day.turnusType === 'Ferie') return { tidleg: 'Feriestengd', seint: 'Feriestengd' };
+        const tpl = this.state.bemanning.turnus?.[day.turnusType]?.[this.getWeekdayName(dateId)];
+        return {
+            tidleg: day.tidlegOverstyre || tpl?.tidleg || '',
+            seint:  day.sentOverstyre  || tpl?.seint  || ''
+        };
+    },
+
+    groupByWeek() {
+        const map = new Map();
+        for (const day of this.state.kalender) {
+            if (!map.has(day.veke)) map.set(day.veke, { veke: day.veke, turnusType: day.turnusType, days: [] });
+            map.get(day.veke).days.push(day);
+        }
+        return [...map.values()].sort((a, b) => a.veke - b.veke);
+    },
+
+    getInitialDateId() {
+        if (!this.state.kalender.length) return null;
+        const today = new Date(); today.setHours(0,0,0,0);
+        for (const day of this.state.kalender) {
+            if (new Date(day.id + 'T12:00:00') >= today && day.status === 'open') return day.id;
+        }
+        return this.state.kalender[0].id;
+    },
+
+    /* ── Navigasjon ─────────────────────────────────────────── */
+    switchTab(tabId) {
+        this.state.currentTab = tabId;
+        ['today','semester'].forEach(id => {
+            document.getElementById(`view-${id}`).classList.add('hidden');
+            const btn = document.getElementById(`tab-${id}`);
+            btn.classList.remove('bg-indigo-50','text-indigo-700');
+            btn.classList.add('text-slate-500','hover:bg-slate-50');
+        });
+        document.getElementById(`view-${tabId}`).classList.remove('hidden');
+        const ab = document.getElementById(`tab-${tabId}`);
+        ab.classList.remove('text-slate-500','hover:bg-slate-50');
+        ab.classList.add('bg-indigo-50','text-indigo-700');
+        if (tabId === 'semester') this.renderSemester();
+    },
+
+    /* ── Dato-vel ───────────────────────────────────────────── */
+    populateDateSelector() {
+        const sel = document.getElementById('date-selector');
+        sel.innerHTML = '';
+        const weeks = this.groupByWeek();
+        if (!weeks.length) {
+            sel.innerHTML = '<option disabled selected>Ingen veker publisert enno</option>';
+            return;
+        }
+        weeks.forEach(w => {
+            const og = document.createElement('optgroup');
+            og.label = `Veke ${w.veke} (Turnus ${w.turnusType})`;
+            w.days.forEach(day => {
+                const opt = document.createElement('option');
+                opt.value = day.id;
+                opt.textContent = `${this.getWeekdayName(day.id)} ${this.getDateStr(day.id)}`;
+                if (day.id === this.state.currentDateId) opt.selected = true;
+                og.appendChild(opt);
+            });
+            sel.appendChild(og);
+        });
+    },
+
+    selectDate(dateId) {
+        this.state.currentDateId = dateId;
+        this.renderToday();
+    },
+
+    /* ── Fråvær og meny ─────────────────────────────────────── */
+    toggleAttendance(name) {
+        const dateId = this.state.currentDateId;
+        if (!this.state.attendance[dateId]) this.state.attendance[dateId] = {};
+        const newVal = !(this.state.attendance[dateId][name] ?? true);
+        this.state.attendance[dateId][name] = newVal;
+        this.renderToday();
+        this.quickSave({ type: 'attendance', dateId, key: name, value: newVal });
+    },
+
+    saveMenu(dateId) {
+        const val = document.getElementById(`menu-input-${dateId}`).value;
+        if (!this.state.menus[dateId]) this.state.menus[dateId] = {};
+        this.state.menus[dateId]['dagens'] = val;
+        const msg = document.getElementById('save-menu-msg');
+        msg.style.opacity = '1';
+        setTimeout(() => msg.style.opacity = '0', 2000);
+        this.quickSave({ type: 'menus', dateId, key: 'dagens', value: val });
+        this.renderSemester();
+    },
+
+    /* ── Render i dag ───────────────────────────────────────── */
+    renderToday() {
+        const menuEl    = document.getElementById('menu-container');
+        const contentEl = document.getElementById('today-content');
+
+        if (!this.state.kalender.length || !this.state.currentDateId) {
+            document.getElementById('driftsleiar-name').textContent   = '–';
+            document.getElementById('current-week-badge').textContent  = '–';
+            document.getElementById('current-date-display').textContent = '–';
+            menuEl.innerHTML = '';
+            contentEl.innerHTML = `
+              <div class="lg:col-span-3 bg-blue-50 border border-blue-200 rounded-xl p-8 text-center">
+                <span class="text-4xl mb-4 block">📋</span>
+                <h3 class="text-xl font-bold text-blue-800 mb-2">Turnusen er ikkje publisert enno</h3>
+                <p class="text-blue-600">Læraren har ikkje lagt inn semesteret enno.</p>
+              </div>`;
+            return;
+        }
+
+        const day    = this.getDayData(this.state.currentDateId);
+        if (!day) return;
+        const dateId  = day.id;
+        const weekday = this.getWeekdayName(dateId);
+
+        document.getElementById('current-week-badge').textContent    = `Veke ${day.veke} (Turnus ${day.turnusType})`;
+        document.getElementById('current-date-display').textContent  = `${weekday} ${this.getDateStr(dateId)}`;
+        document.getElementById('driftsleiar-name').textContent      = this.state.bemanning.driftsleiarar?.[weekday] || '–';
+
+        if (day.status === 'closed') {
+            menuEl.innerHTML = '';
+            contentEl.innerHTML = `
+              <div class="lg:col-span-3 bg-red-50 border border-red-200 rounded-xl p-8 text-center">
+                <span class="text-4xl mb-4 block">🚫</span>
+                <h3 class="text-2xl font-bold text-red-800 mb-2">Kantina er stengt</h3>
+                <p class="text-red-600 text-lg">${this.esc(day.merknad) || 'Fri dag'}</p>
+              </div>`;
+            return;
+        }
+
+        // Meny — redigerbar
+        const menyTekst = this.state.menus[dateId]?.['dagens'] || '';
+        menuEl.innerHTML = `
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 shadow-sm">
+            <div class="flex items-center mb-3">
+              <span class="text-2xl mr-3">🍲</span>
+              <h3 class="text-xl font-bold text-amber-900">Dagens Meny</h3>
+            </div>
+            <input type="text" id="menu-input-${dateId}"
+                   class="w-full p-3 border border-amber-300 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-white"
+                   placeholder="Skriv inn kva som skal serverast...">
+            <div class="mt-3 flex items-center">
+              <button onclick="app.saveMenu('${dateId}')"
+                      class="bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 px-6 rounded transition">
+                Lagra Meny
+              </button>
+              <span id="save-menu-msg" class="ml-4 text-emerald-700 font-bold opacity-0 transition-opacity duration-300">✅ Lagra!</span>
+            </div>
+          </div>`;
+        document.getElementById(`menu-input-${dateId}`).value = menyTekst;
+
+        const { tidleg, seint } = this.getDayStaffing(dateId);
+
+        // Elevar — klikk registrerer fråvær
+        const renderStudents = (nameStr) => {
+            if (!nameStr?.trim()) return '<p class="text-slate-400 italic text-sm">Ingen oppført.</p>';
+            return nameStr.split(',').map(n => {
+                const name    = n.trim();
+                const present = this.state.attendance[dateId]?.[name] ?? true;
+                const cls     = present
+                    ? 'bg-emerald-50 text-emerald-900 border-emerald-200 shadow-sm hover:bg-emerald-100 cursor-pointer'
+                    : 'bg-red-50 text-red-800 border-red-200 opacity-60 hover:bg-red-100 cursor-pointer';
+                const icon    = present ? '✅' : '❌ Fråvær';
+                const decor   = present ? '' : 'line-through text-red-500';
+                return `<button onclick="app.toggleAttendance('${this.esc(name)}')"
+                                class="w-full text-left px-4 py-3 rounded-lg border transition duration-150 flex items-center justify-between focus:outline-none ${cls}">
+                          <span class="font-medium ${decor}">${this.esc(name)}</span>
+                          <span class="text-sm font-bold">${icon}</span>
+                        </button>`;
+            }).join('');
         };
 
-        document.addEventListener('DOMContentLoaded', () => app.init());
-    </script>
+        // Sjekkliste — berre visning for driftsleiar
+        const renderTasks = (type, list) => list.map((task, i) => {
+            const done = this.state.tasks[dateId]?.[`${type}_${i}`] || false;
+            return `<label class="flex items-start space-x-3 p-2 rounded cursor-default opacity-90">
+                      <input type="checkbox" disabled ${done ? 'checked' : ''}
+                             class="mt-1 w-5 h-5 text-indigo-600 border-slate-300 rounded bg-slate-200">
+                      <span class="${done ? 'line-through text-slate-400' : 'text-slate-700'}">${this.esc(task)}</span>
+                    </label>`;
+        }).join('');
+
+        contentEl.innerHTML = `
+          <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+            <div class="flex items-center mb-4">
+              <span class="text-2xl mr-3">☀️</span>
+              <div><h3 class="text-xl font-bold text-slate-800">Tidleg Vakt</h3>
+                   <p class="text-sm font-medium text-indigo-600">11:00 – 11:30</p></div>
+            </div>
+            <p class="text-xs text-slate-500 mb-3">Trykk på namn for å registrere fråvær</p>
+            <div class="space-y-2">${renderStudents(tidleg)}</div>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+            <div class="flex items-center mb-4">
+              <span class="text-2xl mr-3">🌙</span>
+              <div><h3 class="text-xl font-bold text-slate-800">Seint Vakt</h3>
+                   <p class="text-sm font-medium text-indigo-600">11:25 – 11:40</p></div>
+            </div>
+            <p class="text-xs text-slate-500 mb-3">Trykk på namn for å registrere fråvær</p>
+            <div class="space-y-2">${renderStudents(seint)}</div>
+          </div>
+
+          <div class="bg-slate-100 border border-slate-200 rounded-xl p-6 shadow-inner">
+            <div class="flex items-center mb-4">
+              <span class="text-2xl mr-3">📋</span>
+              <h3 class="text-xl font-bold text-slate-800">Sjekkliste</h3>
+            </div>
+            <div class="mb-4">
+              <p class="font-semibold text-slate-800 border-b border-slate-300 pb-1 mb-2">Tidleg vakt:</p>
+              <div class="space-y-1">${renderTasks('early', this.state.tasksList.early)}</div>
+            </div>
+            <div>
+              <p class="font-semibold text-slate-800 border-b border-slate-300 pb-1 mb-2">Seint vakt:</p>
+              <div class="space-y-1">${renderTasks('late', this.state.tasksList.late)}</div>
+            </div>
+          </div>`;
+    },
+
+    /* ── Semesterplan ───────────────────────────────────────── */
+    renderSemester() {
+        const acc   = document.getElementById('semester-accordion');
+        const weeks = this.groupByWeek();
+        acc.innerHTML = '';
+        if (!weeks.length) {
+            acc.innerHTML = '<p class="text-center text-slate-500 py-8">Ingen veker er lagt inn enno.</p>';
+            return;
+        }
+        weeks.forEach(week => {
+            const div = document.createElement('div');
+            div.className = 'border border-slate-200 rounded-lg overflow-hidden week-card';
+
+            const searchData = { ...week, days: week.days.map(d => ({
+                ...d,
+                tidleg: this.getDayStaffing(d.id).tidleg,
+                seint:  this.getDayStaffing(d.id).seint,
+                meny:   this.state.menus[d.id]?.['dagens'] || ''
+            }))};
+            div.dataset.weekData = JSON.stringify(searchData).toLowerCase();
+
+            const hasClosed = week.days.some(d => d.status === 'closed');
+            const badge = hasClosed ? `<span class="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded ml-3">Inneheld stengde dagar</span>` : '';
+
+            let daysHtml = '';
+            week.days.forEach(d => {
+                const wday  = this.getWeekdayName(d.id);
+                const dstr  = this.getDateStr(d.id);
+                const { tidleg, seint } = this.getDayStaffing(d.id);
+                const closed = d.status === 'closed'
+                    ? `<span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded ml-2 font-bold">${this.esc(d.merknad) || 'Stengt'}</span>` : '';
+                const meny = this.state.menus[d.id]?.['dagens']
+                    ? `<div class="col-span-1 md:col-span-3 mt-2 text-sm bg-amber-50 p-2 rounded border border-amber-100">
+                         <span class="font-bold text-amber-900 mr-2">🍲 Meny:</span>
+                         <span class="text-amber-800">${this.esc(this.state.menus[d.id]['dagens'])}</span>
+                       </div>` : '';
+                daysHtml += `
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 p-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition cursor-pointer"
+                       onclick="app.selectDate('${d.id}'); app.switchTab('today');">
+                    <div class="font-medium text-slate-800">${wday} ${dstr} ${closed}</div>
+                    <div class="text-sm text-indigo-700"><span class="font-semibold text-slate-500 mr-1">Tidleg:</span> ${this.esc(tidleg) || '–'}</div>
+                    <div class="text-sm text-slate-600"><span class="font-semibold text-slate-500 mr-1">Seint:</span> ${this.esc(seint) || '–'}</div>
+                    ${meny}
+                  </div>`;
+            });
+
+            div.innerHTML = `
+              <button onclick="this.nextElementSibling.classList.toggle('hidden')"
+                      class="w-full text-left bg-slate-50 hover:bg-slate-100 p-4 font-bold text-slate-800 flex justify-between items-center transition focus:outline-none">
+                <span>Veke ${week.veke} – Turnus ${week.turnusType} ${badge}</span>
+                <span class="text-slate-400">▼</span>
+              </button>
+              <div class="hidden bg-white px-2 pb-2">${daysHtml}</div>`;
+            acc.appendChild(div);
+        });
+    },
+
+    filterSemester() {
+        const term = document.getElementById('search-schedule').value.toLowerCase();
+        document.querySelectorAll('.week-card').forEach(c => {
+            c.style.display = c.dataset.weekData.includes(term) ? 'block' : 'none';
+        });
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => app.init());
+</script>
 </body>
 </html>
