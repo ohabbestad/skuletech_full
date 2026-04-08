@@ -185,8 +185,12 @@ const app = {
             const json = await this._post({ action: 'load' });
             if (json.error) return;
             this._applyResponse(json);
-            if (this.state.currentTab === 'today') this.renderToday();
-            else if (this.state.currentTab === 'semester' && !silent) this.renderSemester();
+            const focused = document.activeElement;
+            const userIsTyping = focused && (focused.tagName === 'INPUT' || focused.tagName === 'TEXTAREA') && focused.type !== 'checkbox';
+            if (!userIsTyping) {
+                if (this.state.currentTab === 'today') this.renderToday();
+                else if (this.state.currentTab === 'semester' && !silent) this.renderSemester();
+            }
             document.getElementById('sync-status').textContent = '🟢 Oppdatert';
         } catch { document.getElementById('sync-status').textContent = '🟡 Frakobla'; }
     },
