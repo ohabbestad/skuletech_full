@@ -710,11 +710,10 @@
             setTimeout(fetchData, delay);
         }
 
-        // Brukar XMLHttpRequest i staden for fetch — fungerer i alle nettlesarar
+        // GET-førespurnad — unngår POST-omdirigeringsproblem i eldre nettlesarar
         function xhrPost(onSuccess, onError) {
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', API_URL, true);
-            xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
+            xhr.open('GET', API_URL + '?role=infoskjerm&action=load', true);
             xhr.timeout = 15000;
             xhr.onreadystatechange = function () {
                 if (xhr.readyState !== 4) return;
@@ -731,7 +730,7 @@
             };
             xhr.onerror   = function () { onError(); };
             xhr.ontimeout = function () { onError(); };
-            xhr.send(JSON.stringify({ role: 'infoskjerm', action: 'load' }));
+            xhr.send(null);
         }
 
         function fetchData() {
