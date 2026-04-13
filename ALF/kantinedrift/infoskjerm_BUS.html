@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="nn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kantina — Vekas Plan</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            height: 100vh;
+            overflow: hidden;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+        }
+
+        /* ── Ladeskjerm ── */
+        #loading {
+            -webkit-flex: 1;
+            flex: 1;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #loading-icon {
+            font-size: 72px;
+            line-height: 1;
+        }
+
+        #loading p {
+            font-size: 26px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        /* ── Header ── */
+        #page-header {
+            display: none;
+            background: #fff;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 14px 48px;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+            -webkit-flex-shrink: 0;
+            flex-shrink: 0;
+        }
+
+        #header-left {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-align-items: center;
+            align-items: center;
+            gap: 24px;
+        }
+
+        #logo {
+            height: 110px;
+            width: auto;
+            display: block;
+        }
+
+        #title-block h1 {
+            font-size: 58px;
+            font-weight: 900;
+            color: #1e293b;
+            line-height: 1;
+            letter-spacing: -1px;
+        }
+
+        #title-block p {
+            font-size: 20px;
+            color: #64748b;
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
+        /* ── Analog klokke ── */
+        #clock-wrap {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+            -webkit-align-items: center;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #clock-second {
+            -webkit-transition: -webkit-transform 0.08s linear;
+            transition: transform 0.08s linear;
+        }
+
+        #clock-digital {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 15px;
+            font-weight: 700;
+            color: #64748b;
+            letter-spacing: 3px;
+        }
+
+        /* ── Hovudinnhald ── */
+        #page-content {
+            display: none;
+            -webkit-flex: 1;
+            flex: 1;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #page-main {
+            -webkit-flex: 1;
+            flex: 1;
+            padding: 20px 48px;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+            gap: 16px;
+            overflow: hidden;
+        }
+
+        .section-label {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+
+        .week-section {
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+        }
+
+        .week-section.primary {
+            -webkit-flex: 2;
+            flex: 2;
+            min-height: 0;
+        }
+
+        .week-section.secondary {
+            -webkit-flex: 1;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .week-row {
+            display: -webkit-flex;
+            display: flex;
+            gap: 14px;
+            -webkit-flex: 1;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* ── Dagkort ── */
+        .day-card {
+            -webkit-flex: 1;
+            flex: 1;
+            background: #fff;
+            border: 2px solid #94a3b8;
+            border-radius: 16px;
+            padding: 22px 24px;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .day-card.today {
+            -webkit-flex: 1.4;
+            flex: 1.4;
+            background: #4338ca;
+            border-color: #3730a3;
+            box-shadow: 0 0 36px rgba(99, 102, 241, 0.40);
+        }
+
+        .day-card.closed {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+            opacity: 0.55;
+        }
+
+        .day-name {
+            font-size: 30px;
+            font-weight: 900;
+            color: #1e293b;
+            line-height: 1.1;
+        }
+
+        .day-card.today .day-name {
+            color: #fff;
+        }
+
+        .day-card.closed .day-name {
+            color: #94a3b8;
+        }
+
+        .day-date {
+            font-size: 17px;
+            font-weight: 600;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .day-card.today .day-date {
+            color: #c7d2fe;
+        }
+
+        .day-card.closed .day-date {
+            color: #94a3b8;
+        }
+
+        /* ── Merker ── */
+        .badge-row {
+            display: -webkit-flex;
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            -webkit-flex-wrap: wrap;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 13px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+        }
+
+        .badge-today-label {
+            background: #fff;
+            color: #3730a3;
+            border-color: #fff;
+        }
+
+        .badge-open-today {
+            background: rgba(255, 255, 255, 0.20);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        .badge-open {
+            background: #f0fdf4;
+            color: #16a34a;
+            border-color: #bbf7d0;
+        }
+
+        .badge-closed {
+            background: #fee2e2;
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+
+        /* ── Menyboks ── */
+        .menu-box {
+            margin-top: auto;
+            padding-top: 14px;
+        }
+
+        .menu-box-inner {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 14px 18px;
+        }
+
+        .day-card.today .menu-box-inner {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        .day-card.closed .menu-box-inner {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .menu-label {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #92400e;
+            margin-bottom: 7px;
+        }
+
+        .day-card.today .menu-label {
+            color: #e0e7ff;
+        }
+
+        .menu-text {
+            font-size: 21px;
+            font-weight: 700;
+            color: #78350f;
+            line-height: 1.3;
+        }
+
+        .day-card.today .menu-text {
+            color: #fff;
+            font-size: 26px;
+        }
+
+        .menu-empty {
+            font-size: 15px;
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        .day-card.today .menu-empty {
+            color: #c7d2fe;
+        }
+
+        /* ── Inga data ── */
+        #no-data {
+            display: none;
+            -webkit-flex: 1;
+            flex: 1;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        #no-data span {
+            font-size: 64px;
+            line-height: 1;
+        }
+
+        #no-data p {
+            font-size: 30px;
+            color: #94a3b8;
+            font-weight: 700;
+        }
+
+        #no-data small {
+            font-size: 18px;
+            color: #cbd5e1;
+        }
+
+        /* ── Footer ── */
+        #page-footer {
+            display: none;
+            background: #fff;
+            border-top: 1px solid #e2e8f0;
+            padding: 10px 48px;
+            text-align: center;
+            -webkit-flex-shrink: 0;
+            flex-shrink: 0;
+        }
+
+        #page-footer p {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        #sync-ok {
+            color: #10b981;
+            font-weight: 700;
+        }
+
+        #sync-err {
+            display: none;
+            color: #f59e0b;
+            font-weight: 700;
+        }
+
+        /* secondary week: smaller cards */
+        .week-section.secondary .day-card {
+            padding: 14px 18px;
+            border-radius: 12px;
+        }
+
+        .week-section.secondary .day-name {
+            font-size: 20px;
+        }
+
+        .week-section.secondary .day-date {
+            font-size: 14px;
+            margin-top: 2px;
+        }
+
+        .week-section.secondary .menu-text {
+            font-size: 15px;
+        }
+
+        .week-section.secondary .day-card.today .menu-text {
+            font-size: 17px;
+        }
+
+        .week-section.secondary .badge {
+            font-size: 11px;
+            padding: 3px 10px;
+        }
+
+        .week-section.secondary .menu-box-inner {
+            padding: 10px 14px;
+        }
+
+        .week-section.secondary .menu-label {
+            font-size: 10px;
+            margin-bottom: 5px;
+        }
+
+        .week-section.secondary .section-label {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── Ladeindikator ──────────────────────────────── -->
+    <div id="loading">
+        <div id="loading-icon">&#127374;</div>
+        <p>Lastar kantineplanen&hellip;</p>
+    </div>
+
+    <!-- ── Header ────────────────────────────────────── -->
+    <div id="page-header">
+        <div id="header-left">
+            <img id="logo" src="media/BUS_Logo.JPG" alt="BUS-logo">
+            <div id="title-block">
+                <h1>Kantina</h1>
+                <p>Vekeplan</p>
+            </div>
+        </div>
+
+        <div id="clock-wrap">
+            <svg id="clock-svg" viewBox="0 0 100 100" width="130" height="130"
+                style="filter:drop-shadow(0 2px 8px rgba(0,0,0,0.12))">
+                <circle cx="50" cy="50" r="47" fill="white" stroke="#e2e8f0" stroke-width="2" />
+                <g id="clock-ticks"></g>
+                <line id="clock-hour" x1="50" y1="50" x2="50" y2="28"
+                    stroke="#1e293b" stroke-width="5" stroke-linecap="round" />
+                <line id="clock-minute" x1="50" y1="52" x2="50" y2="16"
+                    stroke="#475569" stroke-width="3" stroke-linecap="round" />
+                <line id="clock-second" x1="50" y1="60" x2="50" y2="12"
+                    stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" />
+                <circle cx="50" cy="50" r="4" fill="#1e293b" />
+                <circle cx="50" cy="50" r="2" fill="white" />
+                <circle cx="50" cy="50" r="1.5" fill="#6366f1" />
+            </svg>
+            <span id="clock-digital"></span>
+        </div>
+    </div>
+
+    <!-- ── Hovudinnhald ──────────────────────────────── -->
+    <div id="page-content">
+        <div id="page-main">
+            <div id="week-container" style="-webkit-flex:1;flex:1;display:-webkit-flex;display:flex;
+                -webkit-flex-direction:column;flex-direction:column;gap:16px;min-height:0;overflow:hidden">
+            </div>
+            <div id="no-data">
+                <span>&#128203;</span>
+                <p>Ingen plan denne veka</p>
+                <small>Kantineplanen er ikkje publisert enno</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Footer ────────────────────────────────────── -->
+    <div id="page-footer">
+        <p>Oppdaterer automatisk &nbsp;&middot;&nbsp;
+            <span id="sync-ok">&#9679; Tilkopla</span><span id="sync-err">&#9679; Frakopla</span>
+        </p>
+    </div>
+
+    <script>
+        var API_URL = 'https://script.google.com/macros/s/AKfycbwVI5VvoU9NvGylw0wD7AeTJO5t9nHxQBcHHFT3JdOgzLfNLEf1XGV7P3jOOZ1S3BetnA/exec';
+
+        var state = {
+            kalender: [],
+            menus: {},
+            bemanning: {}
+        };
+
+        /* ── Hjelparar ─────────────────────────────────────────── */
+
+        function pad2(n) {
+            return n < 10 ? '0' + n : String(n);
+        }
+
+        function esc(str) {
+            return String(str === null || str === undefined ? '' : str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function getTodayId() {
+            var t = new Date();
+            return t.getFullYear() + '-' + pad2(t.getMonth() + 1) + '-' + pad2(t.getDate());
+        }
+
+        function dateToId(d) {
+            return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+        }
+
+        function mondayOf(dateId) {
+            var d = new Date(dateId + 'T12:00:00');
+            var dow = d.getDay();
+            var diff = (dow === 0 ? -6 : 1) - dow;
+            d.setDate(d.getDate() + diff);
+            return dateToId(d);
+        }
+
+        function addDays(dateId, n) {
+            var d = new Date(dateId + 'T12:00:00');
+            d.setDate(d.getDate() + n);
+            return dateToId(d);
+        }
+
+        var DAGNAMN = ['Sundag', 'Måndag', 'Tysdag', 'Onsdag', 'Torsdag', 'Fredag', 'Laurdag'];
+
+        function getWeekdayName(dateId) {
+            return DAGNAMN[new Date(dateId + 'T12:00:00').getDay()];
+        }
+
+        function getDateStr(dateId) {
+            var parts = dateId.split('-');
+            return parts[2] + '.' + parts[1];
+        }
+
+        function sortById(a, b) {
+            return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+        }
+
+        function getWeeks() {
+            var todayId = getTodayId();
+            var monThis = mondayOf(todayId);
+            var friThis = addDays(monThis, 4);
+            var monNext = addDays(monThis, 7);
+            var friNext = addDays(monNext, 4);
+
+            var thisWeek = state.kalender.filter(function (d) {
+                return d.id >= monThis && d.id <= friThis;
+            }).sort(sortById);
+
+            var nextWeek = state.kalender.filter(function (d) {
+                return d.id >= monNext && d.id <= friNext;
+            }).sort(sortById);
+
+            if (!thisWeek.length) {
+                var future = state.kalender.filter(function (d) {
+                    return d.id > todayId;
+                }).sort(sortById);
+
+                if (future.length) {
+                    var veke = future[0].veke;
+                    thisWeek = state.kalender.filter(function (d) {
+                        return d.veke === veke;
+                    }).sort(sortById);
+
+                    var nv = null;
+                    for (var i = 0; i < future.length; i++) {
+                        if (future[i].veke > veke) { nv = future[i]; break; }
+                    }
+                    nextWeek = nv ? state.kalender.filter(function (d) {
+                        return d.veke === nv.veke;
+                    }).sort(sortById) : [];
+                }
+            }
+
+            return { thisWeek: thisWeek, nextWeek: nextWeek };
+        }
+
+        /* ── Bygg eit dagkort ──────────────────────────────────── */
+
+        function buildCard(day, todayId) {
+            var isToday = day.id === todayId;
+            var isClosed = day.status === 'closed';
+            var weekday = getWeekdayName(day.id);
+            var dateStr = getDateStr(day.id);
+            var meny = (state.menus[day.id] && state.menus[day.id]['dagens'])
+                ? state.menus[day.id]['dagens'] : '';
+
+            var cardClass = 'day-card';
+            if (isToday && !isClosed) cardClass += ' today';
+            else if (isClosed) cardClass += ' closed';
+
+            // Merke
+            var badges = '';
+            if (isToday && !isClosed) {
+                badges += '<span class="badge badge-today-label">I dag</span>';
+            }
+            if (isClosed) {
+                badges += '<span class="badge badge-closed">&#128683; Stengt</span>';
+            } else if (isToday) {
+                badges += '<span class="badge badge-open-today">&#9989; Open</span>';
+            } else {
+                badges += '<span class="badge badge-open">&#9989; Open</span>';
+            }
+
+            // Meny
+            var menuInner;
+            if (isClosed) {
+                menuInner = '<p class="menu-empty">' + esc(day.merknad || 'Fri dag') + '</p>';
+            } else if (meny) {
+                menuInner = '<p class="menu-label">&#127346; Dagens meny</p>' +
+                    '<p class="menu-text">' + esc(meny) + '</p>';
+            } else {
+                menuInner = '<p class="menu-label">&#127346; Dagens meny</p>' +
+                    '<p class="menu-empty">Ikkje lagt inn enno</p>';
+            }
+
+            return '<div class="' + cardClass + '">' +
+                '<p class="day-name">' + weekday + '</p>' +
+                '<p class="day-date">' + dateStr + '</p>' +
+                '<div class="badge-row">' + badges + '</div>' +
+                '<div class="menu-box"><div class="menu-box-inner">' + menuInner + '</div></div>' +
+                '</div>';
+        }
+
+        /* ── Render ────────────────────────────────────────────── */
+
+        function render() {
+            var weeks = getWeeks();
+            var todayId = getTodayId();
+            var container = document.getElementById('week-container');
+            var noData = document.getElementById('no-data');
+
+            if (!weeks.thisWeek.length) {
+                container.innerHTML = '';
+                container.style.display = 'none';
+                noData.style.display = '-webkit-flex';
+                noData.style.display = 'flex';
+                return;
+            }
+
+            noData.style.display = 'none';
+            container.style.display = '-webkit-flex';
+            container.style.display = 'flex';
+
+            var html = '';
+            var hasNext = weeks.nextWeek.length > 0;
+
+            // Denne veka
+            var thisCards = '';
+            for (var i = 0; i < weeks.thisWeek.length; i++) {
+                thisCards += buildCard(weeks.thisWeek[i], todayId);
+            }
+            html += '<div class="week-section ' + (hasNext ? 'primary' : 'primary') + '">' +
+                '<p class="section-label">Denne veka</p>' +
+                '<div class="week-row">' + thisCards + '</div>' +
+                '</div>';
+
+            // Neste veke
+            if (hasNext) {
+                var nextCards = '';
+                for (var j = 0; j < weeks.nextWeek.length; j++) {
+                    nextCards += buildCard(weeks.nextWeek[j], todayId);
+                }
+                html += '<div class="week-section secondary">' +
+                    '<p class="section-label">Neste veke</p>' +
+                    '<div class="week-row">' + nextCards + '</div>' +
+                    '</div>';
+            }
+
+            container.innerHTML = html;
+        }
+
+        /* ── API ───────────────────────────────────────────────── */
+
+        function setSyncOk() {
+            document.getElementById('sync-ok').style.display = 'inline';
+            document.getElementById('sync-err').style.display = 'none';
+        }
+
+        function setSyncErr() {
+            document.getElementById('sync-ok').style.display = 'none';
+            document.getElementById('sync-err').style.display = 'inline';
+        }
+
+        function scheduleNextPoll() {
+            var now = new Date();
+            var totalMins = now.getHours() * 60 + now.getMinutes();
+            // Tettare oppdatering i kantineopningstida (ca 10:55–11:45)
+            var isActiveTime = totalMins >= 655 && totalMins <= 705;
+            var delay = isActiveTime ? 10000 : 300000;
+            setTimeout(fetchData, delay);
+        }
+
+        function fetchData() {
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ role: 'infoskjerm', action: 'load' })
+            }).then(function (res) {
+                return res.json();
+            }).then(function (json) {
+                if (!json.error) {
+                    state.kalender = json.kalender || [];
+                    state.menus = json.menus || {};
+                    state.bemanning = json.bemanning || {};
+                }
+                render();
+                setSyncOk();
+                scheduleNextPoll();
+            }).catch(function () {
+                render();
+                setSyncErr();
+                scheduleNextPoll();
+            });
+        }
+
+        function showUI() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('page-header').style.display = '-webkit-flex';
+            document.getElementById('page-header').style.display = 'flex';
+            document.getElementById('page-content').style.display = '-webkit-flex';
+            document.getElementById('page-content').style.display = 'flex';
+            document.getElementById('page-footer').style.display = 'block';
+        }
+
+        /* ── Analog klokke ─────────────────────────────────────── */
+
+        function startClock() {
+            var ns = 'http://www.w3.org/2000/svg';
+            var ticks = document.getElementById('clock-ticks');
+            for (var i = 0; i < 60; i++) {
+                var isMajor = (i % 5 === 0);
+                var line = document.createElementNS(ns, 'line');
+                line.setAttribute('x1', '50');
+                line.setAttribute('y1', isMajor ? '4' : '7');
+                line.setAttribute('x2', '50');
+                line.setAttribute('y2', isMajor ? '13' : '11');
+                line.setAttribute('stroke', isMajor ? '#94a3b8' : '#cbd5e1');
+                line.setAttribute('stroke-width', isMajor ? '2.5' : '1.2');
+                line.setAttribute('stroke-linecap', 'round');
+                line.setAttribute('transform', 'rotate(' + (i * 6) + ', 50, 50)');
+                ticks.appendChild(line);
+            }
+
+            function tick() {
+                var now = new Date();
+                var h = now.getHours() % 12;
+                var m = now.getMinutes();
+                var s = now.getSeconds();
+                var ms = now.getMilliseconds();
+                var hourDeg   = h * 30 + m * 0.5 + s * (0.5 / 60);
+                var minuteDeg = m * 6 + s * 0.1;
+                var secondDeg = s * 6 + ms * 0.006;
+                document.getElementById('clock-hour').setAttribute('transform',   'rotate(' + hourDeg   + ', 50, 50)');
+                document.getElementById('clock-minute').setAttribute('transform', 'rotate(' + minuteDeg + ', 50, 50)');
+                document.getElementById('clock-second').setAttribute('transform', 'rotate(' + secondDeg + ', 50, 50)');
+                document.getElementById('clock-digital').textContent =
+                    pad2(now.getHours()) + ':' + pad2(now.getMinutes());
+            }
+
+            tick();
+            setInterval(tick, 1000);
+        }
+
+        /* ── Init ──────────────────────────────────────────────── */
+
+        window.onload = function () {
+            startClock();
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ role: 'infoskjerm', action: 'load' })
+            }).then(function (res) {
+                return res.json();
+            }).then(function (json) {
+                if (!json.error) {
+                    state.kalender = json.kalender || [];
+                    state.menus = json.menus || {};
+                    state.bemanning = json.bemanning || {};
+                }
+                showUI();
+                render();
+                setSyncOk();
+                scheduleNextPoll();
+            }).catch(function () {
+                showUI();
+                render();
+                setSyncErr();
+                scheduleNextPoll();
+            });
+        };
+    </script>
+</body>
+
+</html>
