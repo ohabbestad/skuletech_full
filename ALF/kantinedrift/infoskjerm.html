@@ -222,14 +222,14 @@
                     todayClass = 'today-card';
                     sizeClass  = 'scale-[1.06] z-10 shadow-2xl shadow-indigo-300/60';
                 } else if (isClosed) {
-                    cardBg = 'bg-slate-100'; border = 'border-slate-200'; todayClass = ''; sizeClass = '';
+                    cardBg = 'bg-slate-200'; border = 'border-slate-300'; todayClass = ''; sizeClass = '';
                 } else {
-                    cardBg = 'bg-white'; border = 'border-slate-200'; todayClass = ''; sizeClass = 'shadow-sm';
+                    cardBg = 'bg-white'; border = 'border-slate-400'; todayClass = ''; sizeClass = 'shadow-md';
                 }
 
                 const animClass    = animate ? 'init-animate' : '';
-                const dayTextCls   = isToday ? 'text-white'      : 'text-slate-800';
-                const dateTextCls  = isToday ? 'text-indigo-100' : 'text-slate-500';
+                const dayTextCls   = isToday ? 'text-white' : isClosed ? 'text-slate-400' : 'text-slate-800';
+                const dateTextCls  = isToday ? 'text-indigo-100' : isClosed ? 'text-slate-400' : 'text-slate-500';
 
                 const statusBadge = isClosed
                     ? `<span class="inline-flex items-center gap-1 bg-red-100 text-red-700 border border-red-200 text-xs font-bold px-3 py-1 rounded-full">🚫 Stengt</span>`
@@ -246,9 +246,9 @@
                     menyHtml = `<div class="mt-auto pt-4"><p class="text-slate-400 text-sm italic">${this.esc(day.merknad||'Fri dag')}</p></div>`;
                 } else if (meny) {
                     menyHtml = `
-                <div class="mt-auto pt-4 rounded-xl ${isToday ? 'bg-white/15 border border-white/25' : 'bg-amber-50 border border-amber-200'} p-4">
-                    <p class="${isToday ? 'text-indigo-100' : 'text-amber-600'} text-[11px] font-extrabold uppercase tracking-widest mb-2">🍲 Dagens meny</p>
-                    <p class="${isToday ? 'text-white text-xl font-bold' : 'text-amber-900 text-lg font-bold'} leading-snug">${this.esc(meny)}</p>
+                <div class="mt-auto pt-4 rounded-xl ${isToday ? 'bg-white/30 border border-white/50' : 'bg-amber-100 border-2 border-amber-400'} p-4">
+                    <p class="${isToday ? 'text-white' : 'text-amber-700'} text-[11px] font-extrabold uppercase tracking-widest mb-2">🍲 Dagens meny</p>
+                    <p class="${isToday ? 'text-white text-xl font-bold' : 'text-amber-950 text-lg font-bold'} leading-snug">${this.esc(meny)}</p>
                 </div>`;
                 } else {
                     menyHtml = `
@@ -259,7 +259,7 @@
                 }
 
                 return `
-            <div class="${animClass} ${todayClass} ${cardBg} border ${border} ${sizeClass} rounded-2xl p-5 sm:p-6 flex flex-col transition-transform duration-300 ${isClosed ? 'opacity-60' : ''}">
+            <div class="${animClass} ${todayClass} ${cardBg} border-2 ${border} ${sizeClass} rounded-2xl p-5 sm:p-6 flex flex-col transition-transform duration-300 ${isClosed ? 'opacity-50' : ''}">
                 <div class="flex items-start justify-between mb-3 gap-2">
                     <div>
                         <p class="text-2xl sm:text-3xl font-extrabold leading-tight ${dayTextCls}">${weekday}</p>
