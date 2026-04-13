@@ -9,22 +9,46 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-        body { font-family: 'Inter', sans-serif; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
 
         @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,.35); }
-            50%       { box-shadow: 0 0 28px 10px rgba(99,102,241,.15); }
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, .35);
+            }
+
+            50% {
+                box-shadow: 0 0 28px 10px rgba(99, 102, 241, .15);
+            }
         }
-        .today-card { animation: pulseGlow 3s ease-in-out infinite; }
+
+        .today-card {
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
 
         @keyframes fadeUp {
-            from { opacity:0; transform:translateY(18px); }
-            to   { opacity:1; transform:translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .init-animate { animation: fadeUp .45s ease-out both; }
+
+        .init-animate {
+            animation: fadeUp .45s ease-out both;
+        }
 
         /* Second hand smooth sweep */
-        #clock-second { transition: transform 0.08s linear; }
+        #clock-second {
+            transition: transform 0.08s linear;
+        }
     </style>
 </head>
 
@@ -45,7 +69,8 @@
         <header class="bg-white border-b border-slate-200 shadow-sm py-4 px-6">
             <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
                 <div class="flex items-center gap-4">
-                    <img src="media/logo.png" alt="Logo" class="h-[120px] w-[120px] object-contain border-0 outline-none">
+                    <img src="media/BUS_Logo.JPG" alt="Logo"
+                        class="h-[120px] w-[120px] object-contain border-0 outline-none">
                     <div>
                         <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900">Kantina</h1>
                         <p class="text-slate-500 text-base font-medium mt-1">Vekeplan</p>
@@ -55,30 +80,27 @@
                 <!-- Analog klokke -->
                 <div class="flex flex-col items-center gap-1 select-none">
                     <svg id="clock-svg" viewBox="0 0 100 100" width="120" height="120"
-                         style="filter:drop-shadow(0 2px 6px rgba(0,0,0,0.10))">
+                        style="filter:drop-shadow(0 2px 6px rgba(0,0,0,0.10))">
                         <!-- Urskive -->
-                        <circle cx="50" cy="50" r="47" fill="white" stroke="#e2e8f0" stroke-width="2"/>
+                        <circle cx="50" cy="50" r="47" fill="white" stroke="#e2e8f0" stroke-width="2" />
                         <!-- Merker (generert av JS) -->
                         <g id="clock-ticks"></g>
                         <!-- Timar -->
-                        <line id="clock-hour"
-                              x1="50" y1="50" x2="50" y2="28"
-                              stroke="#1e293b" stroke-width="5" stroke-linecap="round"/>
+                        <line id="clock-hour" x1="50" y1="50" x2="50" y2="28" stroke="#1e293b" stroke-width="5"
+                            stroke-linecap="round" />
                         <!-- Minutt -->
-                        <line id="clock-minute"
-                              x1="50" y1="52" x2="50" y2="16"
-                              stroke="#475569" stroke-width="3" stroke-linecap="round"/>
+                        <line id="clock-minute" x1="50" y1="52" x2="50" y2="16" stroke="#475569" stroke-width="3"
+                            stroke-linecap="round" />
                         <!-- Sekund -->
-                        <line id="clock-second"
-                              x1="50" y1="60" x2="50" y2="12"
-                              stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"/>
+                        <line id="clock-second" x1="50" y1="60" x2="50" y2="12" stroke="#6366f1" stroke-width="1.5"
+                            stroke-linecap="round" />
                         <!-- Senterbol -->
-                        <circle cx="50" cy="50" r="4"   fill="#1e293b"/>
-                        <circle cx="50" cy="50" r="2"   fill="white"/>
-                        <circle cx="50" cy="50" r="1.5" fill="#6366f1"/>
+                        <circle cx="50" cy="50" r="4" fill="#1e293b" />
+                        <circle cx="50" cy="50" r="2" fill="white" />
+                        <circle cx="50" cy="50" r="1.5" fill="#6366f1" />
                     </svg>
                     <span id="clock-digital"
-                          class="text-xs font-mono font-bold text-slate-500 tabular-nums tracking-wide"></span>
+                        class="text-xs font-mono font-bold text-slate-500 tabular-nums tracking-wide"></span>
                 </div>
             </div>
         </header>
@@ -134,11 +156,11 @@
             },
 
             /* ── Hjelparar ──────────────────────────────────────── */
-            esc: str => String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'),
+            esc: str => String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'),
 
             getWeekdayName(dateId) {
                 const d = new Date(dateId + 'T12:00:00');
-                return ['Sundag','Måndag','Tysdag','Onsdag','Torsdag','Fredag','Laurdag'][d.getDay()];
+                return ['Sundag', 'Måndag', 'Tysdag', 'Onsdag', 'Torsdag', 'Fredag', 'Laurdag'][d.getDay()];
             },
 
             getDateStr(dateId) {
@@ -148,11 +170,11 @@
 
             getTodayId() {
                 const t = new Date();
-                return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+                return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
             },
 
             _toId(date) {
-                return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+                return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
             },
 
             _mondayOf(dateId) {
@@ -164,22 +186,22 @@
             },
 
             getWeeks() {
-                const todayId  = this.getTodayId();
-                const monThis  = this._mondayOf(todayId);
-                const friThis  = (() => { const d = new Date(monThis+'T12:00:00'); d.setDate(d.getDate()+4); return this._toId(d); })();
-                const monNext  = (() => { const d = new Date(monThis+'T12:00:00'); d.setDate(d.getDate()+7); return this._toId(d); })();
-                const friNext  = (() => { const d = new Date(monNext+'T12:00:00'); d.setDate(d.getDate()+4); return this._toId(d); })();
+                const todayId = this.getTodayId();
+                const monThis = this._mondayOf(todayId);
+                const friThis = (() => { const d = new Date(monThis + 'T12:00:00'); d.setDate(d.getDate() + 4); return this._toId(d); })();
+                const monNext = (() => { const d = new Date(monThis + 'T12:00:00'); d.setDate(d.getDate() + 7); return this._toId(d); })();
+                const friNext = (() => { const d = new Date(monNext + 'T12:00:00'); d.setDate(d.getDate() + 4); return this._toId(d); })();
 
-                let thisWeek = this.state.kalender.filter(d => d.id >= monThis && d.id <= friThis).sort((a,b) => a.id.localeCompare(b.id));
-                let nextWeek = this.state.kalender.filter(d => d.id >= monNext && d.id <= friNext).sort((a,b) => a.id.localeCompare(b.id));
+                let thisWeek = this.state.kalender.filter(d => d.id >= monThis && d.id <= friThis).sort((a, b) => a.id.localeCompare(b.id));
+                let nextWeek = this.state.kalender.filter(d => d.id >= monNext && d.id <= friNext).sort((a, b) => a.id.localeCompare(b.id));
 
                 if (!thisWeek.length) {
-                    const future = this.state.kalender.filter(d => d.id > todayId).sort((a,b) => a.id.localeCompare(b.id));
+                    const future = this.state.kalender.filter(d => d.id > todayId).sort((a, b) => a.id.localeCompare(b.id));
                     if (future.length) {
                         const veke = future[0].veke;
-                        thisWeek   = this.state.kalender.filter(d => d.veke === veke).sort((a,b) => a.id.localeCompare(b.id));
-                        const nv   = future.find(d => d.veke > veke);
-                        nextWeek   = nv ? this.state.kalender.filter(d => d.veke === nv.veke).sort((a,b) => a.id.localeCompare(b.id)) : [];
+                        thisWeek = this.state.kalender.filter(d => d.veke === veke).sort((a, b) => a.id.localeCompare(b.id));
+                        const nv = future.find(d => d.veke > veke);
+                        nextWeek = nv ? this.state.kalender.filter(d => d.veke === nv.veke).sort((a, b) => a.id.localeCompare(b.id)) : [];
                     }
                 }
                 return { thisWeek, nextWeek };
@@ -195,9 +217,9 @@
                     });
                     const json = await res.json();
                     if (json.error) return;
-                    this.state.kalender  = json.kalender  || [];
-                    this.state.menus     = json.menus     || {};
-                    this.state.bemanning = json.bemanning || { driftsleiarar:{}, turnus:{A:{},B:{},C:{}} };
+                    this.state.kalender = json.kalender || [];
+                    this.state.menus = json.menus || {};
+                    this.state.bemanning = json.bemanning || { driftsleiarar: {}, turnus: { A: {}, B: {}, C: {} } };
                     this.render();
                     document.getElementById('sync-indicator').textContent = '● Tilkopla';
                     document.getElementById('sync-indicator').className = 'text-emerald-500';
@@ -209,27 +231,27 @@
 
             /* ── Bygg eit dagkort (desktop) ─────────────────────── */
             buildCard(day, todayId, animate) {
-                const isToday  = day.id === todayId;
+                const isToday = day.id === todayId;
                 const isClosed = day.status === 'closed';
-                const weekday  = this.getWeekdayName(day.id);
-                const dateStr  = this.getDateStr(day.id);
-                const meny     = this.state.menus[day.id]?.['dagens'] || '';
+                const weekday = this.getWeekdayName(day.id);
+                const dateStr = this.getDateStr(day.id);
+                const meny = this.state.menus[day.id]?.['dagens'] || '';
 
                 let cardBg, border, todayClass, sizeClass;
                 if (isToday && !isClosed) {
-                    cardBg     = 'bg-indigo-600';
-                    border     = 'border-indigo-700';
+                    cardBg = 'bg-indigo-600';
+                    border = 'border-indigo-700';
                     todayClass = 'today-card';
-                    sizeClass  = 'scale-[1.06] z-10 shadow-2xl shadow-indigo-300/60';
+                    sizeClass = 'scale-[1.06] z-10 shadow-2xl shadow-indigo-300/60';
                 } else if (isClosed) {
                     cardBg = 'bg-slate-200'; border = 'border-slate-300'; todayClass = ''; sizeClass = '';
                 } else {
                     cardBg = 'bg-white'; border = 'border-slate-400'; todayClass = ''; sizeClass = 'shadow-md';
                 }
 
-                const animClass    = animate ? 'init-animate' : '';
-                const dayTextCls   = isToday ? 'text-white' : isClosed ? 'text-slate-400' : 'text-slate-800';
-                const dateTextCls  = isToday ? 'text-indigo-100' : isClosed ? 'text-slate-400' : 'text-slate-500';
+                const animClass = animate ? 'init-animate' : '';
+                const dayTextCls = isToday ? 'text-white' : isClosed ? 'text-slate-400' : 'text-slate-800';
+                const dateTextCls = isToday ? 'text-indigo-100' : isClosed ? 'text-slate-400' : 'text-slate-500';
 
                 const statusBadge = isClosed
                     ? `<span class="inline-flex items-center gap-1 bg-red-100 text-red-700 border border-red-200 text-xs font-bold px-3 py-1 rounded-full">🚫 Stengt</span>`
@@ -243,7 +265,7 @@
 
                 let menyHtml;
                 if (isClosed) {
-                    menyHtml = `<div class="mt-auto pt-4"><p class="text-slate-400 text-sm italic">${this.esc(day.merknad||'Fri dag')}</p></div>`;
+                    menyHtml = `<div class="mt-auto pt-4"><p class="text-slate-400 text-sm italic">${this.esc(day.merknad || 'Fri dag')}</p></div>`;
                 } else if (meny) {
                     menyHtml = `
                 <div class="mt-auto pt-4 rounded-xl ${isToday ? 'bg-white/30 border border-white/50' : 'bg-amber-100 border-2 border-amber-400'} p-4">
@@ -293,14 +315,14 @@
 
                 // Finn i-dag, eller næraste kommande dag
                 let mainDay = allDays.find(d => d.id === todayId)
-                           || allDays.find(d => d.id > todayId)
-                           || allDays[0];
+                    || allDays.find(d => d.id > todayId)
+                    || allDays[0];
 
-                const isClosed  = mainDay.status === 'closed';
-                const isToday   = mainDay.id === todayId;
-                const meny      = this.state.menus[mainDay.id]?.['dagens'] || '';
-                const weekday   = this.getWeekdayName(mainDay.id);
-                const dateStr   = this.getDateStr(mainDay.id);
+                const isClosed = mainDay.status === 'closed';
+                const isToday = mainDay.id === todayId;
+                const meny = this.state.menus[mainDay.id]?.['dagens'] || '';
+                const weekday = this.getWeekdayName(mainDay.id);
+                const dateStr = this.getDateStr(mainDay.id);
 
                 /* ── Hovudkort ── */
                 let menyBlock;
@@ -335,8 +357,8 @@
                       <div class="flex flex-col items-end gap-2">
                         ${isToday ? `<span class="bg-white text-indigo-700 text-xs font-extrabold uppercase tracking-widest px-3 py-1 rounded-full">I dag</span>` : `<span class="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full border border-white/30">Neste dag</span>`}
                         ${isClosed
-                          ? `<span class="bg-red-400/30 text-white border border-red-300/40 text-xs font-bold px-3 py-1 rounded-full">🚫 Stengt</span>`
-                          : `<span class="bg-white/20 text-white border border-white/30 text-xs font-bold px-3 py-1 rounded-full">✅ Open</span>`}
+                        ? `<span class="bg-red-400/30 text-white border border-red-300/40 text-xs font-bold px-3 py-1 rounded-full">🚫 Stengt</span>`
+                        : `<span class="bg-white/20 text-white border border-white/30 text-xs font-bold px-3 py-1 rounded-full">✅ Open</span>`}
                       </div>
                     </div>
                     ${menyBlock}
@@ -349,8 +371,8 @@
                     const rows = restDays.map(d => {
                         const wday = this.getWeekdayName(d.id);
                         const dstr = this.getDateStr(d.id);
-                        const m    = this.state.menus[d.id]?.['dagens'] || '';
-                        const cls  = d.id === todayId
+                        const m = this.state.menus[d.id]?.['dagens'] || '';
+                        const cls = d.id === todayId
                             ? 'bg-indigo-50 border-indigo-200'
                             : d.status === 'closed'
                                 ? 'bg-slate-50 border-slate-200 opacity-60'
@@ -363,8 +385,8 @@
                               ${m ? `<p class="text-amber-700 text-xs truncate mt-0.5">🍲 ${this.esc(m)}</p>` : ''}
                             </div>
                             ${d.status === 'closed'
-                              ? `<span class="text-xs text-red-500 font-bold shrink-0">Stengt</span>`
-                              : `<span class="text-xs text-emerald-600 font-bold shrink-0">Open</span>`}
+                                ? `<span class="text-xs text-red-500 font-bold shrink-0">Stengt</span>`
+                                : `<span class="text-xs text-emerald-600 font-bold shrink-0">Open</span>`}
                           </div>`;
                     }).join('');
                     restHtml = `
@@ -379,15 +401,15 @@
 
             /* ── Desktop-render ─────────────────────────────────── */
             render() {
-                const noData   = document.getElementById('no-data-msg');
-                const secThis  = document.getElementById('section-this-week');
-                const secNext  = document.getElementById('section-next-week');
+                const noData = document.getElementById('no-data-msg');
+                const secThis = document.getElementById('section-this-week');
+                const secNext = document.getElementById('section-next-week');
                 const gridThis = document.getElementById('grid-this-week');
                 const gridNext = document.getElementById('grid-next-week');
 
                 const { thisWeek, nextWeek } = this.getWeeks();
-                const todayId  = this.getTodayId();
-                const animate  = this.state.firstLoad;
+                const todayId = this.getTodayId();
+                const animate = this.state.firstLoad;
                 this.state.firstLoad = false;
 
                 // Mobil render alltid
@@ -405,7 +427,7 @@
                 secThis.classList.remove('hidden');
                 const todayIdx = thisWeek.findIndex(d => d.id === todayId);
                 gridThis.style.gridTemplateColumns = todayIdx >= 0
-                    ? thisWeek.map((_,i) => i === todayIdx ? '1.35fr' : '1fr').join(' ')
+                    ? thisWeek.map((_, i) => i === todayIdx ? '1.35fr' : '1fr').join(' ')
                     : `repeat(${thisWeek.length}, 1fr)`;
                 gridThis.innerHTML = thisWeek.map(day => this.buildCard(day, todayId, animate)).join('');
 
@@ -426,7 +448,7 @@
                     const isMajor = i % 5 === 0;
                     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                     line.setAttribute('x1', '50');
-                    line.setAttribute('y1', isMajor ? '4'  : '7');
+                    line.setAttribute('y1', isMajor ? '4' : '7');
                     line.setAttribute('x2', '50');
                     line.setAttribute('y2', isMajor ? '13' : '11');
                     line.setAttribute('stroke', isMajor ? '#94a3b8' : '#cbd5e1');
@@ -438,16 +460,16 @@
 
                 const tick = () => {
                     const now = new Date();
-                    const h   = now.getHours() % 12;
-                    const m   = now.getMinutes();
-                    const s   = now.getSeconds();
-                    const ms  = now.getMilliseconds();
+                    const h = now.getHours() % 12;
+                    const m = now.getMinutes();
+                    const s = now.getSeconds();
+                    const ms = now.getMilliseconds();
 
-                    const hourDeg   = h * 30 + m * 0.5 + s * (0.5 / 60);
-                    const minuteDeg = m * 6  + s * 0.1;
-                    const secondDeg = s * 6  + ms * 0.006;
+                    const hourDeg = h * 30 + m * 0.5 + s * (0.5 / 60);
+                    const minuteDeg = m * 6 + s * 0.1;
+                    const secondDeg = s * 6 + ms * 0.006;
 
-                    document.getElementById('clock-hour').setAttribute('transform',   `rotate(${hourDeg},   50, 50)`);
+                    document.getElementById('clock-hour').setAttribute('transform', `rotate(${hourDeg},   50, 50)`);
                     document.getElementById('clock-minute').setAttribute('transform', `rotate(${minuteDeg}, 50, 50)`);
                     document.getElementById('clock-second').setAttribute('transform', `rotate(${secondDeg}, 50, 50)`);
 
