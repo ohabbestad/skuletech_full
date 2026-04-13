@@ -710,31 +710,46 @@
             setTimeout(fetchData, delay);
         }
 
-        // GET-førespurnad — unngår POST-omdirigeringsproblem i eldre nettlesarar
-        function xhrPost(onSuccess, onError) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', API_URL + '?role=infoskjerm&action=load', true);
-            xhr.timeout = 15000;
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState !== 4) return;
-                if (xhr.status === 200) {
-                    try {
-                        var json = JSON.parse(xhr.responseText);
-                        onSuccess(json);
-                    } catch (e) {
-                        onError();
-                    }
-                } else {
-                    onError();
-                }
+        // JSONP — omgår CORS heilt ved å laste data som <script>-tag.
+        // Fungerer i alle nettlesarar, inkl. gamle TV-nettlesarar.
+        var _jsonpCounter = 0;
+        function loadViaJsonp(onSuccess, onError) {
+            var cbName = '_kantineCb' + (++_jsonpCounter) + '_' + Date.now();
+            var timer;
+
+            // Callback som serveren kallar med data
+            window[cbName] = function (json) {
+                clearTimeout(timer);
+                cleanup();
+                onSuccess(json);
             };
-            xhr.onerror   = function () { onError(); };
-            xhr.ontimeout = function () { onError(); };
-            xhr.send(null);
+
+            timer = setTimeout(function () {
+                cleanup();
+                onError();
+            }, 20000);
+
+            var script = document.createElement('script');
+            script.id = 'jsonp-' + cbName;
+            script.src = API_URL + '?role=infoskjerm&action=load&callback=' + cbName;
+
+            script.onerror = function () {
+                clearTimeout(timer);
+                cleanup();
+                onError();
+            };
+
+            function cleanup() {
+                try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
+                var el = document.getElementById('jsonp-' + cbName);
+                if (el && el.parentNode) el.parentNode.removeChild(el);
+            }
+
+            document.body.appendChild(script);
         }
 
         function fetchData() {
-            xhrPost(
+            loadViaJsonp(
                 function (json) {
                     if (!json.error) {
                         state.kalender = json.kalender || [];
@@ -805,7 +820,7 @@
 
         window.onload = function () {
             startClock();
-            xhrPost(
+            loadViaJsonp(
                 function (json) {
                     if (!json.error) {
                         state.kalender  = json.kalender  || [];
