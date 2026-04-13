@@ -256,7 +256,8 @@ const app = {
         tasksList:      { early: [], late: [] },
         attendance:     {},
         tasks:          {},
-        menus:          {}
+        menus:          {},
+        vikarer:        {}
     },
 
     /* ── Auth ──────────────────────────────────────────────── */
@@ -372,6 +373,7 @@ const app = {
         this.state.attendance = json.attendance || {};
         this.state.tasks      = json.tasks      || {};
         this.state.menus      = json.menus      || {};
+        this.state.vikarer    = json.vikarer    || {};
     },
 
     /* ── Hjelpar ────────────────────────────────────────────── */
@@ -464,6 +466,41 @@ const app = {
     selectDate(dateId) {
         this.state.currentDateId = dateId;
         this.renderToday();
+    },
+
+    /* ── Vikar ──────────────────────────────────────────────── */
+    getAllStudentNames() {
+        const names = new Set();
+        const t = this.state.bemanning.turnus;
+        for (const turnusKey of Object.keys(t)) {
+            for (const dag of Object.values(t[turnusKey])) {
+                for (const vakt of Object.values(dag)) {
+                    vakt.split(',').map(n => n.trim()).filter(Boolean).forEach(n => names.add(n));
+                }
+            }
+        }
+        return [...names].sort();
+    },
+
+    addVikar(dateId, shift) {
+        const inputId = `vikar-input-${shift}-${dateId}`;
+        const namn = document.getElementById(inputId)?.value.trim();
+        if (!namn) return;
+        if (!this.state.vikarer[dateId]) this.state.vikarer[dateId] = { tidleg: [], seint: [] };
+        if (!this.state.vikarer[dateId][shift]) this.state.vikarer[dateId][shift] = [];
+        this.state.vikarer[dateId][shift].push(namn);
+        document.getElementById(inputId).value = '';
+        this.renderToday();
+        this.quickSave({ type: 'vikar_add', dateId, shift, namn });
+    },
+
+    removeVikar(dateId, shift, namn) {
+        const list = this.state.vikarer[dateId]?.[shift];
+        if (!list) return;
+        const idx = list.indexOf(namn);
+        if (idx > -1) list.splice(idx, 1);
+        this.renderToday();
+        this.quickSave({ type: 'vikar_remove', dateId, shift, namn });
     },
 
     /* ── Fråvær, oppgåver og meny ───────────────────────────── */
@@ -591,6 +628,36 @@ const app = {
                     </label>`;
         }).join('');
 
+        // Vikar-seksjon (redigerbar)
+        const allNames = this.getAllStudentNames();
+        const renderVikarSection = (shift) => {
+            const list = this.state.vikarer[dateId]?.[shift] || [];
+            const inputId = `vikar-input-${shift}-${dateId}`;
+            const listId  = `datalist-vikarer-${shift}-${dateId}`;
+            const pills = list.map(n =>
+                `<span class="inline-flex items-center gap-1 bg-violet-100 text-violet-900 border border-violet-300 text-sm font-medium px-3 py-1 rounded-full">
+                   ${this.esc(n)}
+                   <button onclick="app.removeVikar('${dateId}','${shift}','${this.esc(n)}')"
+                           class="ml-1 text-violet-400 hover:text-red-600 font-bold text-base leading-none focus:outline-none">×</button>
+                 </span>`
+            ).join('');
+            return `
+              <div class="mt-3 pt-3 border-t border-slate-100">
+                <p class="text-xs font-bold text-violet-700 uppercase tracking-wide mb-2">👤 Vikariatar</p>
+                ${list.length ? `<div class="flex flex-wrap gap-2 mb-2">${pills}</div>` : ''}
+                <div class="flex gap-2 mt-1">
+                  <input type="text" id="${inputId}" list="${listId}"
+                         placeholder="Skriv eller vel namn..."
+                         class="flex-1 border border-slate-300 rounded p-1.5 text-sm focus:border-violet-400 focus:outline-none">
+                  <datalist id="${listId}">${allNames.map(n => `<option value="${this.esc(n)}">`).join('')}</datalist>
+                  <button onclick="app.addVikar('${dateId}','${shift}')"
+                          class="bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium px-3 py-1.5 rounded transition">
+                    + Legg til
+                  </button>
+                </div>
+              </div>`;
+        };
+
         contentEl.innerHTML = `
           <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
             <div class="flex items-center mb-4">
@@ -600,6 +667,7 @@ const app = {
             </div>
             <p class="text-xs text-slate-500 mb-3">Trykk på namn for å registrere fråvær</p>
             <div class="space-y-2">${renderStudents(tidleg)}</div>
+            ${renderVikarSection('tidleg')}
           </div>
 
           <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
@@ -610,6 +678,7 @@ const app = {
             </div>
             <p class="text-xs text-slate-500 mb-3">Trykk på namn for å registrere fråvær</p>
             <div class="space-y-2">${renderStudents(seint)}</div>
+            ${renderVikarSection('seint')}
           </div>
 
           <div class="bg-slate-100 border border-slate-200 rounded-xl p-6 shadow-inner">

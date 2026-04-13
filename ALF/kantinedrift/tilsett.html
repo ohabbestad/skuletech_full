@@ -95,7 +95,8 @@ const app = {
         tasksList:     { early: [], late: [] },
         attendance:    {},
         tasks:         {},
-        menus:         {}
+        menus:         {},
+        vikarer:       {}
     },
 
     /* ── Auth ──────────────────────────────────────────────── */
@@ -184,6 +185,7 @@ const app = {
         this.state.attendance = json.attendance || {};
         this.state.tasks      = json.tasks      || {};
         this.state.menus      = json.menus      || {};
+        this.state.vikarer    = json.vikarer    || {};
     },
 
     /* ── Hjelpar ────────────────────────────────────────────── */
@@ -374,6 +376,19 @@ const app = {
             }
         }).join('');
 
+        // Vikar-visning (les-modus)
+        const renderVikarDisplay = (shift) => {
+            const list = this.state.vikarer[dateId]?.[shift] || [];
+            if (!list.length) return '';
+            return `
+              <div class="mt-3 pt-3 border-t border-slate-100">
+                <p class="text-xs font-bold text-violet-700 uppercase tracking-wide mb-2">👤 Vikariatar</p>
+                <div class="flex flex-wrap gap-2">
+                  ${list.map(n => `<span class="bg-violet-50 text-violet-900 border border-violet-200 text-sm font-medium px-3 py-1 rounded-full">${this.esc(n)}</span>`).join('')}
+                </div>
+              </div>`;
+        };
+
         contentEl.innerHTML = `
           <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
             <div class="flex items-center mb-4">
@@ -382,6 +397,7 @@ const app = {
                    <p class="text-sm font-medium text-indigo-600">11:00 – 11:30</p></div>
             </div>
             <div class="space-y-2">${renderStudents(tidleg)}</div>
+            ${renderVikarDisplay('tidleg')}
           </div>
 
           <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
@@ -391,6 +407,7 @@ const app = {
                    <p class="text-sm font-medium text-indigo-600">11:25 – 11:40</p></div>
             </div>
             <div class="space-y-2">${renderStudents(seint)}</div>
+            ${renderVikarDisplay('seint')}
           </div>
 
           <div class="bg-slate-100 border border-slate-200 rounded-xl p-6 shadow-inner">
