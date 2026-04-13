@@ -710,27 +710,48 @@
             setTimeout(fetchData, delay);
         }
 
-        function fetchData() {
-            fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ role: 'infoskjerm', action: 'load' })
-            }).then(function (res) {
-                return res.json();
-            }).then(function (json) {
-                if (!json.error) {
-                    state.kalender = json.kalender || [];
-                    state.menus = json.menus || {};
-                    state.bemanning = json.bemanning || {};
+        // Brukar XMLHttpRequest i staden for fetch — fungerer i alle nettlesarar
+        function xhrPost(onSuccess, onError) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', API_URL, true);
+            xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
+            xhr.timeout = 15000;
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState !== 4) return;
+                if (xhr.status === 200) {
+                    try {
+                        var json = JSON.parse(xhr.responseText);
+                        onSuccess(json);
+                    } catch (e) {
+                        onError();
+                    }
+                } else {
+                    onError();
                 }
-                render();
-                setSyncOk();
-                scheduleNextPoll();
-            }).catch(function () {
-                render();
-                setSyncErr();
-                scheduleNextPoll();
-            });
+            };
+            xhr.onerror   = function () { onError(); };
+            xhr.ontimeout = function () { onError(); };
+            xhr.send(JSON.stringify({ role: 'infoskjerm', action: 'load' }));
+        }
+
+        function fetchData() {
+            xhrPost(
+                function (json) {
+                    if (!json.error) {
+                        state.kalender = json.kalender || [];
+                        state.menus    = json.menus    || {};
+                        state.bemanning = json.bemanning || {};
+                    }
+                    render();
+                    setSyncOk();
+                    scheduleNextPoll();
+                },
+                function () {
+                    render();
+                    setSyncErr();
+                    scheduleNextPoll();
+                }
+            );
         }
 
         function showUI() {
@@ -785,28 +806,25 @@
 
         window.onload = function () {
             startClock();
-            fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ role: 'infoskjerm', action: 'load' })
-            }).then(function (res) {
-                return res.json();
-            }).then(function (json) {
-                if (!json.error) {
-                    state.kalender = json.kalender || [];
-                    state.menus = json.menus || {};
-                    state.bemanning = json.bemanning || {};
+            xhrPost(
+                function (json) {
+                    if (!json.error) {
+                        state.kalender  = json.kalender  || [];
+                        state.menus     = json.menus     || {};
+                        state.bemanning = json.bemanning || {};
+                    }
+                    showUI();
+                    render();
+                    setSyncOk();
+                    scheduleNextPoll();
+                },
+                function () {
+                    showUI();
+                    render();
+                    setSyncErr();
+                    scheduleNextPoll();
                 }
-                showUI();
-                render();
-                setSyncOk();
-                scheduleNextPoll();
-            }).catch(function () {
-                showUI();
-                render();
-                setSyncErr();
-                scheduleNextPoll();
-            });
+            );
         };
     </script>
 </body>
