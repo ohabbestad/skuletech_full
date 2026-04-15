@@ -140,12 +140,14 @@
         }
 
         .section-label {
-            font-size: 13px;
-            font-weight: 700;
+            font-size: 16px;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 4px;
-            color: #94a3b8;
-            margin-bottom: 10px;
+            letter-spacing: 3px;
+            color: #475569;
+            margin-bottom: 12px;
+            padding-left: 14px;
+            border-left: 5px solid #6366f1;
         }
 
         .week-section {
@@ -197,6 +199,16 @@
             background: #4338ca;
             border-color: #3730a3;
             box-shadow: 0 0 36px rgba(99, 102, 241, 0.40);
+        }
+
+        /* Stengt, men er dagens dato — litt utheva grå */
+        .day-card.today-closed {
+            -webkit-flex: 1.4;
+            flex: 1.4;
+            background: #cbd5e1;
+            border-color: #94a3b8;
+            border-width: 3px;
+            opacity: 1;
         }
 
         .day-card.closed {
@@ -284,21 +296,20 @@
             padding-top: 14px;
         }
 
+        /* Fargen på boksen kjem frå innhaldet, ikkje korttypen */
         .menu-box-inner {
-            background: #fef3c7;
-            border: 2px solid #f59e0b;
             border-radius: 12px;
             padding: 14px 18px;
         }
 
-        .day-card.today .menu-box-inner {
-            background: rgba(255, 255, 255, 0.18);
-            border-color: rgba(255, 255, 255, 0.35);
+        .menu-box-inner.has-meny {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
         }
 
-        .day-card.closed .menu-box-inner {
-            background: #f1f5f9;
-            border-color: #cbd5e1;
+        .menu-box-inner.no-meny {
+            background: #e2e8f0;
+            border: 2px solid #94a3b8;
         }
 
         .menu-label {
@@ -310,10 +321,6 @@
             margin-bottom: 7px;
         }
 
-        .day-card.today .menu-label {
-            color: #e0e7ff;
-        }
-
         .menu-text {
             font-size: 21px;
             font-weight: 700;
@@ -322,18 +329,13 @@
         }
 
         .day-card.today .menu-text {
-            color: #fff;
             font-size: 26px;
         }
 
         .menu-empty {
             font-size: 15px;
-            color: #94a3b8;
+            color: #64748b;
             font-style: italic;
-        }
-
-        .day-card.today .menu-empty {
-            color: #c7d2fe;
         }
 
         /* ── Inga data ── */
@@ -416,6 +418,10 @@
             font-size: 17px;
         }
 
+        .week-section.secondary .day-card.today-closed .menu-text {
+            font-size: 15px;
+        }
+
         .week-section.secondary .badge {
             font-size: 11px;
             padding: 3px 10px;
@@ -440,7 +446,6 @@
 
     <!-- ── Ladeindikator ──────────────────────────────── -->
     <div id="loading">
-        <div id="loading-icon">&#127374;</div>
         <p>Lastar kantineplanen&hellip;</p>
     </div>
 
@@ -480,7 +485,6 @@
                 -webkit-flex-direction:column;flex-direction:column;gap:16px;min-height:0;overflow:hidden">
             </div>
             <div id="no-data">
-                <span>&#128203;</span>
                 <p>Ingen plan denne veka</p>
                 <small>Kantineplanen er ikkje publisert enno</small>
             </div>
@@ -606,19 +610,20 @@
 
             var cardClass = 'day-card';
             if (isToday && !isClosed) cardClass += ' today';
+            else if (isToday && isClosed) cardClass += ' today-closed';
             else if (isClosed) cardClass += ' closed';
 
             // Merke
             var badges = '';
-            if (isToday && !isClosed) {
-                badges += '<span class="badge badge-today-label">I dag</span>';
+            if (isToday) {
+                badges += '<span class="badge badge-today-label" style="background:#fff;color:#374151;border-color:#94a3b8">I dag</span>';
             }
             if (isClosed) {
-                badges += '<span class="badge badge-closed">&#128683; Stengt</span>';
+                badges += '<span class="badge badge-closed">Stengt</span>';
             } else if (isToday) {
-                badges += '<span class="badge badge-open-today">&#9989; Open</span>';
+                badges += '<span class="badge badge-open-today">Open</span>';
             } else {
-                badges += '<span class="badge badge-open">&#9989; Open</span>';
+                badges += '<span class="badge badge-open">Open</span>';
             }
 
             // Meny
@@ -626,18 +631,19 @@
             if (isClosed) {
                 menuInner = '<p class="menu-empty">' + esc(day.merknad || 'Fri dag') + '</p>';
             } else if (meny) {
-                menuInner = '<p class="menu-label">&#127346; Dagens meny</p>' +
+                menuInner = '<p class="menu-label">Dagens meny</p>' +
                     '<p class="menu-text">' + esc(meny) + '</p>';
             } else {
-                menuInner = '<p class="menu-label">&#127346; Dagens meny</p>' +
+                menuInner = '<p class="menu-label">Dagens meny</p>' +
                     '<p class="menu-empty">Ikkje lagt inn enno</p>';
             }
 
+            var menyClass = meny ? 'has-meny' : 'no-meny';
             return '<div class="' + cardClass + '">' +
                 '<p class="day-name">' + weekday + '</p>' +
                 '<p class="day-date">' + dateStr + '</p>' +
                 '<div class="badge-row">' + badges + '</div>' +
-                '<div class="menu-box"><div class="menu-box-inner">' + menuInner + '</div></div>' +
+                '<div class="menu-box"><div class="menu-box-inner ' + menyClass + '">' + menuInner + '</div></div>' +
                 '</div>';
         }
 
