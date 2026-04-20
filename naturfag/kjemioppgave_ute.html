@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kjemien i økosystemet - Elevoppdrag</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .info-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .gradient-text {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .term-link {
+            color: #047857;
+            font-weight: 600;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .term-link:hover {
+            color: #059669;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 font-sans leading-relaxed selection:bg-emerald-200">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-emerald-800 to-teal-900 text-white py-12 px-6 shadow-md">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4">🌿 Kjemien i ditt økosystem</h1>
+            <p class="text-xl md:text-2xl text-emerald-100 max-w-2xl font-light">
+                Et filmoppdrag: Utforsk naturen på Bømlo med "kjemi-briller" og lag en presentasjonsvideo som forklarer det usynlige!
+            </p>
+            <div class="mt-6 inline-block bg-amber-500 text-amber-950 font-bold py-2 px-4 rounded-full text-sm shadow-sm">
+                Frist for innlevering: Torsdag 30. april (før 1. mai)
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        
+        <div class="mb-6">
+            <h2 class="text-3xl font-bold text-emerald-800 mb-2">Slik løser du oppdraget</h2>
+            <p class="text-lg text-stone-600">
+                Du skal bruke tre økter på å utforske et økosystem, koble det til kjemien du har lært, og produsere en presentasjonsvideo i PowerPoint. 
+                Bruk fanene under for å navigere mellom de ulike fasene i prosjektet.
+            </p>
+            <p class="text-sm italic text-emerald-700 font-medium mt-2">Tips: Klikk på ordene med stiplet linje i teksten for å få opp forklaringer!</p>
+        </div>
+
+        <!-- Fane-navigasjon -->
+        <div class="flex border-b border-stone-200 mb-8 overflow-x-auto no-scrollbar">
+            <button onclick="openTab('tab-uteskole')" id="btn-tab-uteskole" class="tab-btn px-6 py-3 text-emerald-800 font-bold border-b-2 border-emerald-600 whitespace-nowrap focus:outline-none transition-colors">1. Uteskole</button>
+            <button onclick="openTab('tab-planlegge')" id="btn-tab-planlegge" class="tab-btn px-6 py-3 text-stone-500 font-medium border-b-2 border-transparent hover:text-emerald-600 whitespace-nowrap focus:outline-none transition-colors">2. Planlegge film</button>
+            <button onclick="openTab('tab-innspilling')" id="btn-tab-innspilling" class="tab-btn px-6 py-3 text-stone-500 font-medium border-b-2 border-transparent hover:text-emerald-600 whitespace-nowrap focus:outline-none transition-colors">3. Innspilling</button>
+            <button onclick="openTab('tab-fagbegreper')" id="btn-tab-fagbegreper" class="tab-btn px-6 py-3 text-stone-500 font-medium border-b-2 border-transparent hover:text-emerald-600 whitespace-nowrap focus:outline-none transition-colors">4. Liste med fagbegreper</button>
+        </div>
+
+        <div class="space-y-10">
+            <!-- Fane 1: Uteskole -->
+            <section id="tab-uteskole" class="tab-content block bg-white rounded-2xl p-8 shadow-sm border border-stone-200">
+                <h3 class="text-2xl font-bold text-teal-700 flex items-center mb-4">
+                    <span class="bg-teal-100 text-teal-800 w-10 h-10 rounded-full flex items-center justify-center mr-3 shadow-sm">1</span>
+                    Økt 1: Datainnsamling i naturen
+                </h3>
+                <div class="bg-stone-50 p-6 rounded-xl border border-stone-100">
+                    <p class="mb-4"><strong>Utstyr:</strong> Mobilkamera og klær etter været.</p>
+                    <p class="mb-4">Tiden er knapp! Gå ut til ditt tildelte økosystem og fullfør disse oppdragene:</p>
+                    <ul class="space-y-4 list-disc pl-5 text-stone-700">
+                        <li><strong>Finn grunnstoff og forbindelser:</strong> Ta bilde av noe som inneholder mye av <span class="term-link" onclick="openModal('grunnstoff')">grunnstoffet</span> <span class="term-link" onclick="openModal('karbon')">karbon</span> (f.eks. treverk/planter). Ta også bilde av en <span class="term-link" onclick="openModal('forbindelse')">kjemisk forbindelse</span> (f.eks. vann).</li>
+                        <li><strong>Finn en kjemisk reaksjon:</strong> Se etter tegn på at stoffer forandrer seg. Er det noe som råtner i skogbunnen? Er det noe metall som har rustet? Det er en <span class="term-link" onclick="openModal('reaksjon')">kjemisk reaksjon</span>. Ta bilde!</li>
+                        <li><strong>Bygg en atommodell:</strong> Bruk ting du finner (kongler, skjell, småstein) til å bygge en <span class="term-link" onclick="openModal('atommodell')">skallmodell</span> av et valgfritt <span class="term-link" onclick="openModal('atom')">atom</span> på bakken. Ta et tydelig bilde ovenfra.</li>
+                        <li><strong>Spor av metaller:</strong> Finn noe av metall i nærheten av økosystemet (et skilt, et gjerde, eller plastikk som har drevet i land med metalldeler). Er det et rent <span class="term-link" onclick="openModal('metall')">metall</span> eller en <span class="term-link" onclick="openModal('legering')">legering</span>? Ta bilde!</li>
+                        <li><strong>Tre tilstander:</strong> Finn stoffer i tre ulike tilstander: fast stoff, flytende og gass. (Tips: Hvordan kan du ta bilde av en gass? Kanskje bobler i en pytt eller blader som rører seg i vinden?).</li>
+                        <li><strong>Noter stikkord:</strong> Hvilke kjemiske prosesser er viktige for at akkurat dette økosystemet skal overleve? (Tenk for eksempel på fotosyntesen).</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Fane 2: Planlegge film -->
+            <section id="tab-planlegge" class="tab-content hidden bg-white rounded-2xl p-8 shadow-sm border border-stone-200">
+                <h3 class="text-2xl font-bold text-teal-700 flex items-center mb-4">
+                    <span class="bg-teal-100 text-teal-800 w-10 h-10 rounded-full flex items-center justify-center mr-3 shadow-sm">2</span>
+                    Økt 2: PowerPoint og Manus
+                </h3>
+                <div class="bg-stone-50 p-6 rounded-xl border border-stone-100">
+                    <ul class="space-y-4 list-disc pl-5 text-stone-700">
+                        <li>Opprett en PowerPoint-presentasjon. Titulér den <em>"Kjemien i [ditt økosystem]"</em>.</li>
+                        <li>Legg inn <strong>minst tre</strong> av bildene du tok ute i naturen.</li>
+                        <li>Skriv manus direkte i notatfeltet under hvert lysbilde.</li>
+                        <li><strong>Faglig krav:</strong> Du <em>må</em> bruke og forklare <strong>minst 5 fagbegreper</strong> nøyaktig. Velg fra listen i fanen "Liste med fagbegreper". Knyt begrepene til bildene dine! (For eksempel: Forklar atommodellen du bygde, eller forklar <span class="term-link" onclick="openModal('massebevaring')">massebevaring</span> når du viser bildet av greina som råtner).</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Fane 3: Innspilling -->
+            <section id="tab-innspilling" class="tab-content hidden bg-white rounded-2xl p-8 shadow-sm border border-stone-200">
+                <h3 class="text-2xl font-bold text-teal-700 flex items-center mb-4">
+                    <span class="bg-teal-100 text-teal-800 w-10 h-10 rounded-full flex items-center justify-center mr-3 shadow-sm">3</span>
+                    Økt 3: Innspilling og Eksport
+                </h3>
+                <div class="bg-stone-50 p-6 rounded-xl border border-stone-100">
+                    <ul class="space-y-4 list-disc pl-5 text-stone-700">
+                        <li>Finn et stille sted. Bruk funksjonen <strong>"Spill inn" (Record)</strong> i PowerPoint.</li>
+                        <li>Les inn manuset fra notatfeltet mens programmet tar opp lyden (og ev. bilde fra webkamera) på hvert lysbilde.</li>
+                        <li>Når du er fornøyd, velg <em>Fil -> Eksporter -> Lag en video (MP4)</em>.</li>
+                        <li>Lever MP4-filen i oppgaven på <strong>itslearning</strong> før fristen går ut.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Fane 4: Liste med fagbegreper -->
+            <section id="tab-fagbegreper" class="tab-content hidden bg-white rounded-2xl p-8 shadow-sm border border-stone-200">
+                <h3 class="text-2xl font-bold text-teal-700 flex items-center mb-4">
+                    <span class="bg-teal-100 text-teal-800 w-10 h-10 rounded-full flex items-center justify-center mr-3 shadow-sm">4</span>
+                    Liste med fagbegreper
+                </h3>
+                <div class="bg-stone-50 p-6 rounded-xl border border-stone-100 mb-6">
+                    <p class="text-stone-700">
+                        Her er en oversikt over viktige fagbegreper fra <em>Grunnleggende Kjemi</em>. Bruk denne listen som en "meny" når du skal planlegge videoen din. 
+                        <strong>Husk at du skal velge ut og forklare minst 5 av disse nøyaktig i presentasjonen din.</strong>
+                    </p>
+                </div>
+                <div id="terms-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Genereres av JavaScript -->
+                </div>
+            </section>
+        </div>
+        
+        <!-- Modal for informasjonsbokser -->
+        <div id="infoModal" class="fixed inset-0 bg-stone-900/60 hidden items-center justify-center z-50 opacity-0 transition-opacity duration-300 px-4">
+            <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full transform scale-95 transition-transform duration-300" id="modalContent">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h4 id="modalTitle" class="font-bold text-2xl text-emerald-900">Tittel</h4>
+                        <button onclick="closeModal()" class="text-stone-400 hover:text-stone-700 transition-colors focus:outline-none">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    <div id="modalBody" class="text-stone-600 space-y-3 leading-relaxed">
+                        <!-- Innhold settes med JS -->
+                    </div>
+                    <div class="mt-8 text-right">
+                        <button onclick="closeModal()" class="bg-emerald-100 text-emerald-800 font-medium px-4 py-2 rounded-lg hover:bg-emerald-200 transition-colors focus:outline-none">
+                            Lukk
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-stone-900 text-stone-400 py-8 text-center text-sm">
+        <p>Oppdrag i naturfag - Grunnleggende kjemi og atomenes verden</p>
+        <p class="mt-2">Lykke til med utforskingen av økosystemet og videoproduksjonen!</p>
+    </footer>
+
+    <script>
+        const termsData = {
+            'atom': { title: 'Atom', content: '<p><strong>Naturens usynlige byggeklosser!</strong> Alt som finnes (planter, stein, dyr og vann) er bygget opp av atomer.</p><p>Et atom består av en kjerne med positive <strong>protoner</strong> og nøytrale <strong>nøytroner</strong>. Rundt kjernen kretser negative <strong>elektroner</strong> i en enorm fart.</p>' },
+            'atommodell': { title: 'Skallmodellen (Atommodell)', content: '<p>Atomer er for små til å se, så vi bruker en modell laget av Niels Bohr (1913) for å forstå dem.</p><p>Modellen viser at elektronene beveger seg i bestemte baner, eller "skall", rundt atomkjernen – litt som planeter som kretser rundt sola.</p>' },
+            'elementaer': { title: 'Elementærpartikler', content: '<p>De bittesmå delene et atom er bygget opp av:</p><ul class="list-disc pl-5 mt-2 space-y-1"><li><strong>Protoner:</strong> Positiv ladning (+)</li><li><strong>Nøytroner:</strong> Nøytrale (ingen ladning)</li><li><strong>Elektroner:</strong> Negativ ladning (-)</li></ul>' },
+            'grunnstoff': { title: 'Grunnstoff', content: '<p>Et <strong>grunnstoff</strong> består av kun én type atomer.</p><p>For eksempel består rent gull kun av gull-atomer, og oksygengass består kun av oksygen-atomer.</p>' },
+            'forbindelse': { title: 'Kjemisk forbindelse', content: '<p>En <strong>kjemisk forbindelse</strong> er et stoff som består av to eller flere <em>ulike</em> typer atomer som er bundet sammen.</p><p>Vann (H₂O) er et godt eksempel, fordi det er en forbindelse av hydrogenatomer og oksygenatomer.</p>' },
+            'molekyl': { title: 'Molekyl', content: '<p>Et molekyl består av to eller flere atomer som er bundet sammen med <strong>sterke kjemiske bindinger</strong>.</p><p>Både grunnstoffer (som hydrogengass, H₂) og kjemiske forbindelser (som vann, H₂O) kan være molekyler.</p>' },
+            'ioner_salter': { title: 'Ioner og Salter', content: '<p>Ikke alle kjemiske stoffer er molekyler. <strong>Salter</strong> består av ioner.</p><p>Et ion er et atom som har fått en positiv eller negativ elektrisk ladning (fordi det har mistet eller fått ekstra elektroner). Bindingene mellom ionene i et salt er litt svakere enn i et molekyl.</p>' },
+            'karbon': { title: 'Karbon (C) - Livets grunnstoff', content: '<p>Grunnstoff nummer 6 i periodesystemet.</p><p>Karbon finnes i alt som lever eller en gang har vært levende. Trærne, gresset, insektene og du selv inneholder utrolig mye karbon! I lufta finner vi det blant annet som gassen karbondioksid (CO₂).</p>' },
+            'reaksjon': { title: 'Kjemisk reaksjon', content: '<p>Skjer når stoffer reagerer med hverandre og danner helt <em>nye</em> stoffer med nye egenskaper. Bindingene mellom atomene brytes, og atomene settes sammen på nye måter.</p><p>Når metall ruster, treverk råtner i skogen, eller noe brenner, er det en kjemisk reaksjon!</p>' },
+            'reaksjonslikning': { title: 'Reaksjonslikning', content: '<p>Dette er kjemikernes "regnestykke". Den viser oss nøyaktig hvilke stoffer vi starter med, og hvilke nye stoffer som blir dannet.</p><p>For eksempel: <code>2H₂ + O₂ → 2H₂O + energi</code> (Hydrogengass + Oksygengass blir til Vann og energi).</p>' },
+            'massebevaring': { title: 'Massebevaring', content: '<p>En av naturens viktigste lover: <strong>Atomer kan ikke forsvinne eller oppstå fra ingenting!</strong></p><p>I en kjemisk reaksjon bytter atomene bare plasser. Den totale massen (vekten) av stoffene før reaksjonen er nøyaktig lik massen etter reaksjonen.</p>' },
+            'periodesystemet': { title: 'Periodesystemet', content: '<p>Et genialt "kart" over alle de over 100 grunnstoffene vi kjenner til, laget av Dmitrij Mendelejev på 1800-tallet.</p><p>Det er sortert etter atomnummer (antall protoner i kjernen). Kolonnene kalles <em>grupper</em> og radene kalles <em>perioder</em>.</p>' },
+            'metall': { title: 'Metall', content: '<p>To tredjedeler av alle grunnstoffer er metaller!</p><p>De kjennetegnes ved at de er blanke (hvis de pusses), og at de leder varme og elektrisk strøm veldig godt. Jern, gull, sølv og kobber er eksempler på metaller.</p>' },
+            'ikke_metall': { title: 'Ikke-metall', content: '<p>Disse stoffene leder strøm og varme dårlig.</p><p>Mange av dem er gasser i romtemperatur (som oksygen og nitrogen). Faste ikke-metaller knuser lett hvis du slår på dem, i motsetning til seige metaller.</p>' },
+            'halvmetall': { title: 'Halvmetall', content: '<p>Ligger midt mellom metallene og ikke-metallene i periodesystemet.</p><p>De er litt blanke og leder <em>litt</em> strøm. Silisium er et viktig halvmetall som brukes mye i datamaskiner og solceller.</p>' },
+            'legering': { title: 'Legering (Blandingsmetall)', content: '<p>Rene metaller er ofte for myke eller ruster for lett. Derfor blander vi dem ofte med andre stoffer (som oftest andre metaller) for å gi dem nye og bedre egenskaper.</p><p>Stål er for eksempel en legering av jern og karbon. Bronse er en legering av kobber og tinn.</p>' },
+            'tilstander': { title: 'Stoffenes tilstander', content: '<p>Nesten alle stoffer kan finnes i tre tilstander (faser), avhengig av temperaturen:</p><ul class="list-disc pl-5 mt-2 space-y-1"><li><strong>Fast stoff</strong> (som is)</li><li><strong>Væske</strong> (som flytende vann)</li><li><strong>Gass</strong> (som vanndamp)</li></ul>' }
+        };
+
+        // Fane-håndtering (Tab switching)
+        function openTab(tabId) {
+            // Skjul alle faner
+            const tabs = ['tab-uteskole', 'tab-planlegge', 'tab-innspilling', 'tab-fagbegreper'];
+            tabs.forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+                document.getElementById(id).classList.remove('block');
+                
+                // Tilbakestill knappestiler
+                const btn = document.getElementById('btn-' + id);
+                btn.className = 'tab-btn px-6 py-3 text-stone-500 font-medium border-b-2 border-transparent hover:text-emerald-600 whitespace-nowrap focus:outline-none transition-colors';
+            });
+
+            // Vis valgt fane
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById(tabId).classList.add('block');
+            
+            // Aktiver knappestil for valgt fane
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.className = 'tab-btn px-6 py-3 text-emerald-800 font-bold border-b-2 border-emerald-600 whitespace-nowrap focus:outline-none transition-colors';
+        }
+
+        // Generer listen med fagbegreper i Fane 4
+        function renderTermsList() {
+            const container = document.getElementById('terms-grid');
+            let html = '';
+            for (const [key, data] of Object.entries(termsData)) {
+                html += `
+                <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-emerald-500 hover:shadow-md transition-shadow">
+                    <h4 class="font-bold text-lg text-emerald-900 mb-2">${data.title}</h4>
+                    <div class="text-sm text-stone-600 space-y-2">${data.content}</div>
+                </div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        // Modal for informasjonsbokser (Faner 1-3)
+        const modal = document.getElementById('infoModal');
+        const modalContent = document.getElementById('modalContent');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+
+        function openModal(termKey) {
+            const data = termsData[termKey];
+            if (!data) return;
+
+            modalTitle.innerHTML = data.title;
+            modalBody.innerHTML = data.content;
+
+            // Show modal
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Trigger reflow for animation
+            void modal.offsetWidth;
+
+            // Add opacity and scale
+            modal.classList.remove('opacity-0');
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }
+
+        function closeModal() {
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        // Close on click outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Kjør ved lasting av side
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTermsList();
+        });
+    </script>
+</body>
+</html>
