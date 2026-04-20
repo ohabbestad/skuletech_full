@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="nb">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +24,11 @@
             display: inline;
             border-radius: 3px;
         }
-        .term-link:hover { color: #059669; }
+
+        .term-link:hover {
+            color: #059669;
+        }
+
         .term-link:focus-visible {
             outline: 2px solid #059669;
             outline-offset: 2px;
@@ -32,13 +37,25 @@
 
         /* Fade-animasjon ved fanebyte */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .tab-fade-in { animation: fadeIn 0.25s ease; }
+
+        .tab-fade-in {
+            animation: fadeIn 0.25s ease;
+        }
 
         /* Eigendefinert klasse for å skjule faneinnhald (desktop) */
-        .tab-hidden { display: none; }
+        .tab-hidden {
+            display: none;
+        }
 
         /* Accordion (mobil-navigasjon) */
         .accordion-header {
@@ -56,9 +73,21 @@
             text-align: left;
             min-height: 56px;
         }
-        .accordion-header:focus-visible { outline: 3px solid #fbbf24; outline-offset: -3px; }
-        .accordion-chevron { transition: transform 0.25s; flex-shrink: 0; margin-left: 0.5rem; }
-        .accordion-header[aria-expanded="true"] .accordion-chevron { transform: rotate(180deg); }
+
+        .accordion-header:focus-visible {
+            outline: 3px solid #fbbf24;
+            outline-offset: -3px;
+        }
+
+        .accordion-chevron {
+            transition: transform 0.25s;
+            flex-shrink: 0;
+            margin-left: 0.5rem;
+        }
+
+        .accordion-header[aria-expanded="true"] .accordion-chevron {
+            transform: rotate(180deg);
+        }
 
         /* Stegindikator-prikkar */
         .step-dot {
@@ -68,64 +97,142 @@
             background-color: #d6d3d1;
             transition: background-color 0.2s;
         }
-        .step-dot.active { background-color: #059669; }
+
+        .step-dot.active {
+            background-color: #059669;
+        }
 
         /* Sjekkliste */
-        .task-item { display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.5rem 0.75rem; border-radius: 0.5rem; transition: background-color 0.2s; }
-        .task-item:has(input:checked) { background-color: #f0fdf4; }
-        .task-checkbox { width: 1.2rem; height: 1.2rem; accent-color: #059669; cursor: pointer; flex-shrink: 0; margin-top: 0.2rem; min-width: 1.2rem; }
-        .task-label { cursor: pointer; }
-        .task-item.checked .task-label { text-decoration: line-through; color: #9ca3af; }
+        .task-item {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+        }
+
+        .task-item:has(input:checked) {
+            background-color: #f0fdf4;
+        }
+
+        .task-checkbox {
+            width: 1.2rem;
+            height: 1.2rem;
+            accent-color: #059669;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-top: 0.2rem;
+            min-width: 1.2rem;
+        }
+
+        .task-label {
+            cursor: pointer;
+        }
+
+        .task-item.checked .task-label {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
 
         /* === MOBIL (< 640px) === */
         @media (max-width: 639px) {
-            #desktop-tab-nav { display: none !important; }
-            #step-indicator   { display: none !important; }
-            .accordion-header { display: flex !important; }
+            #desktop-tab-nav {
+                display: none !important;
+            }
+
+            #step-indicator {
+                display: none !important;
+            }
+
+            .accordion-header {
+                display: flex !important;
+            }
+
             /* Vis alle seksjonar på mobil – accordion-closed overstyrer */
-            .tab-content { display: block !important; }
-            .tab-content.accordion-closed { display: none !important; }
-            .nav-buttons { display: none !important; }
+            .tab-content {
+                display: block !important;
+            }
+
+            .tab-content.accordion-closed {
+                display: none !important;
+            }
+
+            .nav-buttons {
+                display: none !important;
+            }
         }
 
         /* === DESKTOP (>= 640px) === */
         @media (min-width: 640px) {
-            .accordion-header { display: none !important; }
+            .accordion-header {
+                display: none !important;
+            }
         }
 
         /* === PRINT === */
         @media print {
-            .no-print { display: none !important; }
-            .tab-content, .tab-hidden { display: block !important; }
-            .tab-content.accordion-closed { display: block !important; }
-            #infoModal { display: none !important; }
-            body { background: white !important; }
-            .shadow-sm, .shadow-xl { box-shadow: none !important; }
-            header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .no-print {
+                display: none !important;
+            }
+
+            .tab-content,
+            .tab-hidden {
+                display: block !important;
+            }
+
+            .tab-content.accordion-closed {
+                display: block !important;
+            }
+
+            #infoModal {
+                display: none !important;
+            }
+
+            body {
+                background: white !important;
+            }
+
+            .shadow-sm,
+            .shadow-xl {
+                box-shadow: none !important;
+            }
+
+            header {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
     </style>
 </head>
+
 <body class="bg-stone-50 text-stone-800 font-sans leading-relaxed selection:bg-emerald-200">
 
     <!-- Header -->
-    <header class="bg-gradient-to-r from-emerald-800 to-teal-900 text-white py-8 sm:py-12 px-6 shadow-md relative overflow-hidden">
+    <header
+        class="bg-gradient-to-r from-emerald-800 to-teal-900 text-white py-8 sm:py-12 px-6 shadow-md relative overflow-hidden">
         <!-- Dekorativt atom i bakgrunnen -->
-        <svg class="hidden sm:block absolute right-0 top-1/2 -translate-y-1/2 w-80 h-80 opacity-[0.07] pointer-events-none" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <circle cx="100" cy="100" r="14" fill="white"/>
-            <ellipse cx="100" cy="100" rx="82" ry="28" stroke="white" stroke-width="2.5"/>
-            <ellipse cx="100" cy="100" rx="82" ry="28" stroke="white" stroke-width="2.5" transform="rotate(60 100 100)"/>
-            <ellipse cx="100" cy="100" rx="82" ry="28" stroke="white" stroke-width="2.5" transform="rotate(120 100 100)"/>
-            <circle cx="100" cy="72" r="6" fill="white"/>
-            <circle cx="171" cy="114" r="6" fill="white"/>
-            <circle cx="29" cy="114" r="6" fill="white"/>
+        <svg class="hidden sm:block absolute right-0 top-1/2 -translate-y-1/2 w-80 h-80 opacity-[0.07] pointer-events-none"
+            viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="100" cy="100" r="14" fill="white" />
+            <ellipse cx="100" cy="100" rx="82" ry="28" stroke="white" stroke-width="2.5" />
+            <ellipse cx="100" cy="100" rx="82" ry="28" stroke="white" stroke-width="2.5"
+                transform="rotate(60 100 100)" />
+            <ellipse cx="100" cy="100" rx="82" ry="28" stroke="white" stroke-width="2.5"
+                transform="rotate(120 100 100)" />
+            <circle cx="100" cy="72" r="6" fill="white" />
+            <circle cx="171" cy="114" r="6" fill="white" />
+            <circle cx="29" cy="114" r="6" fill="white" />
         </svg>
         <div class="max-w-6xl mx-auto relative z-10">
             <h1 class="text-2xl sm:text-4xl md:text-5xl font-extrabold mb-3 sm:mb-4">Kjemien i ditt økosystem</h1>
             <p class="text-base sm:text-xl md:text-2xl text-emerald-100 max-w-2xl font-light">
-                Et filmoppdrag: Utforsk naturen på Bømlo med "kjemi-briller" og lag en presentasjonsvideo som forklarer det usynlige!
+                Et filmoppdrag: Utforsk naturen på Bømlo med "kjemi-briller" og lag en presentasjonsvideo som forklarer
+                det usynlige!
             </p>
             <div class="mt-4 sm:mt-6 flex flex-wrap items-center gap-3">
-                <div id="deadline-badge" class="inline-block bg-amber-500 text-amber-950 font-bold py-2 px-4 rounded-full text-sm shadow-sm">
+                <div id="deadline-badge"
+                    class="inline-block bg-amber-500 text-amber-950 font-bold py-2 px-4 rounded-full text-sm shadow-sm">
                     Frist: Torsdag 30. april (før 1. mai)
                 </div>
                 <span id="countdown" class="text-emerald-200 text-sm font-medium"></span>
@@ -138,18 +245,33 @@
         <div class="mb-6">
             <h2 class="text-2xl sm:text-3xl font-bold text-emerald-800 mb-2">Slik løser du oppdraget</h2>
             <p class="text-base sm:text-lg text-stone-600">
-                Du skal bruke tre økter på å utforske et økosystem, koble det til kjemien du har lært, og produsere en presentasjonsvideo i PowerPoint.
+                Du skal bruke tre økter på å utforske et økosystem, koble det til kjemien du har lært, og produsere en
+                presentasjonsvideo i PowerPoint.
                 Bruk fanene under for å navigere mellom de ulike fasene i prosjektet.
             </p>
-            <p class="text-sm italic text-emerald-700 font-medium mt-2">Tips: Klikk på ordene med stiplet linje i teksten for å få opp forklaringer!</p>
+            <p class="text-sm italic text-emerald-700 font-medium mt-2">Tips: Klikk på ordene med stiplet linje i
+                teksten for å få opp forklaringer!</p>
         </div>
 
         <!-- Desktop fane-navigasjon -->
-        <nav id="desktop-tab-nav" class="no-print flex border-b border-stone-200 mb-4 overflow-x-auto" role="tablist" aria-label="Oppdragsfaser">
-            <button id="btn-tab-uteskole"   role="tab" aria-selected="true"  aria-controls="tab-uteskole"   onclick="openTab('tab-uteskole')"   class="tab-btn px-5 py-3 text-emerald-800 font-bold border-b-2 border-emerald-600 whitespace-nowrap transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-500">1. Uteskole</button>
-            <button id="btn-tab-planlegge"  role="tab" aria-selected="false" aria-controls="tab-planlegge"  onclick="openTab('tab-planlegge')"  class="tab-btn px-5 py-3 text-stone-500 font-medium border-b-2 border-transparent hover:text-emerald-600 whitespace-nowrap transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-500">2. Planlegge film</button>
-            <button id="btn-tab-innspilling" role="tab" aria-selected="false" aria-controls="tab-innspilling" onclick="openTab('tab-innspilling')" class="tab-btn px-5 py-3 text-stone-500 font-medium border-b-2 border-transparent hover:text-emerald-600 whitespace-nowrap transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-500">3. Innspilling</button>
-            <button id="btn-tab-fagbegreper" role="tab" aria-selected="false" aria-controls="tab-fagbegreper" onclick="openTab('tab-fagbegreper')" class="tab-btn px-5 py-3 text-stone-500 font-medium border-b-2 border-transparent hover:text-emerald-600 whitespace-nowrap transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-500">4. Fagbegreper</button>
+        <nav id="desktop-tab-nav" class="no-print flex border-b border-stone-200 mb-4 overflow-x-auto" role="tablist"
+            aria-label="Oppdragsfaser">
+            <button id="btn-tab-uteskole" role="tab" aria-selected="true" aria-controls="tab-uteskole"
+                onclick="openTab('tab-uteskole')"
+                class="tab-btn px-5 py-3 text-emerald-800 font-bold border-b-2 border-emerald-600 whitespace-nowrap transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-500">1.
+                Uteskole</button>
+            <button id="btn-tab-planlegge" role="tab" aria-selected="false" aria-controls="tab-planlegge"
+                onclick="openTab('tab-planlegge')"
+                class="tab-btn px-5 py-3 text-stone-500 font-medium border-b-2 border-transparent hover:text-emerald-600 whitespace-nowrap transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-500">2.
+                Planlegge film</button>
+            <button id="btn-tab-innspilling" role="tab" aria-selected="false" aria-controls="tab-innspilling"
+                onclick="openTab('tab-innspilling')"
+                class="tab-btn px-5 py-3 text-stone-500 font-medium border-b-2 border-transparent hover:text-emerald-600 whitespace-nowrap transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-500">3.
+                Innspilling</button>
+            <button id="btn-tab-fagbegreper" role="tab" aria-selected="false" aria-controls="tab-fagbegreper"
+                onclick="openTab('tab-fagbegreper')"
+                class="tab-btn px-5 py-3 text-stone-500 font-medium border-b-2 border-transparent hover:text-emerald-600 whitespace-nowrap transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-500">4.
+                Fagbegreper</button>
         </nav>
 
         <!-- Stegindikator (desktop) -->
@@ -167,25 +289,41 @@
         <div class="sm:space-y-10">
 
             <!-- ── Fane 1: Uteskole ── -->
-            <div class="mb-3 sm:mb-0 rounded-2xl sm:rounded-none border border-stone-200 sm:border-0 shadow-sm sm:shadow-none overflow-hidden sm:overflow-visible">
-                <button class="accordion-header no-print" aria-expanded="true" aria-controls="tab-uteskole" onclick="toggleAccordion('tab-uteskole')">
+            <div
+                class="mb-3 sm:mb-0 rounded-2xl sm:rounded-none border border-stone-200 sm:border-0 shadow-sm sm:shadow-none overflow-hidden sm:overflow-visible">
+                <button class="accordion-header no-print" aria-expanded="true" aria-controls="tab-uteskole"
+                    onclick="toggleAccordion('tab-uteskole')">
                     <span class="flex items-center gap-3">
-                        <span class="bg-white/20 w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0 text-sm">1</span>
+                        <span
+                            class="bg-white/20 w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0 text-sm">1</span>
                         Uteskole – Datainnsamling
                     </span>
-                    <svg class="accordion-chevron w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    <svg class="accordion-chevron w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
                 </button>
-                <section id="tab-uteskole" class="tab-content bg-white sm:rounded-2xl sm:shadow-sm sm:border sm:border-stone-200" role="tabpanel" aria-labelledby="btn-tab-uteskole">
+                <section id="tab-uteskole"
+                    class="tab-content bg-white sm:rounded-2xl sm:shadow-sm sm:border sm:border-stone-200"
+                    role="tabpanel" aria-labelledby="btn-tab-uteskole">
                     <div class="p-4 sm:p-8">
                         <h3 class="text-2xl font-bold text-teal-700 flex items-center mb-4">
-                            <span class="hidden sm:flex bg-teal-100 text-teal-800 w-10 h-10 rounded-full items-center justify-center mr-3 shadow-sm flex-shrink-0" aria-hidden="true">
-                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                            <span
+                                class="hidden sm:flex bg-teal-100 text-teal-800 w-10 h-10 rounded-full items-center justify-center mr-3 shadow-sm flex-shrink-0"
+                                aria-hidden="true">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                                    <circle cx="12" cy="13" r="4" />
+                                </svg>
                             </span>
                             Økt 1: Datainnsamling i naturen
                         </h3>
                         <div class="bg-stone-50 p-4 sm:p-6 rounded-xl border border-stone-100">
                             <p class="mb-3"><strong>Utstyr:</strong> Mobilkamera og klær etter været.</p>
-                            <p class="mb-4">Tiden er knapp! Gå ut til ditt tildelte økosystem og fullfør disse oppdragene:</p>
+                            <p class="mb-4">Tiden er knapp! Gå ut til ditt tildelte økosystem og fullfør disse
+                                oppdragene:</p>
 
                             <!-- Framdriftsbar -->
                             <div class="mb-4">
@@ -194,46 +332,84 @@
                                     <span id="checklist-label">0 av 6 fullførte</span>
                                 </div>
                                 <div class="w-full bg-stone-200 rounded-full h-2">
-                                    <div id="checklist-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width:0%"></div>
+                                    <div id="checklist-bar"
+                                        class="bg-emerald-500 h-2 rounded-full transition-all duration-300"
+                                        style="width:0%"></div>
                                 </div>
                             </div>
 
                             <!-- Interaktiv sjekkliste -->
                             <ul class="space-y-1 text-stone-700" id="checklist">
                                 <li class="task-item">
-                                    <input type="checkbox" id="task-1" class="task-checkbox" onchange="updateChecklist()">
-                                    <label for="task-1" class="task-label"><strong>Finn grunnstoff og forbindelser:</strong> Ta bilde av noe som inneholder mye av <button class="term-link" data-term="grunnstoff">grunnstoffet</button> <button class="term-link" data-term="karbon">karbon</button> (f.eks. treverk/planter). Ta også bilde av en <button class="term-link" data-term="forbindelse">kjemisk forbindelse</button> (f.eks. vann).</label>
+                                    <input type="checkbox" id="task-1" class="task-checkbox"
+                                        onchange="updateChecklist()">
+                                    <label for="task-1" class="task-label"><strong>Finn grunnstoff og
+                                            forbindelser:</strong> Ta bilde av noe som inneholder mye av <button
+                                            class="term-link" data-term="grunnstoff">grunnstoffet</button> <button
+                                            class="term-link" data-term="karbon">karbon</button> (f.eks.
+                                        treverk/planter). Ta også bilde av en <button class="term-link"
+                                            data-term="forbindelse">kjemisk forbindelse</button> (f.eks. vann).</label>
                                 </li>
                                 <li class="task-item">
-                                    <input type="checkbox" id="task-2" class="task-checkbox" onchange="updateChecklist()">
-                                    <label for="task-2" class="task-label"><strong>Finn en kjemisk reaksjon:</strong> Se etter tegn på at stoffer forandrer seg. Er det noe som råtner i skogbunnen? Er det noe metall som har rustet? Det er en <button class="term-link" data-term="reaksjon">kjemisk reaksjon</button>. Ta bilde!</label>
+                                    <input type="checkbox" id="task-2" class="task-checkbox"
+                                        onchange="updateChecklist()">
+                                    <label for="task-2" class="task-label"><strong>Finn en kjemisk reaksjon:</strong> Se
+                                        etter tegn på at stoffer forandrer seg. Er det noe som råtner i skogbunnen? Er
+                                        det noe metall som har rustet? Det er en <button class="term-link"
+                                            data-term="reaksjon">kjemisk reaksjon</button>. Ta bilde!</label>
                                 </li>
                                 <li class="task-item">
-                                    <input type="checkbox" id="task-3" class="task-checkbox" onchange="updateChecklist()">
-                                    <label for="task-3" class="task-label"><strong>Bygg en atommodell:</strong> Bruk ting du finner (kongler, skjell, småstein) til å bygge en <button class="term-link" data-term="atommodell">skallmodell</button> av et valgfritt <button class="term-link" data-term="atom">atom</button> på bakken. Ta et tydelig bilde ovenfra.</label>
+                                    <input type="checkbox" id="task-3" class="task-checkbox"
+                                        onchange="updateChecklist()">
+                                    <label for="task-3" class="task-label"><strong>Bygg en atommodell:</strong> Bruk
+                                        ting du finner (kongler, skjell, småstein) til å bygge en <button
+                                            class="term-link" data-term="atommodell">skallmodell</button> av et
+                                        valgfritt <button class="term-link" data-term="atom">atom</button> på bakken. Ta
+                                        et tydelig bilde ovenfra.</label>
                                 </li>
                                 <li class="task-item">
-                                    <input type="checkbox" id="task-4" class="task-checkbox" onchange="updateChecklist()">
-                                    <label for="task-4" class="task-label"><strong>Spor av metaller:</strong> Finn noe av metall i nærheten av økosystemet (et skilt, et gjerde, eller plastikk som har drevet i land med metalldeler). Er det et rent <button class="term-link" data-term="metall">metall</button> eller en <button class="term-link" data-term="legering">legering</button>? Ta bilde!</label>
+                                    <input type="checkbox" id="task-4" class="task-checkbox"
+                                        onchange="updateChecklist()">
+                                    <label for="task-4" class="task-label"><strong>Spor av metaller:</strong> Finn noe
+                                        av metall i nærheten av økosystemet (et skilt, et gjerde, eller plastikk som har
+                                        drevet i land med metalldeler). Er det et rent <button class="term-link"
+                                            data-term="metall">metall</button> eller en <button class="term-link"
+                                            data-term="legering">legering</button>? Ta bilde!</label>
                                 </li>
                                 <li class="task-item">
-                                    <input type="checkbox" id="task-5" class="task-checkbox" onchange="updateChecklist()">
-                                    <label for="task-5" class="task-label"><strong>Tre tilstander:</strong> Finn stoffer i tre ulike tilstander: fast stoff, flytende og gass. (Tips: Hvordan kan du ta bilde av en gass? Kanskje bobler i en pytt eller blader som rører seg i vinden?).</label>
+                                    <input type="checkbox" id="task-5" class="task-checkbox"
+                                        onchange="updateChecklist()">
+                                    <label for="task-5" class="task-label"><strong>Tre tilstander:</strong> Finn stoffer
+                                        i tre ulike tilstander: fast stoff, flytende og gass. (Tips: Hvordan kan du ta
+                                        bilde av en gass? Kanskje bobler i en pytt eller blader som rører seg i
+                                        vinden?).</label>
                                 </li>
                                 <li class="task-item">
-                                    <input type="checkbox" id="task-6" class="task-checkbox" onchange="updateChecklist()">
-                                    <label for="task-6" class="task-label"><strong>Noter stikkord:</strong> Hvilke kjemiske prosesser er viktige for at akkurat dette økosystemet skal overleve? (Tenk for eksempel på fotosyntesen).</label>
+                                    <input type="checkbox" id="task-6" class="task-checkbox"
+                                        onchange="updateChecklist()">
+                                    <label for="task-6" class="task-label"><strong>Noter stikkord:</strong> Hvilke
+                                        kjemiske prosesser er viktige for at akkurat dette økosystemet skal overleve?
+                                        (Tenk for eksempel på fotosyntesen).</label>
                                 </li>
                                 <li class="task-item">
-                                    <input type="checkbox" id="task-7" class="task-checkbox" onchange="updateChecklist()">
-                                    <label for="task-7" class="task-label"><strong>Last opp til skyen:</strong> Last opp alle bildene og eventuelle videoer til skylagring (OneDrive, iCloud, Google Foto eller tilsvarende) så du har dem tilgjengelig når du skal lage PowerPoint-presentasjonen.</label>
+                                    <input type="checkbox" id="task-7" class="task-checkbox"
+                                        onchange="updateChecklist()">
+                                    <label for="task-7" class="task-label"><strong>Last opp til skyen:</strong> Last opp
+                                        alle bildene og eventuelle videoer til skylagring (OneDrive, iCloud, Google Foto
+                                        eller tilsvarende) så du har dem tilgjengelig når du skal lage
+                                        PowerPoint-presentasjonen.</label>
                                 </li>
                             </ul>
                         </div>
                         <div class="nav-buttons no-print flex justify-end mt-6">
-                            <button onclick="openTab('tab-planlegge')" class="flex items-center gap-2 bg-emerald-700 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-emerald-800 transition-colors">
+                            <button onclick="openTab('tab-planlegge')"
+                                class="flex items-center gap-2 bg-emerald-700 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-emerald-800 transition-colors">
                                 Neste steg
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7" />
+                                </svg>
                             </button>
                         </div>
                     </div>
@@ -241,38 +417,67 @@
             </div>
 
             <!-- ── Fane 2: Planlegge film ── -->
-            <div class="mb-3 sm:mb-0 rounded-2xl sm:rounded-none border border-stone-200 sm:border-0 shadow-sm sm:shadow-none overflow-hidden sm:overflow-visible">
-                <button class="accordion-header no-print" aria-expanded="false" aria-controls="tab-planlegge" onclick="toggleAccordion('tab-planlegge')">
+            <div
+                class="mb-3 sm:mb-0 rounded-2xl sm:rounded-none border border-stone-200 sm:border-0 shadow-sm sm:shadow-none overflow-hidden sm:overflow-visible">
+                <button class="accordion-header no-print" aria-expanded="false" aria-controls="tab-planlegge"
+                    onclick="toggleAccordion('tab-planlegge')">
                     <span class="flex items-center gap-3">
-                        <span class="bg-white/20 w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0 text-sm">2</span>
+                        <span
+                            class="bg-white/20 w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0 text-sm">2</span>
                         Planlegge film – PowerPoint og manus
                     </span>
-                    <svg class="accordion-chevron w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    <svg class="accordion-chevron w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
                 </button>
-                <section id="tab-planlegge" class="tab-content tab-hidden accordion-closed bg-white sm:rounded-2xl sm:shadow-sm sm:border sm:border-stone-200" role="tabpanel" aria-labelledby="btn-tab-planlegge">
+                <section id="tab-planlegge"
+                    class="tab-content tab-hidden accordion-closed bg-white sm:rounded-2xl sm:shadow-sm sm:border sm:border-stone-200"
+                    role="tabpanel" aria-labelledby="btn-tab-planlegge">
                     <div class="p-4 sm:p-8">
                         <h3 class="text-2xl font-bold text-teal-700 flex items-center mb-4">
-                            <span class="hidden sm:flex bg-teal-100 text-teal-800 w-10 h-10 rounded-full items-center justify-center mr-3 shadow-sm flex-shrink-0" aria-hidden="true">
-                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                            <span
+                                class="hidden sm:flex bg-teal-100 text-teal-800 w-10 h-10 rounded-full items-center justify-center mr-3 shadow-sm flex-shrink-0"
+                                aria-hidden="true">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                                    <line x1="8" y1="21" x2="16" y2="21" />
+                                    <line x1="12" y1="17" x2="12" y2="21" />
+                                </svg>
                             </span>
                             Økt 2: PowerPoint og Manus
                         </h3>
                         <div class="bg-stone-50 p-4 sm:p-6 rounded-xl border border-stone-100">
                             <ul class="space-y-4 list-disc pl-5 text-stone-700">
-                                <li>Opprett en PowerPoint-presentasjon. Titulér den <em>"Kjemien i [ditt økosystem]"</em>.</li>
+                                <li>Opprett en PowerPoint-presentasjon, lagre den og gi den ein god tittel.</li>
                                 <li>Legg inn <strong>minst tre</strong> av bildene du tok ute i naturen.</li>
                                 <li>Skriv manus direkte i notatfeltet under hvert lysbilde.</li>
-                                <li><strong>Faglig krav:</strong> Du <em>må</em> bruke og forklare <strong>minst 5 fagbegreper</strong> nøyaktig. Velg fra listen i fanen "Liste med fagbegreper". Knyt begrepene til bildene dine! (For eksempel: Forklar atommodellen du bygde, eller forklar <button class="term-link" data-term="massebevaring">massebevaring</button> når du viser bildet av greina som råtner).</li>
+                                <li><strong>Faglig krav:</strong> Du <em>må</em> bruke og forklare <strong>minst 5
+                                        fagbegreper</strong> nøyaktig. Velg fra listen i fanen "Liste med fagbegreper".
+                                    Knyt begrepene til bildene dine! (For eksempel: Forklar atommodellen du bygde, eller
+                                    forklar <button class="term-link" data-term="massebevaring">massebevaring</button>
+                                    når du viser bildet av greina som råtner).</li>
                             </ul>
                         </div>
                         <div class="nav-buttons no-print flex justify-between mt-6">
-                            <button onclick="openTab('tab-uteskole')" class="flex items-center gap-2 border border-stone-300 text-stone-600 font-semibold px-5 py-2.5 rounded-xl hover:bg-stone-100 transition-colors">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                            <button onclick="openTab('tab-uteskole')"
+                                class="flex items-center gap-2 border border-stone-300 text-stone-600 font-semibold px-5 py-2.5 rounded-xl hover:bg-stone-100 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 19l-7-7 7-7" />
+                                </svg>
                                 Forrige steg
                             </button>
-                            <button onclick="openTab('tab-innspilling')" class="flex items-center gap-2 bg-emerald-700 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-emerald-800 transition-colors">
+                            <button onclick="openTab('tab-innspilling')"
+                                class="flex items-center gap-2 bg-emerald-700 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-emerald-800 transition-colors">
                                 Neste steg
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7" />
+                                </svg>
                             </button>
                         </div>
                     </div>
@@ -280,38 +485,66 @@
             </div>
 
             <!-- ── Fane 3: Innspilling ── -->
-            <div class="mb-3 sm:mb-0 rounded-2xl sm:rounded-none border border-stone-200 sm:border-0 shadow-sm sm:shadow-none overflow-hidden sm:overflow-visible">
-                <button class="accordion-header no-print" aria-expanded="false" aria-controls="tab-innspilling" onclick="toggleAccordion('tab-innspilling')">
+            <div
+                class="mb-3 sm:mb-0 rounded-2xl sm:rounded-none border border-stone-200 sm:border-0 shadow-sm sm:shadow-none overflow-hidden sm:overflow-visible">
+                <button class="accordion-header no-print" aria-expanded="false" aria-controls="tab-innspilling"
+                    onclick="toggleAccordion('tab-innspilling')">
                     <span class="flex items-center gap-3">
-                        <span class="bg-white/20 w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0 text-sm">3</span>
+                        <span
+                            class="bg-white/20 w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0 text-sm">3</span>
                         Innspilling og eksport
                     </span>
-                    <svg class="accordion-chevron w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    <svg class="accordion-chevron w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
                 </button>
-                <section id="tab-innspilling" class="tab-content tab-hidden accordion-closed bg-white sm:rounded-2xl sm:shadow-sm sm:border sm:border-stone-200" role="tabpanel" aria-labelledby="btn-tab-innspilling">
+                <section id="tab-innspilling"
+                    class="tab-content tab-hidden accordion-closed bg-white sm:rounded-2xl sm:shadow-sm sm:border sm:border-stone-200"
+                    role="tabpanel" aria-labelledby="btn-tab-innspilling">
                     <div class="p-4 sm:p-8">
                         <h3 class="text-2xl font-bold text-teal-700 flex items-center mb-4">
-                            <span class="hidden sm:flex bg-teal-100 text-teal-800 w-10 h-10 rounded-full items-center justify-center mr-3 shadow-sm flex-shrink-0" aria-hidden="true">
-                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                            <span
+                                class="hidden sm:flex bg-teal-100 text-teal-800 w-10 h-10 rounded-full items-center justify-center mr-3 shadow-sm flex-shrink-0"
+                                aria-hidden="true">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                                    <line x1="12" y1="19" x2="12" y2="23" />
+                                    <line x1="8" y1="23" x2="16" y2="23" />
+                                </svg>
                             </span>
                             Økt 3: Innspilling og Eksport
                         </h3>
                         <div class="bg-stone-50 p-4 sm:p-6 rounded-xl border border-stone-100">
                             <ul class="space-y-4 list-disc pl-5 text-stone-700">
-                                <li>Finn et stille sted. Bruk funksjonen <strong>"Spill inn" (Record)</strong> i PowerPoint.</li>
-                                <li>Les inn manuset fra notatfeltet mens programmet tar opp lyden (og ev. bilde fra webkamera) på hvert lysbilde.</li>
+                                <li>Finn et stille sted. Bruk funksjonen <strong>"Spill inn" (Record)</strong> i
+                                    PowerPoint.</li>
+                                <li>Les inn manuset fra notatfeltet mens programmet tar opp lyden (og ev. bilde fra
+                                    webkamera) på hvert lysbilde.</li>
                                 <li>Når du er fornøyd, velg <em>Fil → Eksporter → Lag en video (MP4)</em>.</li>
                                 <li>Lever MP4-filen i oppgaven på <strong>itslearning</strong> før fristen går ut.</li>
                             </ul>
                         </div>
                         <div class="nav-buttons no-print flex justify-between mt-6">
-                            <button onclick="openTab('tab-planlegge')" class="flex items-center gap-2 border border-stone-300 text-stone-600 font-semibold px-5 py-2.5 rounded-xl hover:bg-stone-100 transition-colors">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                            <button onclick="openTab('tab-planlegge')"
+                                class="flex items-center gap-2 border border-stone-300 text-stone-600 font-semibold px-5 py-2.5 rounded-xl hover:bg-stone-100 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 19l-7-7 7-7" />
+                                </svg>
                                 Forrige steg
                             </button>
-                            <button onclick="openTab('tab-fagbegreper')" class="flex items-center gap-2 bg-emerald-700 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-emerald-800 transition-colors">
+                            <button onclick="openTab('tab-fagbegreper')"
+                                class="flex items-center gap-2 bg-emerald-700 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-emerald-800 transition-colors">
                                 Se fagbegrepene
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7" />
+                                </svg>
                             </button>
                         </div>
                     </div>
@@ -319,64 +552,91 @@
             </div>
 
             <!-- ── Fane 4: Fagbegreper ── -->
-            <div class="mb-3 sm:mb-0 rounded-2xl sm:rounded-none border border-stone-200 sm:border-0 shadow-sm sm:shadow-none overflow-hidden sm:overflow-visible">
-                <button class="accordion-header no-print" aria-expanded="false" aria-controls="tab-fagbegreper" onclick="toggleAccordion('tab-fagbegreper')">
+            <div
+                class="mb-3 sm:mb-0 rounded-2xl sm:rounded-none border border-stone-200 sm:border-0 shadow-sm sm:shadow-none overflow-hidden sm:overflow-visible">
+                <button class="accordion-header no-print" aria-expanded="false" aria-controls="tab-fagbegreper"
+                    onclick="toggleAccordion('tab-fagbegreper')">
                     <span class="flex items-center gap-3">
-                        <span class="bg-white/20 w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0 text-sm">4</span>
+                        <span
+                            class="bg-white/20 w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0 text-sm">4</span>
                         Liste med fagbegreper
                     </span>
-                    <svg class="accordion-chevron w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    <svg class="accordion-chevron w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
                 </button>
-                <section id="tab-fagbegreper" class="tab-content tab-hidden accordion-closed bg-white sm:rounded-2xl sm:shadow-sm sm:border sm:border-stone-200" role="tabpanel" aria-labelledby="btn-tab-fagbegreper">
+                <section id="tab-fagbegreper"
+                    class="tab-content tab-hidden accordion-closed bg-white sm:rounded-2xl sm:shadow-sm sm:border sm:border-stone-200"
+                    role="tabpanel" aria-labelledby="btn-tab-fagbegreper">
                     <div class="p-4 sm:p-8">
                         <h3 class="text-2xl font-bold text-teal-700 flex items-center mb-4">
-                            <span class="hidden sm:flex bg-teal-100 text-teal-800 w-10 h-10 rounded-full items-center justify-center mr-3 shadow-sm flex-shrink-0" aria-hidden="true">
-                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            <span
+                                class="hidden sm:flex bg-teal-100 text-teal-800 w-10 h-10 rounded-full items-center justify-center mr-3 shadow-sm flex-shrink-0"
+                                aria-hidden="true">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                                </svg>
                             </span>
                             Liste med fagbegreper
                         </h3>
                         <div class="bg-stone-50 p-4 sm:p-6 rounded-xl border border-stone-100 mb-4">
                             <p class="text-stone-700">
-                                Her er en oversikt over viktige fagbegreper fra <em>Grunnleggende Kjemi</em>. Bruk denne listen som en "meny" når du skal planlegge videoen din.
-                                <strong>Husk at du skal velge ut og forklare minst 5 av disse nøyaktig i presentasjonen din.</strong>
+                                Her er en oversikt over viktige fagbegreper fra <em>Grunnleggende Kjemi</em>. Bruk denne
+                                listen som en "meny" når du skal planlegge videoen din.
+                                <strong>Husk at du skal velge ut og forklare minst 5 av disse nøyaktig i presentasjonen
+                                    din.</strong>
                             </p>
                         </div>
                         <a href="https://www.periodesystemet.no/" target="_blank" rel="noopener noreferrer"
-                           class="flex items-center gap-4 bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-6 hover:bg-emerald-100 transition-colors group">
+                            class="flex items-center gap-4 bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-6 hover:bg-emerald-100 transition-colors group">
                             <!-- Periodesystem-illustrasjon -->
-                            <svg class="w-14 h-14 flex-shrink-0 text-emerald-700" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <rect x="1" y="1" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.9"/>
-                                <rect x="45" y="1" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.9"/>
-                                <rect x="1" y="13" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.7"/>
-                                <rect x="13" y="13" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.7"/>
-                                <rect x="45" y="13" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.7"/>
-                                <rect x="1" y="25" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.6"/>
-                                <rect x="13" y="25" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.6"/>
-                                <rect x="25" y="25" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.8"/>
-                                <rect x="37" y="25" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.6"/>
-                                <rect x="49" y="25" width="7" height="10" rx="1.5" fill="currentColor" opacity="0.6"/>
-                                <rect x="1" y="37" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.5"/>
-                                <rect x="13" y="37" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.5"/>
-                                <rect x="25" y="37" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.7"/>
-                                <rect x="37" y="37" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.5"/>
-                                <rect x="49" y="37" width="7" height="10" rx="1.5" fill="currentColor" opacity="0.5"/>
-                                <rect x="1" y="45" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.4"/>
-                                <rect x="13" y="45" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.4"/>
-                                <text x="6" y="10" font-size="7" fill="white" text-anchor="middle" font-family="sans-serif" font-weight="bold">H</text>
-                                <text x="50" y="10" font-size="7" fill="white" text-anchor="middle" font-family="sans-serif" font-weight="bold">He</text>
-                                <text x="30" y="34" font-size="7" fill="white" text-anchor="middle" font-family="sans-serif" font-weight="bold">C</text>
+                            <svg class="w-14 h-14 flex-shrink-0 text-emerald-700" viewBox="0 0 56 56" fill="none"
+                                xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <rect x="1" y="1" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.9" />
+                                <rect x="45" y="1" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.9" />
+                                <rect x="1" y="13" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.7" />
+                                <rect x="13" y="13" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.7" />
+                                <rect x="45" y="13" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.7" />
+                                <rect x="1" y="25" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.6" />
+                                <rect x="13" y="25" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.6" />
+                                <rect x="25" y="25" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.8" />
+                                <rect x="37" y="25" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.6" />
+                                <rect x="49" y="25" width="7" height="10" rx="1.5" fill="currentColor" opacity="0.6" />
+                                <rect x="1" y="37" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.5" />
+                                <rect x="13" y="37" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.5" />
+                                <rect x="25" y="37" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.7" />
+                                <rect x="37" y="37" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.5" />
+                                <rect x="49" y="37" width="7" height="10" rx="1.5" fill="currentColor" opacity="0.5" />
+                                <rect x="1" y="45" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.4" />
+                                <rect x="13" y="45" width="10" height="10" rx="1.5" fill="currentColor" opacity="0.4" />
+                                <text x="6" y="10" font-size="7" fill="white" text-anchor="middle"
+                                    font-family="sans-serif" font-weight="bold">H</text>
+                                <text x="50" y="10" font-size="7" fill="white" text-anchor="middle"
+                                    font-family="sans-serif" font-weight="bold">He</text>
+                                <text x="30" y="34" font-size="7" fill="white" text-anchor="middle"
+                                    font-family="sans-serif" font-weight="bold">C</text>
                             </svg>
                             <div class="flex-1 min-w-0">
-                                <p class="font-bold text-emerald-900 group-hover:underline">Interaktivt periodesystem</p>
-                                <p class="text-sm text-emerald-700">Utforsk alle grunnstoffene på periodesystemet.no →</p>
+                                <p class="font-bold text-emerald-900 group-hover:underline">Interaktivt periodesystem
+                                </p>
+                                <p class="text-sm text-emerald-700">Utforsk alle grunnstoffene på periodesystemet.no →
+                                </p>
                             </div>
                         </a>
                         <div id="terms-grid">
                             <!-- Genereres av JavaScript -->
                         </div>
                         <div class="nav-buttons no-print flex justify-start mt-6">
-                            <button onclick="openTab('tab-innspilling')" class="flex items-center gap-2 border border-stone-300 text-stone-600 font-semibold px-5 py-2.5 rounded-xl hover:bg-stone-100 transition-colors">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                            <button onclick="openTab('tab-innspilling')"
+                                class="flex items-center gap-2 border border-stone-300 text-stone-600 font-semibold px-5 py-2.5 rounded-xl hover:bg-stone-100 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 19l-7-7 7-7" />
+                                </svg>
                                 Forrige steg
                             </button>
                         </div>
@@ -388,25 +648,26 @@
 
         <!-- Modal -->
         <div id="infoModal"
-             class="fixed inset-0 bg-stone-900/60 hidden items-center justify-center z-50 opacity-0 transition-opacity duration-300 px-4"
-             role="dialog" aria-modal="true" aria-labelledby="modalTitle"
-             style="overscroll-behavior:contain;">
-            <div id="modalContent" class="bg-white rounded-2xl shadow-xl w-full sm:max-w-lg transform scale-95 transition-transform duration-300">
+            class="fixed inset-0 bg-stone-900/60 hidden items-center justify-center z-50 opacity-0 transition-opacity duration-300 px-4"
+            role="dialog" aria-modal="true" aria-labelledby="modalTitle" style="overscroll-behavior:contain;">
+            <div id="modalContent"
+                class="bg-white rounded-2xl shadow-xl w-full sm:max-w-lg transform scale-95 transition-transform duration-300">
                 <div class="p-6 max-h-[80vh] overflow-y-auto overscroll-contain">
                     <div class="flex justify-between items-start mb-4 gap-4">
                         <h4 id="modalTitle" class="font-bold text-2xl text-emerald-900" tabindex="-1">Tittel</h4>
-                        <button onclick="closeModal()"
-                                aria-label="Lukk"
-                                style="min-width:44px;min-height:44px;"
-                                class="flex items-center justify-center text-stone-400 hover:text-stone-700 transition-colors rounded-lg flex-shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-500">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <button onclick="closeModal()" aria-label="Lukk" style="min-width:44px;min-height:44px;"
+                            class="flex items-center justify-center text-stone-400 hover:text-stone-700 transition-colors rounded-lg flex-shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-500">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
                         </button>
                     </div>
                     <div id="modalBody" class="text-stone-600 space-y-3 leading-relaxed"></div>
                     <div class="mt-8 text-right">
-                        <button onclick="closeModal()"
-                                style="min-height:44px;"
-                                class="bg-emerald-100 text-emerald-800 font-medium px-5 py-2 rounded-lg hover:bg-emerald-200 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-500">
+                        <button onclick="closeModal()" style="min-height:44px;"
+                            class="bg-emerald-100 text-emerald-800 font-medium px-5 py-2 rounded-lg hover:bg-emerald-200 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-500">
                             Lukk
                         </button>
                     </div>
@@ -425,29 +686,29 @@
         // ── DATA ──────────────────────────────────────────────────────────────
 
         const termsData = {
-            atom:           { title: 'Atom',                      cat: 'atom',     content: '<p><strong>Naturens usynlige byggeklosser!</strong> Alt som finnes (planter, stein, dyr og vann) er bygget opp av atomer.</p><p>Et atom består av en kjerne med positive <strong>protoner</strong> og nøytrale <strong>nøytroner</strong>. Rundt kjernen kretser negative <strong>elektroner</strong> i en enorm fart.</p>' },
-            atommodell:     { title: 'Skallmodellen (Atommodell)', cat: 'atom',     content: '<p>Atomer er for små til å se, så vi bruker en modell laget av Niels Bohr (1913) for å forstå dem.</p><p>Modellen viser at elektronene beveger seg i bestemte baner, eller "skall", rundt atomkjernen – litt som planeter som kretser rundt sola.</p>' },
-            elementaer:     { title: 'Elementærpartikler',        cat: 'atom',     content: '<p>De bittesmå delene et atom er bygget opp av:</p><ul class="list-disc pl-5 mt-2 space-y-1"><li><strong>Protoner:</strong> Positiv ladning (+)</li><li><strong>Nøytroner:</strong> Nøytrale (ingen ladning)</li><li><strong>Elektroner:</strong> Negativ ladning (−)</li></ul>' },
-            grunnstoff:     { title: 'Grunnstoff',                cat: 'atom',     content: '<p>Et <strong>grunnstoff</strong> består av kun én type atomer.</p><p>For eksempel består rent gull kun av gull-atomer, og oksygengass består kun av oksygen-atomer.</p>' },
-            karbon:         { title: 'Karbon (C) – Livets grunnstoff', cat: 'atom', content: '<p>Grunnstoff nummer 6 i periodesystemet.</p><p>Karbon finnes i alt som lever eller en gang har vært levende. Trærne, gresset, insektene og du selv inneholder utrolig mye karbon! I lufta finner vi det blant annet som gassen karbondioksid (CO₂).</p>' },
-            forbindelse:    { title: 'Kjemisk forbindelse',       cat: 'stoff',    content: '<p>En <strong>kjemisk forbindelse</strong> er et stoff som består av to eller flere <em>ulike</em> typer atomer som er bundet sammen.</p><p>Vann (H₂O) er et godt eksempel, fordi det er en forbindelse av hydrogenatomer og oksygenatomer.</p>' },
-            molekyl:        { title: 'Molekyl',                   cat: 'stoff',    content: '<p>Et molekyl består av to eller flere atomer som er bundet sammen med <strong>sterke kjemiske bindinger</strong>.</p><p>Både grunnstoffer (som hydrogengass, H₂) og kjemiske forbindelser (som vann, H₂O) kan være molekyler.</p>' },
-            ioner_salter:   { title: 'Ioner og Salter',           cat: 'stoff',    content: '<p>Ikke alle kjemiske stoffer er molekyler. <strong>Salter</strong> består av ioner.</p><p>Et ion er et atom som har fått en positiv eller negativ elektrisk ladning (fordi det har mistet eller fått ekstra elektroner).</p>' },
-            metall:         { title: 'Metall',                    cat: 'stoff',    content: '<p>To tredjedeler av alle grunnstoffer er metaller!</p><p>De kjennetegnes ved at de er blanke (hvis de pusses), og at de leder varme og elektrisk strøm veldig godt. Jern, gull, sølv og kobber er eksempler på metaller.</p>' },
-            ikke_metall:    { title: 'Ikke-metall',               cat: 'stoff',    content: '<p>Disse stoffene leder strøm og varme dårlig.</p><p>Mange av dem er gasser i romtemperatur (som oksygen og nitrogen). Faste ikke-metaller knuser lett hvis du slår på dem, i motsetning til seige metaller.</p>' },
-            halvmetall:     { title: 'Halvmetall',                cat: 'stoff',    content: '<p>Ligger midt mellom metallene og ikke-metallene i periodesystemet.</p><p>De er litt blanke og leder <em>litt</em> strøm. Silisium er et viktig halvmetall som brukes mye i datamaskiner og solceller.</p>' },
-            legering:       { title: 'Legering (Blandingsmetall)', cat: 'stoff',   content: '<p>Rene metaller er ofte for myke eller ruster for lett. Derfor blander vi dem med andre stoffer for å gi dem nye og bedre egenskaper.</p><p>Stål er en legering av jern og karbon. Bronse er en legering av kobber og tinn.</p>' },
-            tilstander:     { title: 'Stoffenes tilstander',      cat: 'stoff',    content: '<p>Nesten alle stoffer kan finnes i tre tilstander (faser), avhengig av temperaturen:</p><ul class="list-disc pl-5 mt-2 space-y-1"><li><strong>Fast stoff</strong> (som is)</li><li><strong>Væske</strong> (som flytende vann)</li><li><strong>Gass</strong> (som vanndamp)</li></ul>' },
-            reaksjon:       { title: 'Kjemisk reaksjon',          cat: 'reaksjon', content: '<p>Skjer når stoffer reagerer med hverandre og danner helt <em>nye</em> stoffer med nye egenskaper. Bindingene mellom atomene brytes, og atomene settes sammen på nye måter.</p><p>Når metall ruster, treverk råtner i skogen, eller noe brenner, er det en kjemisk reaksjon!</p>' },
-            reaksjonslikning: { title: 'Reaksjonslikning',        cat: 'reaksjon', content: '<p>Dette er kjemikernes "regnestykke". Den viser oss nøyaktig hvilke stoffer vi starter med, og hvilke nye stoffer som blir dannet.</p><p>For eksempel: <code>2H₂ + O₂ → 2H₂O + energi</code></p>' },
-            massebevaring:  { title: 'Massebevaring',             cat: 'reaksjon', content: '<p>En av naturens viktigste lover: <strong>Atomer kan ikke forsvinne eller oppstå fra ingenting!</strong></p><p>I en kjemisk reaksjon bytter atomene bare plasser. Den totale massen av stoffene før reaksjonen er nøyaktig lik massen etter.</p>' },
-            periodesystemet:{ title: 'Periodesystemet',           cat: 'reaksjon', content: '<p>Et genialt "kart" over alle de over 100 grunnstoffene vi kjenner til, laget av Dmitrij Mendelejev på 1800-tallet.</p><p>Det er sortert etter atomnummer (antall protoner i kjernen). Kolonnene kalles <em>grupper</em> og radene kalles <em>perioder</em>.</p><p class="mt-3 pt-3 border-t border-stone-200"><a href="https://www.periodesystemet.no/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-emerald-700 font-semibold hover:text-emerald-900 underline underline-offset-2">Utforsk det interaktive periodesystemet på periodesystemet.no <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></p>' }
+            atom: { title: 'Atom', cat: 'atom', content: '<p><strong>Naturens usynlige byggeklosser!</strong> Alt som finnes (planter, stein, dyr og vann) er bygget opp av atomer.</p><p>Et atom består av en kjerne med positive <strong>protoner</strong> og nøytrale <strong>nøytroner</strong>. Rundt kjernen kretser negative <strong>elektroner</strong> i en enorm fart.</p>' },
+            atommodell: { title: 'Skallmodellen (Atommodell)', cat: 'atom', content: '<p>Atomer er for små til å se, så vi bruker en modell laget av Niels Bohr (1913) for å forstå dem.</p><p>Modellen viser at elektronene beveger seg i bestemte baner, eller "skall", rundt atomkjernen – litt som planeter som kretser rundt sola.</p>' },
+            elementaer: { title: 'Elementærpartikler', cat: 'atom', content: '<p>De bittesmå delene et atom er bygget opp av:</p><ul class="list-disc pl-5 mt-2 space-y-1"><li><strong>Protoner:</strong> Positiv ladning (+)</li><li><strong>Nøytroner:</strong> Nøytrale (ingen ladning)</li><li><strong>Elektroner:</strong> Negativ ladning (−)</li></ul>' },
+            grunnstoff: { title: 'Grunnstoff', cat: 'atom', content: '<p>Et <strong>grunnstoff</strong> består av kun én type atomer.</p><p>For eksempel består rent gull kun av gull-atomer, og oksygengass består kun av oksygen-atomer.</p>' },
+            karbon: { title: 'Karbon (C) – Livets grunnstoff', cat: 'atom', content: '<p>Grunnstoff nummer 6 i periodesystemet.</p><p>Karbon finnes i alt som lever eller en gang har vært levende. Trærne, gresset, insektene og du selv inneholder utrolig mye karbon! I lufta finner vi det blant annet som gassen karbondioksid (CO₂).</p>' },
+            forbindelse: { title: 'Kjemisk forbindelse', cat: 'stoff', content: '<p>En <strong>kjemisk forbindelse</strong> er et stoff som består av to eller flere <em>ulike</em> typer atomer som er bundet sammen.</p><p>Vann (H₂O) er et godt eksempel, fordi det er en forbindelse av hydrogenatomer og oksygenatomer.</p>' },
+            molekyl: { title: 'Molekyl', cat: 'stoff', content: '<p>Et molekyl består av to eller flere atomer som er bundet sammen med <strong>sterke kjemiske bindinger</strong>.</p><p>Både grunnstoffer (som hydrogengass, H₂) og kjemiske forbindelser (som vann, H₂O) kan være molekyler.</p>' },
+            ioner_salter: { title: 'Ioner og Salter', cat: 'stoff', content: '<p>Ikke alle kjemiske stoffer er molekyler. <strong>Salter</strong> består av ioner.</p><p>Et ion er et atom som har fått en positiv eller negativ elektrisk ladning (fordi det har mistet eller fått ekstra elektroner).</p>' },
+            metall: { title: 'Metall', cat: 'stoff', content: '<p>To tredjedeler av alle grunnstoffer er metaller!</p><p>De kjennetegnes ved at de er blanke (hvis de pusses), og at de leder varme og elektrisk strøm veldig godt. Jern, gull, sølv og kobber er eksempler på metaller.</p>' },
+            ikke_metall: { title: 'Ikke-metall', cat: 'stoff', content: '<p>Disse stoffene leder strøm og varme dårlig.</p><p>Mange av dem er gasser i romtemperatur (som oksygen og nitrogen). Faste ikke-metaller knuser lett hvis du slår på dem, i motsetning til seige metaller.</p>' },
+            halvmetall: { title: 'Halvmetall', cat: 'stoff', content: '<p>Ligger midt mellom metallene og ikke-metallene i periodesystemet.</p><p>De er litt blanke og leder <em>litt</em> strøm. Silisium er et viktig halvmetall som brukes mye i datamaskiner og solceller.</p>' },
+            legering: { title: 'Legering (Blandingsmetall)', cat: 'stoff', content: '<p>Rene metaller er ofte for myke eller ruster for lett. Derfor blander vi dem med andre stoffer for å gi dem nye og bedre egenskaper.</p><p>Stål er en legering av jern og karbon. Bronse er en legering av kobber og tinn.</p>' },
+            tilstander: { title: 'Stoffenes tilstander', cat: 'stoff', content: '<p>Nesten alle stoffer kan finnes i tre tilstander (faser), avhengig av temperaturen:</p><ul class="list-disc pl-5 mt-2 space-y-1"><li><strong>Fast stoff</strong> (som is)</li><li><strong>Væske</strong> (som flytende vann)</li><li><strong>Gass</strong> (som vanndamp)</li></ul>' },
+            reaksjon: { title: 'Kjemisk reaksjon', cat: 'reaksjon', content: '<p>Skjer når stoffer reagerer med hverandre og danner helt <em>nye</em> stoffer med nye egenskaper. Bindingene mellom atomene brytes, og atomene settes sammen på nye måter.</p><p>Når metall ruster, treverk råtner i skogen, eller noe brenner, er det en kjemisk reaksjon!</p>' },
+            reaksjonslikning: { title: 'Reaksjonslikning', cat: 'reaksjon', content: '<p>Dette er kjemikernes "regnestykke". Den viser oss nøyaktig hvilke stoffer vi starter med, og hvilke nye stoffer som blir dannet.</p><p>For eksempel: <code>2H₂ + O₂ → 2H₂O + energi</code></p>' },
+            massebevaring: { title: 'Massebevaring', cat: 'reaksjon', content: '<p>En av naturens viktigste lover: <strong>Atomer kan ikke forsvinne eller oppstå fra ingenting!</strong></p><p>I en kjemisk reaksjon bytter atomene bare plasser. Den totale massen av stoffene før reaksjonen er nøyaktig lik massen etter.</p>' },
+            periodesystemet: { title: 'Periodesystemet', cat: 'reaksjon', content: '<p>Et genialt "kart" over alle de over 100 grunnstoffene vi kjenner til, laget av Dmitrij Mendelejev på 1800-tallet.</p><p>Det er sortert etter atomnummer (antall protoner i kjernen). Kolonnene kalles <em>grupper</em> og radene kalles <em>perioder</em>.</p><p class="mt-3 pt-3 border-t border-stone-200"><a href="https://www.periodesystemet.no/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-emerald-700 font-semibold hover:text-emerald-900 underline underline-offset-2">Utforsk det interaktive periodesystemet på periodesystemet.no <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></p>' }
         };
 
         const categories = {
-            atom:     { label: 'Atom og partikler',   border: 'border-blue-500',  heading: 'text-blue-800' },
-            stoff:    { label: 'Stoff og materialer', border: 'border-amber-500', heading: 'text-amber-800' },
-            reaksjon: { label: 'Reaksjoner',          border: 'border-rose-500',  heading: 'text-rose-800' }
+            atom: { label: 'Atom og partikler', border: 'border-blue-500', heading: 'text-blue-800' },
+            stoff: { label: 'Stoff og materialer', border: 'border-amber-500', heading: 'text-amber-800' },
+            reaksjon: { label: 'Reaksjoner', border: 'border-rose-500', heading: 'text-rose-800' }
         };
 
         const tabOrder = ['tab-uteskole', 'tab-planlegge', 'tab-innspilling', 'tab-fagbegreper'];
@@ -583,10 +844,10 @@
 
         // ── MODAL ─────────────────────────────────────────────────────────────
 
-        const modal        = document.getElementById('infoModal');
+        const modal = document.getElementById('infoModal');
         const modalContent = document.getElementById('modalContent');
-        const modalTitle   = document.getElementById('modalTitle');
-        const modalBody    = document.getElementById('modalBody');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
 
         function openModal(termKey, triggerEl) {
             const data = termsData[termKey];
@@ -594,7 +855,7 @@
             lastFocusedTermBtn = triggerEl || document.activeElement;
 
             modalTitle.textContent = data.title;
-            modalBody.innerHTML    = data.content;
+            modalBody.innerHTML = data.content;
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -633,7 +894,7 @@
             if (e.key !== 'Tab') return;
             const focusable = Array.from(modal.querySelectorAll('button, [tabindex]:not([tabindex="-1"])')).filter(el => !el.disabled);
             const first = focusable[0];
-            const last  = focusable[focusable.length - 1];
+            const last = focusable[focusable.length - 1];
             if (e.shiftKey && document.activeElement === first) {
                 e.preventDefault(); last.focus();
             } else if (!e.shiftKey && document.activeElement === last) {
@@ -654,7 +915,7 @@
             const deadline = new Date('2026-04-30T23:59:00');
             const diff = deadline - new Date();
             const badge = document.getElementById('deadline-badge');
-            const el    = document.getElementById('countdown');
+            const el = document.getElementById('countdown');
             if (!el) return;
 
             if (diff <= 0) {
@@ -662,7 +923,7 @@
                 if (badge) badge.className = 'inline-block bg-red-600 text-white font-bold py-2 px-4 rounded-full text-sm shadow-sm';
                 return;
             }
-            const days  = Math.floor(diff / 864e5);
+            const days = Math.floor(diff / 864e5);
             const hours = Math.floor((diff % 864e5) / 36e5);
             el.textContent = days > 0
                 ? days + ' dag' + (days !== 1 ? 'er' : '') + ' og ' + hours + ' time' + (hours !== 1 ? 'r' : '') + ' igjen'
@@ -685,4 +946,5 @@
         });
     </script>
 </body>
+
 </html>
