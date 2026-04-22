@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gruppegenerator for Skolen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Egendefinert stil for scrollbar i tekstboksen for et renere uttrykk */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 font-sans p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto space-y-6">
+        <!-- Header -->
+        <header class="text-center space-y-2 mb-8">
+            <h1 class="text-4xl font-bold text-slate-900 flex items-center justify-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                Gruppemaskin
+            </h1>
+            <p class="text-slate-600">Et verktøy for å dele inn klassen i tilfeldige grupper.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Venstre kolonne: Input og Innstillinger -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Navneliste -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <label for="studentNames" class="font-semibold text-slate-700 block">Klasseliste</label>
+                        <span id="studentCount" class="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded-full">0 elever</span>
+                    </div>
+                    <textarea 
+                        id="studentNames" 
+                        rows="10" 
+                        class="w-full border border-slate-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-y"
+                        placeholder="Lim inn elevnavn her...&#10;Én elev per linje.&#10;&#10;F.eks:&#10;Kari Nordmann&#10;Ola Nordmann&#10;Jens..."
+                    ></textarea>
+                    <div class="flex gap-2 mt-3">
+                        <button onclick="clearNames()" class="text-sm text-slate-500 hover:text-red-600 transition-colors flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Tøm liste
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Innstillinger -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="font-semibold text-slate-700 mb-4 block">Innstillinger</h2>
+                    
+                    <div class="space-y-4">
+                        <!-- Valg av modus -->
+                        <div class="flex flex-col gap-3">
+                            <label class="flex items-center gap-2 cursor-pointer group">
+                                <input type="radio" name="groupMode" value="numGroups" checked class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                <span class="text-sm text-slate-700 group-hover:text-slate-900">Bestem antall grupper (jevnt fordelt)</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer group">
+                                <input type="radio" name="groupMode" value="groupSize" class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                <span class="text-sm text-slate-700 group-hover:text-slate-900">Bestem antall elever per gruppe</span>
+                            </label>
+                        </div>
+
+                        <!-- Tall-input -->
+                        <div>
+                            <label for="numberValue" class="text-sm text-slate-500 block mb-1" id="numberLabel">Hvor mange grupper vil du ha?</label>
+                            <input type="number" id="numberValue" min="1" value="4" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                        </div>
+
+                        <!-- Generer-knapp -->
+                        <button onclick="generateGroups()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg shadow transition-all transform active:scale-95 flex justify-center items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                            </svg>
+                            Generer grupper
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Høyre kolonne: Resultat -->
+            <div class="lg:col-span-2">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 min-h-[500px] flex flex-col">
+                    <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+                        <h2 class="text-xl font-bold text-slate-800">Resultat</h2>
+                        <button id="copyBtn" onclick="copyResults()" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                            Kopier resultat
+                        </button>
+                    </div>
+
+                    <!-- Tom state -->
+                    <div id="emptyState" class="flex-grow flex flex-col items-center justify-center text-slate-400 space-y-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <p>Legg til elever og klikk "Generer grupper" for å se resultatet her.</p>
+                    </div>
+
+                    <!-- Grid for grupper -->
+                    <div id="groupsContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 hidden">
+                        <!-- Grupper settes inn her via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast for meldinger (Feil/Suksess) -->
+    <div id="toast" class="fixed bottom-4 right-4 transform translate-y-20 opacity-0 transition-all duration-300 z-50 rounded-lg shadow-lg text-white px-6 py-3 font-medium flex items-center gap-2">
+        <span id="toastIcon"></span>
+        <span id="toastMessage">Melding her</span>
+    </div>
+
+    <script>
+        // --- State og initialisering ---
+        const studentInput = document.getElementById('studentNames');
+        const countDisplay = document.getElementById('studentCount');
+        const modeRadios = document.getElementsByName('groupMode');
+        const numberLabel = document.getElementById('numberLabel');
+        let currentGroupsTextForClipboard = "";
+
+        // Last inn lagrede data ved oppstart
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedNames = localStorage.getItem('schoolGroups_names');
+            if (savedNames) {
+                studentInput.value = savedNames;
+                updateStudentCount();
+            }
+        });
+
+        // Oppdater telling når brukeren skriver
+        studentInput.addEventListener('input', () => {
+            updateStudentCount();
+            // Lagre i localStorage
+            localStorage.setItem('schoolGroups_names', studentInput.value);
+        });
+
+        // Oppdater tekst på label basert på modus
+        modeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'numGroups') {
+                    numberLabel.textContent = 'Hvor mange grupper vil du ha?';
+                } else {
+                    numberLabel.textContent = 'Hvor mange elever skal det være per gruppe?';
+                }
+            });
+        });
+
+        // --- Hjelpefunksjoner ---
+
+        function updateStudentCount() {
+            const names = getValidNames();
+            countDisplay.textContent = `${names.length} ${names.length === 1 ? 'elev' : 'elever'}`;
+        }
+
+        function getValidNames() {
+            return studentInput.value
+                .split('\n')
+                .map(name => name.trim())
+                .filter(name => name !== '');
+        }
+
+        function clearNames() {
+            studentInput.value = '';
+            updateStudentCount();
+            localStorage.removeItem('schoolGroups_names');
+            studentInput.focus();
+        }
+
+        // Fisher-Yates algoritm for presis og rettferdig stokking (shuffling)
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function showMessage(message, type = 'error') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.textContent = message;
+            
+            if (type === 'error') {
+                toast.className = 'fixed bottom-4 right-4 transition-all duration-300 z-50 rounded-lg shadow-lg text-white px-6 py-3 font-medium flex items-center gap-2 bg-red-600 transform translate-y-0 opacity-100';
+                toastIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>`;
+            } else {
+                toast.className = 'fixed bottom-4 right-4 transition-all duration-300 z-50 rounded-lg shadow-lg text-white px-6 py-3 font-medium flex items-center gap-2 bg-green-600 transform translate-y-0 opacity-100';
+                toastIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>`;
+            }
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3000);
+        }
+
+        // --- Hovedlogikk for generering ---
+
+        function generateGroups() {
+            const names = getValidNames();
+            if (names.length === 0) {
+                showMessage('Vennligst legg til minst ett elevnavn i listen.', 'error');
+                return;
+            }
+
+            const numberValue = parseInt(document.getElementById('numberValue').value);
+            if (isNaN(numberValue) || numberValue < 1) {
+                showMessage('Vennligst angi et gyldig tall (1 eller høyere).', 'error');
+                return;
+            }
+
+            const mode = document.querySelector('input[name="groupMode"]:checked').value;
+            const shuffledNames = shuffleArray(names);
+            let groups = [];
+
+            if (mode === 'numGroups') {
+                // Fordel jevnt over ønsket antall grupper
+                // Sikrer at hvis vi har 21 elever og 4 grupper, blir det 6,5,5,5 og ikke en gruppe med 1
+                const actualGroupsCount = Math.min(numberValue, names.length); // Kan ikke ha flere grupper enn elever
+                for (let i = 0; i < actualGroupsCount; i++) {
+                    groups.push([]);
+                }
+                shuffledNames.forEach((name, index) => {
+                    groups[index % actualGroupsCount].push(name);
+                });
+            } else {
+                // Fordel etter antall elever per gruppe
+                for (let i = 0; i < shuffledNames.length; i += numberValue) {
+                    groups.push(shuffledNames.slice(i, i + numberValue));
+                }
+            }
+
+            renderGroups(groups);
+        }
+
+        function renderGroups(groups) {
+            const container = document.getElementById('groupsContainer');
+            const emptyState = document.getElementById('emptyState');
+            const copyBtn = document.getElementById('copyBtn');
+            
+            container.innerHTML = '';
+            currentGroupsTextForClipboard = ""; // Nullstill kopitekst
+
+            groups.forEach((group, index) => {
+                const groupNum = index + 1;
+                
+                // Bygg opp teksten for utklippstavlen
+                currentGroupsTextForClipboard += `Gruppe ${groupNum}:\n`;
+                
+                // Bygg opp HTML for visning
+                const groupCard = document.createElement('div');
+                groupCard.className = 'bg-slate-50 border border-slate-200 rounded-lg p-4 fade-in';
+                groupCard.style.animationDelay = `${index * 0.05}s`; // Staggered animasjon
+                
+                let html = `
+                    <div class="flex justify-between items-center mb-3 border-b border-slate-200 pb-2">
+                        <h3 class="font-bold text-blue-800">Gruppe ${groupNum}</h3>
+                        <span class="text-xs font-medium text-slate-500 bg-white px-2 py-1 rounded border border-slate-200">${group.length} elever</span>
+                    </div>
+                    <ul class="space-y-1">
+                `;
+
+                group.forEach(student => {
+                    html += `
+                        <li class="flex items-center gap-2 text-slate-700">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                            ${escapeHTML(student)}
+                        </li>
+                    `;
+                    currentGroupsTextForClipboard += `- ${student}\n`;
+                });
+
+                html += `</ul>`;
+                groupCard.innerHTML = html;
+                container.appendChild(groupCard);
+                
+                currentGroupsTextForClipboard += `\n`; // Ekstra linjeskift mellom gruppene
+            });
+
+            // Vis resultater og skjul tom-state
+            emptyState.classList.add('hidden');
+            container.classList.remove('hidden');
+            copyBtn.classList.remove('hidden');
+            copyBtn.classList.add('flex');
+        }
+
+        // Sikkerhetsfunksjon for å unngå XSS hvis spesielle tegn limes inn
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag] || tag)
+            );
+        }
+
+        function copyResults() {
+            if (!currentGroupsTextForClipboard) return;
+
+            // Bruker det moderne Clipboard API-et hvis tilgjengelig, ellers en fallback
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(currentGroupsTextForClipboard)
+                    .then(() => showMessage('Gruppene er kopiert!', 'success'))
+                    .catch(() => fallbackCopyTextToClipboard(currentGroupsTextForClipboard));
+            } else {
+                fallbackCopyTextToClipboard(currentGroupsTextForClipboard);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            
+            // Unngå scrolling
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showMessage('Gruppene er kopiert!', 'success');
+                } else {
+                    showMessage('Kunne ikke kopiere teksten.', 'error');
+                }
+            } catch (err) {
+                showMessage('Feil under kopiering.', 'error');
+            }
+
+            document.body.removeChild(textArea);
+        }
+    </script>
+</body>
+</html>
