@@ -1,4 +1,17 @@
+# Avhengigheiter
 node_modules/
+
+# Genererte CSS-filer (bygg-artefakt, vert laga av "npm run build")
+css/tailwind.css
+css/test-input.css
+
+# Kjeldefiler som ikkje skal publiserast på servaren
+# (tilsvarande ekskludering finst i deploy.yml for FTP-deploy)
+verktøy/*.jsx
+
+# AI-verktøy og lokale konfigurasjonsfiler
 .claude/
+
+# Sensitiv data og interne arbeidsdokument
 ALF/kantinedrift/kantineplan.gs
 naturfag/forbetringsplan_kjemioppgave.md

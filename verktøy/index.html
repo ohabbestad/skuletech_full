@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verktøy · SkuleTech</title>
+  <meta name="description" content="Praktiske digitale verktøy for lærarar. Klassekart, gruppegenerator og meir." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+
+    .tool-card {
+      transition: transform 0.22s cubic-bezier(0.4,0,0.2,1),
+                  box-shadow 0.22s cubic-bezier(0.4,0,0.2,1);
+    }
+    .tool-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.10);
+    }
+
+    /* Orb animasjon */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: 0.18;
+      animation: float 9s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50%       { transform: translateY(-22px) scale(1.04); }
+    }
+
+    /* Active nav link */
+    .nav-link { transition: color 0.18s; }
+    .nav-link:hover { color: #f8fafc; }
+    .nav-link.active { color: #818cf8; font-weight: 600; }
+
+    /* Fade-in on load */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.45s ease both; }
+    .fade-up-delay-1 { animation-delay: 0.10s; }
+    .fade-up-delay-2 { animation-delay: 0.20s; }
+    .fade-up-delay-3 { animation-delay: 0.30s; }
+
+    /* Coming soon card */
+    .card-coming { opacity: 0.45; pointer-events: none; }
+  </style>
+</head>
+<body class="bg-slate-900 min-h-screen text-slate-100">
+
+  <!-- NAVBAR -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/85 backdrop-blur-md border-b border-white/[0.07]">
+    <div class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
+      <a href="index.html" class="flex items-center gap-2 text-slate-100 no-underline font-bold text-base tracking-tight">
+        🛠️ <span>Verktøy</span>
+      </a>
+      <nav class="flex items-center gap-5 text-sm text-slate-400">
+        <a href="klassekart.html" class="nav-link">Klassekart</a>
+        <a href="gruppemaskin.html" class="nav-link">Gruppegenerator</a>
+        <a href="../index.html" class="nav-link text-slate-500 text-xs border border-slate-700 px-3 py-1 rounded-full hover:border-slate-500">← SkuleTech</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="relative pt-36 pb-16 px-6 text-center overflow-hidden">
+    <div class="orb w-96 h-96 bg-indigo-500 -top-20 -left-20" style="animation-delay:0s"></div>
+    <div class="orb w-72 h-72 bg-violet-500 bottom-0 right-0" style="animation-delay:-4s"></div>
+
+    <div class="relative z-10 max-w-xl mx-auto fade-up">
+      <div class="inline-flex items-center gap-2 bg-indigo-500/15 border border-indigo-400/30 text-indigo-300 text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full mb-6">
+        ✦ Lærarverktøy
+      </div>
+      <h1 class="text-4xl sm:text-5xl font-black tracking-tight leading-tight mb-4">
+        Verktøy for<br>
+        <span class="bg-gradient-to-r from-indigo-400 via-violet-400 to-sky-400 bg-clip-text text-transparent">klasserommet.</span>
+      </h1>
+      <p class="text-slate-400 text-base leading-relaxed">
+        Enkle, raske verktøy som hjelper deg i kvardagen. Ingen innlogging. Ingen installasjon.
+      </p>
+    </div>
+  </section>
+
+  <!-- VERKTØY-KORT -->
+  <main class="max-w-4xl mx-auto px-6 pb-24">
+    <p class="text-xs font-bold tracking-widest uppercase text-slate-500 mb-6 fade-up">Tilgjengelege verktøy</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+      <!-- KLASSEKART -->
+      <a href="klassekart.html"
+         class="tool-card fade-up fade-up-delay-1 block bg-slate-800/60 border border-indigo-500/20 rounded-2xl p-8 no-underline group hover:border-indigo-500/50 hover:bg-slate-800/90">
+        <div class="w-12 h-12 rounded-xl bg-indigo-500/15 flex items-center justify-center text-2xl mb-5">🗺️</div>
+        <div class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">Klasseromsdesign</div>
+        <h2 class="text-xl font-bold text-slate-100 mb-2">Klassekart</h2>
+        <p class="text-sm text-slate-400 leading-relaxed mb-5">
+          Bygg eit rutenett av pultar, design rommet og plasser elevar tilfeldig med eitt klikk. Eksporter og importer oppsett med CSV.
+        </p>
+        <div class="flex flex-wrap gap-2 mb-5">
+          <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">Plassering</span>
+          <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">Shuffle</span>
+          <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">PDF-eksport</span>
+          <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">CSV</span>
+        </div>
+        <span class="text-indigo-400 text-sm font-bold group-hover:gap-3 flex items-center gap-2 transition-all">
+          Opne verktøy
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+        </span>
+      </a>
+
+      <!-- GRUPPEGENERATOR -->
+      <a href="gruppemaskin.html"
+         class="tool-card fade-up fade-up-delay-2 block bg-slate-800/60 border border-emerald-500/20 rounded-2xl p-8 no-underline group hover:border-emerald-500/50 hover:bg-slate-800/90">
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/15 flex items-center justify-center text-2xl mb-5">👥</div>
+        <div class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">Gruppearbeid</div>
+        <h2 class="text-xl font-bold text-slate-100 mb-2">Gruppegenerator</h2>
+        <p class="text-sm text-slate-400 leading-relaxed mb-5">
+          Del klassen inn i tilfeldige grupper. Vel antal grupper eller storleiken på kvar gruppe, og dra-og-slipp elevar etter behov.
+        </p>
+        <div class="flex flex-wrap gap-2 mb-5">
+          <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">Tilfeldige grupper</span>
+          <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">Dra-og-slipp</span>
+          <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">Kopier resultat</span>
+        </div>
+        <span class="text-emerald-400 text-sm font-bold group-hover:gap-3 flex items-center gap-2 transition-all">
+          Opne verktøy
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+        </span>
+      </a>
+
+      <!--
+        =============================================
+        LEGG TIL NYTT VERKTØY HER: Kopier blokken
+        nedanfor og fyll inn info. Endre farge-klassen
+        (t.d. sky-500, amber-500, rose-500 osv.).
+        =============================================
+
+      <a href="NYTT_VERKTOY.html"
+         class="tool-card fade-up fade-up-delay-3 block bg-slate-800/60 border border-sky-500/20 rounded-2xl p-8 no-underline group hover:border-sky-500/50 hover:bg-slate-800/90">
+        <div class="w-12 h-12 rounded-xl bg-sky-500/15 flex items-center justify-center text-2xl mb-5">🔔</div>
+        <div class="text-xs font-bold text-sky-400 uppercase tracking-widest mb-1">Kategori</div>
+        <h2 class="text-xl font-bold text-slate-100 mb-2">Verktøynamn</h2>
+        <p class="text-sm text-slate-400 leading-relaxed mb-5">
+          Kort skildring av verktøyet.
+        </p>
+        <span class="text-sky-400 text-sm font-bold flex items-center gap-2">
+          Opne verktøy →
+        </span>
+      </a>
+      -->
+
+      <!-- KJEM SNART – placeholder -->
+      <div class="card-coming tool-card fade-up fade-up-delay-3 block bg-slate-800/40 border border-white/[0.06] rounded-2xl p-8">
+        <div class="w-12 h-12 rounded-xl bg-white/[0.05] flex items-center justify-center text-2xl mb-5">⏳</div>
+        <div class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Kjem snart</div>
+        <h2 class="text-xl font-bold text-slate-500 mb-2">Fleire verktøy</h2>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          Nye verktøy er under utvikling og vil dukke opp her etter kvart.
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-white/[0.06] py-6 px-6">
+    <div class="max-w-5xl mx-auto flex items-center justify-between flex-wrap gap-3">
+      <a href="../index.html" class="text-slate-500 text-sm hover:text-slate-300 transition-colors no-underline">← Tilbake til SkuleTech</a>
+      <span class="text-slate-600 text-xs">Opne læringsverktøy · 2025/2026</span>
+    </div>
+  </footer>
+
+  <script>
+    // Marker aktiv lenke i navbar
+    const currentFile = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.nav-link').forEach(link => {
+      if (link.getAttribute('href') === currentFile) {
+        link.classList.add('active');
+      }
+    });
+  </script>
+</body>
+</html>
