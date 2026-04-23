@@ -24,6 +24,11 @@
         .fade-in {
             animation: fadeIn 0.4s ease-in-out;
         }
+        .student-item.dragging {
+            opacity: 0.5;
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 2px #eff6ff;
+        }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -39,9 +44,9 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
-                Gruppemaskin
+                Gruppegenerator
             </h1>
-            <p class="text-slate-600">Et verktøy for å dele inn klassen i tilfeldige grupper.</p>
+            <p class="text-slate-600">Et presist og enkelt verktøy for å dele inn klassen i tilfeldige grupper.</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -146,8 +151,7 @@
         const countDisplay = document.getElementById('studentCount');
         const modeRadios = document.getElementsByName('groupMode');
         const numberLabel = document.getElementById('numberLabel');
-        let currentGroupsTextForClipboard = "";
-
+        
         // Last inn lagrede data ved oppstart
         document.addEventListener('DOMContentLoaded', () => {
             const savedNames = localStorage.getItem('schoolGroups_names');
@@ -272,42 +276,37 @@
             const copyBtn = document.getElementById('copyBtn');
             
             container.innerHTML = '';
-            currentGroupsTextForClipboard = ""; // Nullstill kopitekst
 
             groups.forEach((group, index) => {
                 const groupNum = index + 1;
                 
-                // Bygg opp teksten for utklippstavlen
-                currentGroupsTextForClipboard += `Gruppe ${groupNum}:\n`;
-                
                 // Bygg opp HTML for visning
                 const groupCard = document.createElement('div');
-                groupCard.className = 'bg-slate-50 border border-slate-200 rounded-lg p-4 fade-in';
+                groupCard.className = 'group-card bg-slate-50 border border-slate-200 rounded-lg p-4 fade-in flex flex-col';
                 groupCard.style.animationDelay = `${index * 0.05}s`; // Staggered animasjon
                 
                 let html = `
                     <div class="flex justify-between items-center mb-3 border-b border-slate-200 pb-2">
                         <h3 class="font-bold text-blue-800">Gruppe ${groupNum}</h3>
-                        <span class="text-xs font-medium text-slate-500 bg-white px-2 py-1 rounded border border-slate-200">${group.length} elever</span>
+                        <span class="student-count-badge text-xs font-medium text-slate-500 bg-white px-2 py-1 rounded border border-slate-200">${group.length} elever</span>
                     </div>
-                    <ul class="space-y-1">
+                    <ul class="group-list flex-grow space-y-2 min-h-[60px] p-1 -m-1 rounded-lg transition-all duration-200">
                 `;
 
                 group.forEach(student => {
                     html += `
-                        <li class="flex items-center gap-2 text-slate-700">
-                            <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
-                            ${escapeHTML(student)}
+                        <li draggable="true" class="student-item flex items-center gap-2 text-slate-700 bg-white p-2 rounded border border-slate-100 shadow-sm cursor-grab active:cursor-grabbing hover:bg-blue-50 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                            </svg>
+                            <span class="student-name">${escapeHTML(student)}</span>
                         </li>
                     `;
-                    currentGroupsTextForClipboard += `- ${student}\n`;
                 });
 
                 html += `</ul>`;
                 groupCard.innerHTML = html;
                 container.appendChild(groupCard);
-                
-                currentGroupsTextForClipboard += `\n`; // Ekstra linjeskift mellom gruppene
             });
 
             // Vis resultater og skjul tom-state
@@ -315,6 +314,9 @@
             container.classList.remove('hidden');
             copyBtn.classList.remove('hidden');
             copyBtn.classList.add('flex');
+
+            // Aktiver dra-og-slipp for de nye elementene
+            setupDragAndDrop();
         }
 
         // Sikkerhetsfunksjon for å unngå XSS hvis spesielle tegn limes inn
@@ -330,16 +332,86 @@
             );
         }
 
+        // --- Dra og slipp (Drag and Drop) funksjonalitet ---
+
+        function setupDragAndDrop() {
+            const draggables = document.querySelectorAll('.student-item');
+            const dropZones = document.querySelectorAll('.group-list');
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', () => {
+                    draggable.classList.add('dragging');
+                });
+
+                draggable.addEventListener('dragend', () => {
+                    draggable.classList.remove('dragging');
+                    updateGroupCounts(); // Oppdater antall når elementet er sluppet
+                });
+            });
+
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', e => {
+                    e.preventDefault(); // Må hindre standard oppførsel for å tillate "drop"
+                    zone.classList.add('bg-blue-100/50', 'border', 'border-blue-300', 'border-dashed');
+                });
+
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('bg-blue-100/50', 'border', 'border-blue-300', 'border-dashed');
+                });
+
+                zone.addEventListener('drop', e => {
+                    e.preventDefault();
+                    zone.classList.remove('bg-blue-100/50', 'border', 'border-blue-300', 'border-dashed');
+                    const draggable = document.querySelector('.dragging');
+                    if (draggable) {
+                        zone.appendChild(draggable); // Flytt eleven til ny gruppe
+                    }
+                });
+            });
+        }
+
+        function updateGroupCounts() {
+            const groupCards = document.querySelectorAll('.group-card');
+            groupCards.forEach(card => {
+                const countBadge = card.querySelector('.student-count-badge');
+                const studentCount = card.querySelectorAll('.student-item').length;
+                if (countBadge) {
+                    countBadge.textContent = `${studentCount} elever`;
+                }
+            });
+        }
+
+        // --- Kopiering av resultat ---
+
+        function getDynamicClipboardText() {
+            let text = "";
+            const groupCards = document.querySelectorAll('.group-card');
+            
+            groupCards.forEach((card, index) => {
+                const groupNum = index + 1;
+                text += `Gruppe ${groupNum}:\n`;
+                
+                const students = card.querySelectorAll('.student-name');
+                students.forEach(student => {
+                    text += `- ${student.textContent}\n`;
+                });
+                
+                text += `\n`;
+            });
+            return text;
+        }
+
         function copyResults() {
-            if (!currentGroupsTextForClipboard) return;
+            const textToCopy = getDynamicClipboardText();
+            if (!textToCopy) return;
 
             // Bruker det moderne Clipboard API-et hvis tilgjengelig, ellers en fallback
             if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(currentGroupsTextForClipboard)
+                navigator.clipboard.writeText(textToCopy)
                     .then(() => showMessage('Gruppene er kopiert!', 'success'))
-                    .catch(() => fallbackCopyTextToClipboard(currentGroupsTextForClipboard));
+                    .catch(() => fallbackCopyTextToClipboard(textToCopy));
             } else {
-                fallbackCopyTextToClipboard(currentGroupsTextForClipboard);
+                fallbackCopyTextToClipboard(textToCopy);
             }
         }
 
