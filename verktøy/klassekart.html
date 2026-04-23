@@ -16,8 +16,7 @@
   <!-- Babel Standalone (transpilerer JSX i nettlesaren) -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- Lucide React via esm.sh (UMD-bygg) -->
-  <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.js"></script>
+  <!-- Lucide React er fjerna – ikon er definert som inline SVG-komponentar nedanfor -->
 
   <!-- html2pdf for PDF-eksport -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -98,7 +97,14 @@
 
   <!-- FELLES NAVBAR FOR VERKTØY-MAPPA -->
   <nav class="verktoy-nav">
-    <a href="index.html" class="nav-brand">🛠️ Verktøy</a>
+    <a href="index.html" class="nav-brand">
+      <!-- Lucide: wrench -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+           stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+      </svg>
+      Verktøy
+    </a>
     <div class="nav-links">
       <a href="klassekart.html" class="active">Klassekart</a>
       <a href="gruppemaskin.html">Gruppegenerator</a>
@@ -116,7 +122,19 @@
     // ============================================================
 
     const { useState, useEffect, useMemo, useRef } = React;
-    const { Users, Shuffle, Download, Info, UserPlus, Grid3X3, Edit3, CheckCircle2, FileUp, FileDown } = LucideReact;
+    // SVG-ikonkomponentar (Lucide-design) – ingen ekstern avhengigheit
+    const iconProps = (size = 16) => ({ width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' });
+
+    const Users       = ({ size = 16, className = '' }) => (<svg {...iconProps(size)} className={className}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>);
+    const Shuffle     = ({ size = 16, className = '' }) => (<svg {...iconProps(size)} className={className}><path d="m18 14 4 4-4 4"/><path d="m18 2 4 4-4 4"/><path d="M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6A4 4 0 0 1 16.027 6H22"/><path d="M2 6h1.972a4 4 0 0 1 3.6 2.2"/><path d="m22 18h-6.027a4 4 0 0 1-3.6-2.2l-.74-1.165"/></svg>);
+    const Download    = ({ size = 16, className = '' }) => (<svg {...iconProps(size)} className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>);
+    const Info        = ({ size = 16, className = '' }) => (<svg {...iconProps(size)} className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>);
+    const UserPlus    = ({ size = 16, className = '' }) => (<svg {...iconProps(size)} className={className}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>);
+    const Grid3X3     = ({ size = 16, className = '' }) => (<svg {...iconProps(size)} className={className}><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>);
+    const Edit3       = ({ size = 16, className = '' }) => (<svg {...iconProps(size)} className={className}><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>);
+    const CheckCircle2= ({ size = 16, className = '' }) => (<svg {...iconProps(size)} className={className}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>);
+    const FileUp      = ({ size = 16, className = '' }) => (<svg {...iconProps(size)} className={className}><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><polyline points="14 2 14 8 20 8"/><path d="M12 12v6"/><path d="m15 15-3-3-3 3"/></svg>);
+    const FileDown    = ({ size = 16, className = '' }) => (<svg {...iconProps(size)} className={className}><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>);
 
     function App() {
       const [studentInput, setStudentInput] = useState("Ola\nKari\nPer\nPål\nEspen\nAskeladden\nNora\nEmma\nJakob\nEmil\nSofie\nLinnea\nLukas\nFilip\nHenrik\nOskar\nAmalie\nMia\nIngrid\nMathias");

@@ -21,7 +21,6 @@
       box-shadow: 0 20px 40px rgba(0,0,0,0.10);
     }
 
-    /* Orb animasjon */
     .orb {
       position: absolute;
       border-radius: 50%;
@@ -35,12 +34,10 @@
       50%       { transform: translateY(-22px) scale(1.04); }
     }
 
-    /* Active nav link */
     .nav-link { transition: color 0.18s; }
     .nav-link:hover { color: #f8fafc; }
     .nav-link.active { color: #818cf8; font-weight: 600; }
 
-    /* Fade-in on load */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(18px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -50,7 +47,6 @@
     .fade-up-delay-2 { animation-delay: 0.20s; }
     .fade-up-delay-3 { animation-delay: 0.30s; }
 
-    /* Coming soon card */
     .card-coming { opacity: 0.45; pointer-events: none; }
   </style>
 </head>
@@ -59,14 +55,22 @@
   <!-- NAVBAR -->
   <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/85 backdrop-blur-md border-b border-white/[0.07]">
     <div class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
+
       <a href="index.html" class="flex items-center gap-2 text-slate-100 no-underline font-bold text-base tracking-tight">
-        🛠️ <span>Verktøy</span>
+        <!-- Lucide: wrench -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+             stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+        <span>Verktøy</span>
       </a>
+
       <nav class="flex items-center gap-5 text-sm text-slate-400">
         <a href="klassekart.html" class="nav-link">Klassekart</a>
         <a href="gruppemaskin.html" class="nav-link">Gruppegenerator</a>
         <a href="../index.html" class="nav-link text-slate-500 text-xs border border-slate-700 px-3 py-1 rounded-full hover:border-slate-500">← SkuleTech</a>
       </nav>
+
     </div>
   </header>
 
@@ -77,7 +81,13 @@
 
     <div class="relative z-10 max-w-xl mx-auto fade-up">
       <div class="inline-flex items-center gap-2 bg-indigo-500/15 border border-indigo-400/30 text-indigo-300 text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full mb-6">
-        ✦ Lærarverktøy
+        <!-- Lucide: sparkles -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+          <path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>
+        </svg>
+        Lærarverktøy
       </div>
       <h1 class="text-4xl sm:text-5xl font-black tracking-tight leading-tight mb-4">
         Verktøy for<br>
@@ -98,7 +108,18 @@
       <!-- KLASSEKART -->
       <a href="klassekart.html"
          class="tool-card fade-up fade-up-delay-1 block bg-slate-800/60 border border-indigo-500/20 rounded-2xl p-8 no-underline group hover:border-indigo-500/50 hover:bg-slate-800/90">
-        <div class="w-12 h-12 rounded-xl bg-indigo-500/15 flex items-center justify-center text-2xl mb-5">🗺️</div>
+
+        <div class="w-12 h-12 rounded-xl bg-indigo-500/15 flex items-center justify-center mb-5 text-indigo-400">
+          <!-- Lucide: layout-dashboard (klassekart/rutenett) -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="7" height="9" x="3" y="3" rx="1"/>
+            <rect width="7" height="5" x="14" y="3" rx="1"/>
+            <rect width="7" height="9" x="14" y="12" rx="1"/>
+            <rect width="7" height="5" x="3" y="16" rx="1"/>
+          </svg>
+        </div>
+
         <div class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">Klasseromsdesign</div>
         <h2 class="text-xl font-bold text-slate-100 mb-2">Klassekart</h2>
         <p class="text-sm text-slate-400 leading-relaxed mb-5">
@@ -110,16 +131,31 @@
           <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">PDF-eksport</span>
           <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">CSV</span>
         </div>
-        <span class="text-indigo-400 text-sm font-bold group-hover:gap-3 flex items-center gap-2 transition-all">
+        <span class="text-indigo-400 text-sm font-bold flex items-center gap-2 transition-all group-hover:gap-3">
           Opne verktøy
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          <!-- Lucide: arrow-right -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+          </svg>
         </span>
       </a>
 
       <!-- GRUPPEGENERATOR -->
       <a href="gruppemaskin.html"
          class="tool-card fade-up fade-up-delay-2 block bg-slate-800/60 border border-emerald-500/20 rounded-2xl p-8 no-underline group hover:border-emerald-500/50 hover:bg-slate-800/90">
-        <div class="w-12 h-12 rounded-xl bg-emerald-500/15 flex items-center justify-center text-2xl mb-5">👥</div>
+
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/15 flex items-center justify-center mb-5 text-emerald-400">
+          <!-- Lucide: users -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+
         <div class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">Gruppearbeid</div>
         <h2 class="text-xl font-bold text-slate-100 mb-2">Gruppegenerator</h2>
         <p class="text-sm text-slate-400 leading-relaxed mb-5">
@@ -130,9 +166,13 @@
           <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">Dra-og-slipp</span>
           <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">Kopier resultat</span>
         </div>
-        <span class="text-emerald-400 text-sm font-bold group-hover:gap-3 flex items-center gap-2 transition-all">
+        <span class="text-emerald-400 text-sm font-bold flex items-center gap-2 transition-all group-hover:gap-3">
           Opne verktøy
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          <!-- Lucide: arrow-right -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+          </svg>
         </span>
       </a>
 
@@ -141,25 +181,39 @@
         LEGG TIL NYTT VERKTØY HER: Kopier blokken
         nedanfor og fyll inn info. Endre farge-klassen
         (t.d. sky-500, amber-500, rose-500 osv.).
+        Bruk SVG-ikon frå https://lucide.dev/icons/
         =============================================
 
       <a href="NYTT_VERKTOY.html"
          class="tool-card fade-up fade-up-delay-3 block bg-slate-800/60 border border-sky-500/20 rounded-2xl p-8 no-underline group hover:border-sky-500/50 hover:bg-slate-800/90">
-        <div class="w-12 h-12 rounded-xl bg-sky-500/15 flex items-center justify-center text-2xl mb-5">🔔</div>
+        <div class="w-12 h-12 rounded-xl bg-sky-500/15 flex items-center justify-center mb-5 text-sky-400">
+          (SVG-ikon frå lucide.dev her)
+        </div>
         <div class="text-xs font-bold text-sky-400 uppercase tracking-widest mb-1">Kategori</div>
         <h2 class="text-xl font-bold text-slate-100 mb-2">Verktøynamn</h2>
         <p class="text-sm text-slate-400 leading-relaxed mb-5">
           Kort skildring av verktøyet.
         </p>
         <span class="text-sky-400 text-sm font-bold flex items-center gap-2">
-          Opne verktøy →
+          Opne verktøy
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+          </svg>
         </span>
       </a>
       -->
 
-      <!-- KJEM SNART – placeholder -->
+      <!-- KJEM SNART - placeholder -->
       <div class="card-coming tool-card fade-up fade-up-delay-3 block bg-slate-800/40 border border-white/[0.06] rounded-2xl p-8">
-        <div class="w-12 h-12 rounded-xl bg-white/[0.05] flex items-center justify-center text-2xl mb-5">⏳</div>
+        <div class="w-12 h-12 rounded-xl bg-white/[0.05] flex items-center justify-center mb-5 text-slate-600">
+          <!-- Lucide: clock -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
         <div class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Kjem snart</div>
         <h2 class="text-xl font-bold text-slate-500 mb-2">Fleire verktøy</h2>
         <p class="text-sm text-slate-600 leading-relaxed">
@@ -179,7 +233,6 @@
   </footer>
 
   <script>
-    // Marker aktiv lenke i navbar
     const currentFile = location.pathname.split('/').pop() || 'index.html';
     document.querySelectorAll('.nav-link').forEach(link => {
       if (link.getAttribute('href') === currentFile) {
