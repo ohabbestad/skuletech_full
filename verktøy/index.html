@@ -5,112 +5,323 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Verktøy · SkuleTech</title>
   <meta name="description" content="Praktiske digitale verktøy for lærarar. Klassekart, gruppegenerator og meir." />
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
-    body { font-family: 'Inter', sans-serif; }
+    /* ── Design-tokens frå SkuleTech-logoen ── */
+    :root {
+      --blue:        #2255cc;
+      --blue-light:  #e8eefb;
+      --blue-mid:    #c3d3f5;
+      --green:       #5aa63c;
+      --green-light: #eaf4e5;
+      --green-mid:   #bde3ac;
+      --gray-50:     #f8f9fa;
+      --gray-100:    #f0f2f5;
+      --gray-200:    #e2e6ec;
+      --gray-500:    #6b7280;
+      --gray-700:    #374151;
+      --gray-900:    #111827;
+      --white:       #ffffff;
+      --shadow-sm:   0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md:   0 4px 16px rgba(34,85,204,0.10), 0 1px 4px rgba(0,0,0,0.06);
+      --radius:      12px;
+      --radius-lg:   20px;
+    }
 
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--white);
+      color: var(--gray-900);
+      min-height: 100vh;
+    }
+
+    /* ── NAVBAR ── */
+    .verktoy-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--white);
+      border-bottom: 1.5px solid var(--gray-200);
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .nav-brand {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--blue);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+    .nav-brand svg { flex-shrink: 0; }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-links a {
+      text-decoration: none;
+      font-size: 0.875rem;
+      color: var(--gray-500);
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 8px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-links a:hover { background: var(--blue-light); color: var(--blue); }
+    .nav-links a.active { background: var(--blue-light); color: var(--blue); font-weight: 600; }
+    .nav-back {
+      font-size: 0.8rem !important;
+      border: 1.5px solid var(--gray-200) !important;
+      color: var(--gray-500) !important;
+      padding: 5px 13px !important;
+      border-radius: 99px !important;
+    }
+    .nav-back:hover {
+      background: var(--gray-100) !important;
+      border-color: var(--gray-200) !important;
+      color: var(--gray-700) !important;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 72px 32px 52px;
+      text-align: center;
+      background: linear-gradient(180deg, var(--gray-50) 0%, var(--white) 100%);
+      border-bottom: 1.5px solid var(--gray-200);
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--blue-light);
+      color: var(--blue);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 99px;
+      margin-bottom: 24px;
+      border: 1px solid var(--blue-mid);
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: var(--gray-900);
+      margin-bottom: 16px;
+    }
+    .hero h1 span {
+      color: var(--blue);
+    }
+    .hero p {
+      color: var(--gray-500);
+      font-size: 1.05rem;
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── TOOLS GRID ── */
+    .tools-section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 56px 32px 80px;
+    }
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      margin-bottom: 24px;
+    }
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    /* ── TOOL CARD ── */
     .tool-card {
-      transition: transform 0.22s cubic-bezier(0.4,0,0.2,1),
-                  box-shadow 0.22s cubic-bezier(0.4,0,0.2,1);
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      background: var(--white);
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
     .tool-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.10);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
     }
+    .tool-card.blue:hover { border-color: var(--blue-mid); }
+    .tool-card.green:hover { border-color: var(--green-mid); }
 
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(70px);
-      opacity: 0.18;
-      animation: float 9s ease-in-out infinite;
-      pointer-events: none;
+    .tool-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
     }
-    @keyframes float {
-      0%, 100% { transform: translateY(0) scale(1); }
-      50%       { transform: translateY(-22px) scale(1.04); }
+    .tool-icon.blue { background: var(--blue-light); color: var(--blue); }
+    .tool-icon.green { background: var(--green-light); color: var(--green); }
+
+    .tool-category {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
     }
+    .tool-category.blue { color: var(--blue); }
+    .tool-category.green { color: var(--green); }
 
-    .nav-link { transition: color 0.18s; }
-    .nav-link:hover { color: #f8fafc; }
-    .nav-link.active { color: #818cf8; font-weight: 600; }
+    .tool-card h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 10px;
+      letter-spacing: -0.01em;
+    }
+    .tool-card p {
+      font-size: 0.9rem;
+      color: var(--gray-500);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .tool-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 20px;
+    }
+    .tag {
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 4px 11px;
+      border-radius: 99px;
+    }
+    .tag.blue { background: var(--blue-light); color: var(--blue); }
+    .tag.green { background: var(--green-light); color: var(--green); }
 
+    .tool-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+    .tool-link.blue { color: var(--blue); }
+    .tool-link.green { color: var(--green); }
+    .tool-link svg { transition: transform 0.2s; }
+    .tool-card:hover .tool-link svg { transform: translateX(4px); }
+
+    /* ── COMING SOON ── */
+    .card-coming {
+      background: var(--gray-50);
+      border: 1.5px dashed var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      opacity: 0.6;
+    }
+    .card-coming .tool-icon { background: var(--gray-100); color: var(--gray-500); }
+    .card-coming h2 { font-size: 1.2rem; font-weight: 700; color: var(--gray-500); margin-bottom: 10px; }
+    .card-coming p { font-size: 0.9rem; color: var(--gray-500); line-height: 1.6; }
+    .card-coming .tool-category { color: var(--gray-500); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1.5px solid var(--gray-200);
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    footer a {
+      font-size: 0.875rem;
+      color: var(--gray-500);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    footer a:hover { color: var(--blue); }
+    footer span { font-size: 0.8rem; color: var(--gray-500); }
+
+    /* ── ANIMATIONS ── */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(18px); }
+      from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .fade-up { animation: fadeUp 0.45s ease both; }
-    .fade-up-delay-1 { animation-delay: 0.10s; }
-    .fade-up-delay-2 { animation-delay: 0.20s; }
-    .fade-up-delay-3 { animation-delay: 0.30s; }
-
-    .card-coming { opacity: 0.45; pointer-events: none; }
+    .fade-up   { animation: fadeUp 0.4s ease both; }
+    .delay-1   { animation-delay: 0.08s; }
+    .delay-2   { animation-delay: 0.16s; }
+    .delay-3   { animation-delay: 0.24s; }
   </style>
 </head>
-<body class="bg-slate-900 min-h-screen text-slate-100">
+<body>
 
   <!-- NAVBAR -->
-  <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/85 backdrop-blur-md border-b border-white/[0.07]">
-    <div class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
-
-      <a href="index.html" class="flex items-center gap-2 text-slate-100 no-underline font-bold text-base tracking-tight">
-        <!-- Lucide: wrench -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-             stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-        </svg>
-        <span>Verktøy</span>
-      </a>
-
-      <nav class="flex items-center gap-5 text-sm text-slate-400">
-        <a href="klassekart.html" class="nav-link">Klassekart</a>
-        <a href="gruppemaskin.html" class="nav-link">Gruppegenerator</a>
-        <a href="../index.html" class="nav-link text-slate-500 text-xs border border-slate-700 px-3 py-1 rounded-full hover:border-slate-500">← SkuleTech</a>
-      </nav>
-
+  <nav class="verktoy-nav">
+    <a href="index.html" class="nav-brand">
+      <!-- Lucide: wrench -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+      </svg>
+      Verktøy
+    </a>
+    <div class="nav-links">
+      <a href="klassekart.html">Klassekart</a>
+      <a href="gruppemaskin.html">Gruppegenerator</a>
     </div>
-  </header>
+  </nav>
 
   <!-- HERO -->
-  <section class="relative pt-36 pb-16 px-6 text-center overflow-hidden">
-    <div class="orb w-96 h-96 bg-indigo-500 -top-20 -left-20" style="animation-delay:0s"></div>
-    <div class="orb w-72 h-72 bg-violet-500 bottom-0 right-0" style="animation-delay:-4s"></div>
-
-    <div class="relative z-10 max-w-xl mx-auto fade-up">
-      <div class="inline-flex items-center gap-2 bg-indigo-500/15 border border-indigo-400/30 text-indigo-300 text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full mb-6">
-        <!-- Lucide: sparkles -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-          <path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>
-        </svg>
-        Lærarverktøy
-      </div>
-      <h1 class="text-4xl sm:text-5xl font-black tracking-tight leading-tight mb-4">
-        Verktøy for<br>
-        <span class="bg-gradient-to-r from-indigo-400 via-violet-400 to-sky-400 bg-clip-text text-transparent">klasserommet.</span>
-      </h1>
-      <p class="text-slate-400 text-base leading-relaxed">
-        Enkle, raske verktøy som hjelper deg i kvardagen. Ingen innlogging. Ingen installasjon.
-      </p>
+  <section class="hero fade-up">
+    <div class="hero-badge">
+      <!-- Lucide: sparkles -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+        <path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>
+      </svg>
+      Lærarverktøy
     </div>
+    <h1>Verktøy for <span>klasserommet</span></h1>
+    <p>Enkle, raske verktøy som hjelper deg i kvardagen. Ingen innlogging. Ingen installasjon.</p>
   </section>
 
-  <!-- VERKTØY-KORT -->
-  <main class="max-w-4xl mx-auto px-6 pb-24">
-    <p class="text-xs font-bold tracking-widest uppercase text-slate-500 mb-6 fade-up">Tilgjengelege verktøy</p>
+  <!-- TOOLS GRID -->
+  <main class="tools-section">
+    <p class="section-label">Tilgjengelege verktøy</p>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <div class="tools-grid">
 
       <!-- KLASSEKART -->
-      <a href="klassekart.html"
-         class="tool-card fade-up fade-up-delay-1 block bg-slate-800/60 border border-indigo-500/20 rounded-2xl p-8 no-underline group hover:border-indigo-500/50 hover:bg-slate-800/90">
-
-        <div class="w-12 h-12 rounded-xl bg-indigo-500/15 flex items-center justify-center mb-5 text-indigo-400">
-          <!-- Lucide: layout-dashboard (klassekart/rutenett) -->
+      <a href="klassekart.html" class="tool-card blue fade-up delay-1">
+        <div class="tool-icon blue">
+          <!-- Lucide: layout-dashboard -->
           <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect width="7" height="9" x="3" y="3" rx="1"/>
@@ -119,21 +330,17 @@
             <rect width="7" height="5" x="3" y="16" rx="1"/>
           </svg>
         </div>
-
-        <div class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">Klasseromsdesign</div>
-        <h2 class="text-xl font-bold text-slate-100 mb-2">Klassekart</h2>
-        <p class="text-sm text-slate-400 leading-relaxed mb-5">
-          Bygg eit rutenett av pultar, design rommet og plasser elevar tilfeldig med eitt klikk. Eksporter og importer oppsett med CSV.
-        </p>
-        <div class="flex flex-wrap gap-2 mb-5">
-          <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">Plassering</span>
-          <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">Shuffle</span>
-          <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">PDF-eksport</span>
-          <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">CSV</span>
+        <div class="tool-category blue">Klasseromsdesign</div>
+        <h2>Klassekart</h2>
+        <p>Bygg eit rutenett av pultar, design rommet og plasser elevar tilfeldig med eitt klikk. Eksporter og importer oppsett med CSV.</p>
+        <div class="tool-tags">
+          <span class="tag blue">Plassering</span>
+          <span class="tag blue">Shuffle</span>
+          <span class="tag blue">PDF-eksport</span>
+          <span class="tag blue">CSV</span>
         </div>
-        <span class="text-indigo-400 text-sm font-bold flex items-center gap-2 transition-all group-hover:gap-3">
+        <span class="tool-link blue">
           Opne verktøy
-          <!-- Lucide: arrow-right -->
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
@@ -142,10 +349,8 @@
       </a>
 
       <!-- GRUPPEGENERATOR -->
-      <a href="gruppemaskin.html"
-         class="tool-card fade-up fade-up-delay-2 block bg-slate-800/60 border border-emerald-500/20 rounded-2xl p-8 no-underline group hover:border-emerald-500/50 hover:bg-slate-800/90">
-
-        <div class="w-12 h-12 rounded-xl bg-emerald-500/15 flex items-center justify-center mb-5 text-emerald-400">
+      <a href="gruppemaskin.html" class="tool-card green fade-up delay-2">
+        <div class="tool-icon green">
           <!-- Lucide: users -->
           <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -155,46 +360,15 @@
             <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
         </div>
-
-        <div class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">Gruppearbeid</div>
-        <h2 class="text-xl font-bold text-slate-100 mb-2">Gruppegenerator</h2>
-        <p class="text-sm text-slate-400 leading-relaxed mb-5">
-          Del klassen inn i tilfeldige grupper. Vel antal grupper eller storleiken på kvar gruppe, og dra-og-slipp elevar etter behov.
-        </p>
-        <div class="flex flex-wrap gap-2 mb-5">
-          <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">Tilfeldige grupper</span>
-          <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">Dra-og-slipp</span>
-          <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">Kopier resultat</span>
+        <div class="tool-category green">Gruppearbeid</div>
+        <h2>Gruppegenerator</h2>
+        <p>Del klassen inn i tilfeldige grupper. Vel antal grupper eller storleiken på kvar gruppe, og dra-og-slipp elevar etter behov.</p>
+        <div class="tool-tags">
+          <span class="tag green">Tilfeldige grupper</span>
+          <span class="tag green">Dra-og-slipp</span>
+          <span class="tag green">Kopier resultat</span>
         </div>
-        <span class="text-emerald-400 text-sm font-bold flex items-center gap-2 transition-all group-hover:gap-3">
-          Opne verktøy
-          <!-- Lucide: arrow-right -->
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
-          </svg>
-        </span>
-      </a>
-
-      <!--
-        =============================================
-        LEGG TIL NYTT VERKTØY HER: Kopier blokken
-        nedanfor og fyll inn info. Endre farge-klassen
-        (t.d. sky-500, amber-500, rose-500 osv.).
-        Bruk SVG-ikon frå https://lucide.dev/icons/
-        =============================================
-
-      <a href="NYTT_VERKTOY.html"
-         class="tool-card fade-up fade-up-delay-3 block bg-slate-800/60 border border-sky-500/20 rounded-2xl p-8 no-underline group hover:border-sky-500/50 hover:bg-slate-800/90">
-        <div class="w-12 h-12 rounded-xl bg-sky-500/15 flex items-center justify-center mb-5 text-sky-400">
-          (SVG-ikon frå lucide.dev her)
-        </div>
-        <div class="text-xs font-bold text-sky-400 uppercase tracking-widest mb-1">Kategori</div>
-        <h2 class="text-xl font-bold text-slate-100 mb-2">Verktøynamn</h2>
-        <p class="text-sm text-slate-400 leading-relaxed mb-5">
-          Kort skildring av verktøyet.
-        </p>
-        <span class="text-sky-400 text-sm font-bold flex items-center gap-2">
+        <span class="tool-link green">
           Opne verktøy
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -202,11 +376,10 @@
           </svg>
         </span>
       </a>
-      -->
 
-      <!-- KJEM SNART - placeholder -->
-      <div class="card-coming tool-card fade-up fade-up-delay-3 block bg-slate-800/40 border border-white/[0.06] rounded-2xl p-8">
-        <div class="w-12 h-12 rounded-xl bg-white/[0.05] flex items-center justify-center mb-5 text-slate-600">
+      <!-- KJEM SNART -->
+      <div class="card-coming fade-up delay-3">
+        <div class="tool-icon">
           <!-- Lucide: clock -->
           <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -214,27 +387,23 @@
             <polyline points="12 6 12 12 16 14"/>
           </svg>
         </div>
-        <div class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Kjem snart</div>
-        <h2 class="text-xl font-bold text-slate-500 mb-2">Fleire verktøy</h2>
-        <p class="text-sm text-slate-600 leading-relaxed">
-          Nye verktøy er under utvikling og vil dukke opp her etter kvart.
-        </p>
+        <div class="tool-category">Kjem snart</div>
+        <h2>Fleire verktøy</h2>
+        <p>Nye verktøy er under utvikling og vil dukke opp her etter kvart.</p>
       </div>
 
     </div>
   </main>
 
   <!-- FOOTER -->
-  <footer class="border-t border-white/[0.06] py-6 px-6">
-    <div class="max-w-5xl mx-auto flex items-center justify-between flex-wrap gap-3">
-      <a href="../index.html" class="text-slate-500 text-sm hover:text-slate-300 transition-colors no-underline">← Tilbake til SkuleTech</a>
-      <span class="text-slate-600 text-xs">Opne læringsverktøy · 2025/2026</span>
-    </div>
+  <footer>
+    <a href="../index.html">← Tilbake til SkuleTech</a>
+    <span>Opne læringsverktøy · 2025/2026</span>
   </footer>
 
   <script>
     const currentFile = location.pathname.split('/').pop() || 'index.html';
-    document.querySelectorAll('.nav-link').forEach(link => {
+    document.querySelectorAll('.nav-links a').forEach(link => {
       if (link.getAttribute('href') === currentFile) {
         link.classList.add('active');
       }
