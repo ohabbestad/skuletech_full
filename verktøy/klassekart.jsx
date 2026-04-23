@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Users, Shuffle, Download, Info, UserPlus, Grid3X3, Edit3, CheckCircle2 } from 'lucide-react';
+import { Users, Shuffle, Download, Info, UserPlus, Grid3X3, Edit3, CheckCircle2, FileUp, FileDown } from 'lucide-react';
 
 export default function App() {
   const [studentInput, setStudentInput] = useState("Ola\nKari\nPer\nPål\nEspen\nAskeladden\nNora\nEmma\nJakob\nEmil\nSofie\nLinnea\nLukas\nFilip\nHenrik\nOskar\nAmalie\nMia\nIngrid\nMathias");
@@ -12,6 +12,7 @@ export default function App() {
   const [isDesignMode, setIsDesignMode] = useState(false);
   
   const printRef = useRef(null); 
+  const fileInputRef = useRef(null); // Referanse for opplasting av CSV
   
   const [assignments, setAssignments] = useState({}); 
   const [selectedEntity, setSelectedEntity] = useState(null); 
@@ -184,9 +185,108 @@ export default function App() {
     });
   };
 
+  // --- NYTT: CSV Eksport ---
+  const handleExportCSV = () => {
+    // Vi bygger opp en strukturert CSV for å kunne gjenopprette oppsettet nøyaktig.
+    // Vi legger til en UTF-8 BOM (\uFEFF) slik at Excel leser norske tegn (æ, ø, å) riktig.
+    let csvContent = "\uFEFFType,Verdi1,Verdi2,Verdi3\n";
+    
+    // Lagre grid-størrelse
+    csvContent += `Grid,${gridRows},${gridCols},\n`;
+
+    // Lagre alle aktive pulter og hvem som sitter der
+    activeDesks.forEach(deskId => {
+      const [r, c] = deskId.split('-');
+      // Fjerner eventuelle kommaer i navn for å ikke ødelegge CSV-strukturen
+      const student = (assignments[deskId] || "").replace(/,/g, ''); 
+      csvContent += `Desk,${r},${c},${student}\n`;
+    });
+
+    // Lagre hele elevlisten
+    students.forEach(student => {
+      const safeName = student.replace(/,/g, '');
+      csvContent += `Student,${safeName},,\n`;
+    });
+
+    // Trig nedlasting
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "klassekart_data.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // --- NYTT: CSV Import ---
+  const handleImportCSV = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target.result;
+      const lines = text.split('\n');
+
+      let newRows = 5;
+      let newCols = 6;
+      const newDesks = new Set();
+      const newAssignments = {};
+      const newStudents = [];
+
+      lines.forEach(line => {
+        // Fjerner BOM og whitespace
+        const cleanLine = line.replace(/^\uFEFF/, '').trim();
+        if (!cleanLine) return;
+
+        const parts = cleanLine.split(',');
+        const type = parts[0];
+
+        if (type === 'Grid' && parts.length >= 3) {
+          newRows = parseInt(parts[1], 10) || 5;
+          newCols = parseInt(parts[2], 10) || 6;
+        } else if (type === 'Desk' && parts.length >= 3) {
+          const r = parts[1];
+          const c = parts[2];
+          const student = parts[3] || "";
+          const deskId = `${r}-${c}`;
+          newDesks.add(deskId);
+          if (student) {
+            newAssignments[deskId] = student;
+          }
+        } else if (type === 'Student' && parts.length >= 2) {
+          const studentName = parts[1].trim();
+          if (studentName) newStudents.push(studentName);
+        }
+      });
+
+      // Oppdater state med importert data
+      setGridRows(newRows);
+      setGridCols(newCols);
+      setActiveDesks(newDesks);
+      setAssignments(newAssignments);
+      setStudents(newStudents);
+      setStudentInput(newStudents.join('\n'));
+    };
+    
+    reader.readAsText(file);
+    // Nullstill input slik at samme fil kan velges på nytt om ønskelig
+    event.target.value = null; 
+  };
+
   return (
     <div className="flex h-screen bg-gray-100 font-sans text-gray-800">
       
+      {/* Skjult fil-input for CSV opplasting */}
+      <input 
+        type="file" 
+        accept=".csv" 
+        ref={fileInputRef} 
+        style={{ display: 'none' }} 
+        onChange={handleImportCSV} 
+      />
+
       {/* SIDEBAR */}
       <div className="w-80 bg-white border-r shadow-lg flex flex-col no-print z-10 relative shrink-0">
         <div className="p-6 bg-blue-600 text-white flex items-center justify-between">
@@ -287,8 +387,29 @@ export default function App() {
               className="w-full bg-white disabled:bg-gray-100 disabled:text-gray-400 border border-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-50 transition font-medium flex items-center justify-center gap-2 text-sm"
             >
               <Download size={16} />
-              Lagre som pdf
+              Lagre visning (PDF)
             </button>
+
+            <div className="flex gap-2 w-full pt-2">
+               <button
+                onClick={handleExportCSV}
+                disabled={isDesignMode}
+                title="Lagre oppsett og elever som fil"
+                className="flex-1 bg-white disabled:bg-gray-100 disabled:text-gray-400 border border-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-50 transition font-medium flex items-center justify-center gap-2 text-xs"
+              >
+                <FileDown size={14} />
+                Eksportér CSV
+              </button>
+              <button
+                onClick={() => fileInputRef.current.click()}
+                disabled={isDesignMode}
+                title="Hent oppsett og elever fra fil"
+                className="flex-1 bg-white disabled:bg-gray-100 disabled:text-gray-400 border border-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-50 transition font-medium flex items-center justify-center gap-2 text-xs"
+              >
+                <FileUp size={14} />
+                Importér CSV
+              </button>
+            </div>
           </div>
 
           {/* Uplasserte elever */}
@@ -330,7 +451,6 @@ export default function App() {
       </div>
 
       {/* KLASSEROM (HOVEDVISNING) */}
-      {/* Endret fra 'flex items-center justify-center' til en løsning som tillater scrolling av store elementer */}
       <div className="flex-1 p-4 md:p-8 overflow-auto flex bg-gray-200">
         <div 
           ref={printRef} 
