@@ -277,7 +277,7 @@
                 if (isClosed) {
                     menyHtml = `
                 <div class="mt-auto pt-4 rounded-xl bg-slate-100 border border-slate-300 p-4">
-                    <p class="text-slate-500 text-sm italic">${this.esc(day.merknad || 'Fri dag')}</p>
+                    <p class="text-slate-500 text-sm italic">${this.esc(day.merknad || 'Stengt')}</p>
                 </div>`;
                 } else if (meny) {
                     menyHtml = `
@@ -341,7 +341,7 @@
                 if (isClosed) {
                     menyBlock = `
                       <div class="mt-6 rounded-2xl bg-white/10 border border-white/20 p-5 text-center">
-                        <p class="text-indigo-100 text-lg italic">${this.esc(mainDay.merknad || 'Fri dag')}</p>
+                        <p class="text-indigo-100 text-lg italic">${this.esc(mainDay.merknad || 'Stengt')}</p>
                       </div>`;
                 } else if (meny) {
                     menyBlock = `

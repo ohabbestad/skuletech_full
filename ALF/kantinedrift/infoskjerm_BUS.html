@@ -629,7 +629,7 @@
             // Meny
             var menuInner;
             if (isClosed) {
-                menuInner = '<p class="menu-empty">' + esc(day.merknad || 'Fri dag') + '</p>';
+                menuInner = '<p class="menu-empty">' + esc(day.merknad || 'Stengt') + '</p>';
             } else if (meny) {
                 menuInner = '<p class="menu-label">Dagens meny</p>' +
                     '<p class="menu-text">' + esc(meny) + '</p>';
