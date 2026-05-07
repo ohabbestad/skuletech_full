@@ -115,14 +115,14 @@
                 <!-- Denne veka -->
                 <section id="section-this-week" class="hidden">
                     <h2 class="text-slate-600 text-sm font-extrabold uppercase tracking-wider mb-4 pl-3 border-l-4 border-indigo-500">Denne veka</h2>
-                    <div id="grid-this-week" class="grid gap-4 items-end"
+                    <div id="grid-this-week" class="grid gap-4 items-stretch"
                         style="grid-template-columns:var(--this-week-cols, repeat(5,1fr))"></div>
                 </section>
 
                 <!-- Neste veke -->
                 <section id="section-next-week" class="hidden">
                     <h2 class="text-slate-600 text-sm font-extrabold uppercase tracking-wider mb-4 pl-3 border-l-4 border-indigo-500">Neste veke</h2>
-                    <div id="grid-next-week" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                    <div id="grid-next-week" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-stretch">
                     </div>
                 </section>
             </div>
@@ -240,21 +240,21 @@
                     cardBg = 'bg-indigo-600';
                     border = 'border-indigo-700';
                     todayClass = 'today-card';
-                    sizeClass = 'z-10 shadow-2xl shadow-indigo-300/60';
+                    sizeClass = 'z-10 shadow-2xl shadow-indigo-300/60 mt-0';
                     padding = 'pt-10 sm:pt-12 pb-6 px-5 sm:px-6';
                     opacity = '';
                 } else if (isToday && isClosed) {
                     cardBg = 'bg-slate-300';
                     border = 'border-slate-400';
                     todayClass = '';
-                    sizeClass = 'shadow-md';
+                    sizeClass = 'shadow-md mt-0';
                     padding = 'pt-10 sm:pt-12 pb-6 px-5 sm:px-6';
                     opacity = '';
                 } else if (isClosed) {
-                    cardBg = 'bg-slate-200'; border = 'border-slate-300'; todayClass = ''; sizeClass = '';
+                    cardBg = 'bg-slate-200'; border = 'border-slate-300'; todayClass = ''; sizeClass = 'mt-6 sm:mt-8';
                     padding = 'p-5 sm:p-6'; opacity = 'opacity-50';
                 } else {
-                    cardBg = 'bg-white'; border = 'border-slate-400'; todayClass = ''; sizeClass = 'shadow-md';
+                    cardBg = 'bg-white'; border = 'border-slate-400'; todayClass = ''; sizeClass = 'shadow-md mt-6 sm:mt-8';
                     padding = 'p-5 sm:p-6'; opacity = '';
                 }
 
