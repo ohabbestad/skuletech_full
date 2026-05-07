@@ -113,7 +113,7 @@
 </div><!-- /dashboard -->
 
 <script>
-const API_URL  = 'https://script.google.com/macros/s/AKfycbwVI5VvoU9NvGylw0wD7AeTJO5t9nHxQBcHHFT3JdOgzLfNLEf1XGV7P3jOOZ1S3BetnA/exec';
+const API_URL  = 'api/index.php';
 const APP_ROLE = 'driftsleiar';
 
 const app = {
@@ -153,7 +153,7 @@ const app = {
                 btn.disabled = false;
                 return;
             }
-            this.state.password = pwd;
+            this.state.password = null;
             this._applyResponse(json);
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('dashboard').classList.remove('hidden');

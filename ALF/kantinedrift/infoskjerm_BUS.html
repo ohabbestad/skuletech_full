@@ -452,7 +452,7 @@
     <!-- ── Header ────────────────────────────────────── -->
     <div id="page-header">
         <div id="header-left">
-            <img id="logo" src="media/BUS_Logo.JPG" alt="BUS-logo">
+            <img id="logo" src="../kantinedrift/media/BUS_Logo.JPG" alt="BUS-logo">
             <div id="title-block">
                 <h1>Kantina</h1>
                 <p>Vekeplan</p>
@@ -464,12 +464,12 @@
                 style="filter:drop-shadow(0 2px 8px rgba(0,0,0,0.12))">
                 <circle cx="50" cy="50" r="47" fill="white" stroke="#e2e8f0" stroke-width="2" />
                 <g id="clock-ticks"></g>
-                <line id="clock-hour" x1="50" y1="50" x2="50" y2="28"
-                    stroke="#1e293b" stroke-width="5" stroke-linecap="round" />
-                <line id="clock-minute" x1="50" y1="52" x2="50" y2="16"
-                    stroke="#475569" stroke-width="3" stroke-linecap="round" />
-                <line id="clock-second" x1="50" y1="60" x2="50" y2="12"
-                    stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" />
+                <line id="clock-hour" x1="50" y1="50" x2="50" y2="28" stroke="#1e293b" stroke-width="5"
+                    stroke-linecap="round" />
+                <line id="clock-minute" x1="50" y1="52" x2="50" y2="16" stroke="#475569" stroke-width="3"
+                    stroke-linecap="round" />
+                <line id="clock-second" x1="50" y1="60" x2="50" y2="12" stroke="#6366f1" stroke-width="1.5"
+                    stroke-linecap="round" />
                 <circle cx="50" cy="50" r="4" fill="#1e293b" />
                 <circle cx="50" cy="50" r="2" fill="white" />
                 <circle cx="50" cy="50" r="1.5" fill="#6366f1" />
@@ -499,7 +499,7 @@
     </div>
 
     <script>
-        var API_URL = 'https://script.google.com/macros/s/AKfycbwVI5VvoU9NvGylw0wD7AeTJO5t9nHxQBcHHFT3JdOgzLfNLEf1XGV7P3jOOZ1S3BetnA/exec';
+        var API_URL = 'api/index.php';
 
         var state = {
             kalender: [],
@@ -716,62 +716,39 @@
             setTimeout(fetchData, delay);
         }
 
-        // JSONP — omgår CORS heilt ved å laste data som <script>-tag.
-        // Fungerer i alle nettlesarar, inkl. gamle TV-nettlesarar.
-        var _jsonpCounter = 0;
-        function loadViaJsonp(onSuccess, onError) {
-            var cbName = '_kantineCb' + (++_jsonpCounter) + '_' + Date.now();
-            var timer;
-
-            // Callback som serveren kallar med data
-            window[cbName] = function (json) {
-                clearTimeout(timer);
-                cleanup();
-                onSuccess(json);
-            };
-
-            timer = setTimeout(function () {
-                cleanup();
-                onError();
-            }, 20000);
-
-            var script = document.createElement('script');
-            script.id = 'jsonp-' + cbName;
-            script.src = API_URL + '?role=infoskjerm&action=load&callback=' + cbName;
-
-            script.onerror = function () {
-                clearTimeout(timer);
-                cleanup();
-                onError();
-            };
-
-            function cleanup() {
-                try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
-                var el = document.getElementById('jsonp-' + cbName);
-                if (el && el.parentNode) el.parentNode.removeChild(el);
-            }
-
-            document.body.appendChild(script);
-        }
-
         function fetchData() {
-            loadViaJsonp(
-                function (json) {
-                    if (!json.error) {
-                        state.kalender = json.kalender || [];
-                        state.menus    = json.menus    || {};
-                        state.bemanning = json.bemanning || {};
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', API_URL, true);
+            xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var json = JSON.parse(xhr.responseText);
+                            if (!json.error) {
+                                state.kalender = json.kalender || [];
+                                state.menus = json.menus || {};
+                                state.bemanning = json.bemanning || {};
+                            }
+                            render();
+                            setSyncOk();
+                        } catch (e) {
+                            render();
+                            setSyncErr();
+                        }
+                    } else {
+                        render();
+                        setSyncErr();
                     }
-                    render();
-                    setSyncOk();
-                    scheduleNextPoll();
-                },
-                function () {
-                    render();
-                    setSyncErr();
                     scheduleNextPoll();
                 }
-            );
+            };
+            xhr.onerror = function () {
+                render();
+                setSyncErr();
+                scheduleNextPoll();
+            };
+            xhr.send(JSON.stringify({ role: 'infoskjerm', action: 'load' }));
         }
 
         function showUI() {
@@ -808,10 +785,10 @@
                 var m = now.getMinutes();
                 var s = now.getSeconds();
                 var ms = now.getMilliseconds();
-                var hourDeg   = h * 30 + m * 0.5 + s * (0.5 / 60);
+                var hourDeg = h * 30 + m * 0.5 + s * (0.5 / 60);
                 var minuteDeg = m * 6 + s * 0.1;
                 var secondDeg = s * 6 + ms * 0.006;
-                document.getElementById('clock-hour').setAttribute('transform',   'rotate(' + hourDeg   + ', 50, 50)');
+                document.getElementById('clock-hour').setAttribute('transform', 'rotate(' + hourDeg + ', 50, 50)');
                 document.getElementById('clock-minute').setAttribute('transform', 'rotate(' + minuteDeg + ', 50, 50)');
                 document.getElementById('clock-second').setAttribute('transform', 'rotate(' + secondDeg + ', 50, 50)');
                 document.getElementById('clock-digital').textContent =
@@ -826,25 +803,10 @@
 
         window.onload = function () {
             startClock();
-            loadViaJsonp(
-                function (json) {
-                    if (!json.error) {
-                        state.kalender  = json.kalender  || [];
-                        state.menus     = json.menus     || {};
-                        state.bemanning = json.bemanning || {};
-                    }
-                    showUI();
-                    render();
-                    setSyncOk();
-                    scheduleNextPoll();
-                },
-                function () {
-                    showUI();
-                    render();
-                    setSyncErr();
-                    scheduleNextPoll();
-                }
-            );
+            // Vis UI med ein gong (kan ev. vise ladeskjerm inntil data kjem om fetchData vert tilpassa, 
+            // men sidan dette køyrer kontinuerleg er det OK å vise UI først)
+            showUI();
+            fetchData();
         };
     </script>
 </body>
