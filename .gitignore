@@ -15,3 +15,6 @@ verktøy/*.jsx
 # Sensitiv data og interne arbeidsdokument
 ALF/kantinedrift/kantineplan.gs
 naturfag/forbetringsplan_kjemioppgave.md
+
+# Lokale server-/databasepassord
+config.local.php

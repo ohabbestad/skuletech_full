@@ -42,4 +42,5 @@ jobs:
           package-lock.json
           tailwind.config.js
           css/input.css
+          **/config.local.php
           **/*.jsx
