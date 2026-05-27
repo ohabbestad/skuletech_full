@@ -160,8 +160,8 @@ const app = {
     scheduleNextPoll() {
         const now = new Date();
         const totalMins = now.getHours() * 60 + now.getMinutes();
-        // Aktiv tid: frå 10:55 til 11:45
-        const isActiveTime = (totalMins >= 655 && totalMins <= 705);
+        // Aktiv tid: frå 10:55 til 12:20
+        const isActiveTime = (totalMins >= 655 && totalMins <= 740);
         const delay = isActiveTime ? 10000 : 300000; // 10 sek per oppdatering i aktiv tid, 5 min elles
         
         setTimeout(() => {
@@ -351,10 +351,10 @@ const app = {
         const now = new Date();
         const totalMins = now.getHours() * 60 + now.getMinutes();
 
-        // Tidlegvakt: 11:00 - 11:30 (660 til 690 minutt)
-        const isEarlyTime = isToday && (totalMins >= 660 && totalMins <= 690);
-        // Seinvakt: 11:25 - 11:40 (685 til 700 minutt)
-        const isLateTime = isToday && (totalMins >= 685 && totalMins <= 700);
+        // Tidlegvakt: 11:00 - 12:15 (660 til 735 minutt)
+        const isEarlyTime = isToday && (totalMins >= 660 && totalMins <= 735);
+        // Seinvakt: 11:25 - 12:15 (685 til 735 minutt)
+        const isLateTime = isToday && (totalMins >= 685 && totalMins <= 735);
 
         const renderTasks = (type, list) => list.map((task, i) => {
             const done = this.state.tasks[dateId]?.[`${type}_${i}`] || false;
@@ -367,7 +367,7 @@ const app = {
                           <span class="${done ? 'line-through text-slate-400' : 'text-slate-700'}">${this.esc(task)}</span>
                         </label>`;
             } else {
-                let reason = !isToday ? "Kan berre redigerast på dagen det gjeld" : (type === 'early' ? "Kan berre redigerast mellom 11:00 og 11:30" : "Kan berre redigerast mellom 11:25 og 11:40");
+                let reason = !isToday ? "Kan berre redigerast på dagen det gjeld" : (type === 'early' ? "Kan berre redigerast mellom 11:00 og 12:15" : "Kan berre redigerast mellom 11:25 og 12:15");
                 return `<label class="flex items-start space-x-3 p-2 rounded cursor-default opacity-80" title="${reason}">
                           <input type="checkbox" disabled ${done ? 'checked' : ''}
                                  class="mt-1 w-5 h-5 text-indigo-600 border-slate-300 rounded bg-slate-100 cursor-not-allowed">
@@ -394,7 +394,7 @@ const app = {
             <div class="flex items-center mb-4">
               <span class="text-2xl mr-3">☀️</span>
               <div><h3 class="text-xl font-bold text-slate-800">Tidlegvakt</h3>
-                   <p class="text-sm font-medium text-indigo-600">11:00 – 11:30</p></div>
+                   <p class="text-sm font-medium text-indigo-600">11:00 – 12:15</p></div>
             </div>
             <div class="space-y-2">${renderStudents(tidleg)}</div>
             ${renderVikarDisplay('tidleg')}
@@ -404,7 +404,7 @@ const app = {
             <div class="flex items-center mb-4">
               <span class="text-2xl mr-3">🌙</span>
               <div><h3 class="text-xl font-bold text-slate-800">Seinvakt</h3>
-                   <p class="text-sm font-medium text-indigo-600">11:25 – 11:40</p></div>
+                   <p class="text-sm font-medium text-indigo-600">11:25 – 12:15</p></div>
             </div>
             <div class="space-y-2">${renderStudents(seint)}</div>
             ${renderVikarDisplay('seint')}
