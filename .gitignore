@@ -10,6 +10,7 @@ css/test-input.css
 verktøy/*.jsx
 
 # AI-verktøy og lokale konfigurasjonsfiler
+AGENTS.md
 .claude/
 .codex/
 **/codex-temp-*

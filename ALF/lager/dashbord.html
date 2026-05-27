@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tørrvarelager - Dashbord</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-stone-100 text-slate-900 antialiased">
+
+<div id="login-screen" class="flex min-h-screen items-center justify-center px-4">
+  <main class="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+    <p class="text-xs font-semibold uppercase tracking-wide text-sky-700">SkuleTech</p>
+    <h1 class="mt-1 text-3xl font-black tracking-tight text-slate-950">Tørrvarelager</h1>
+    <p class="mt-2 text-sm text-slate-600">Logg inn for å sjå lagerstatus, vareteljing og rapportar.</p>
+
+    <div class="mt-6 space-y-4">
+      <label class="block">
+        <span class="text-sm font-semibold text-slate-700">Rolle</span>
+        <select id="role-input" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100">
+          <option value="driftsleiar">Driftsleiar</option>
+          <option value="laerar">Lærar/admin</option>
+        </select>
+      </label>
+      <label class="block">
+        <span class="text-sm font-semibold text-slate-700">Passord</span>
+        <input id="password-input" type="password" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" onkeydown="if(event.key==='Enter') app.login()">
+      </label>
+      <p id="login-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800"></p>
+      <button id="login-btn" onclick="app.login()" class="w-full rounded-lg bg-sky-700 px-4 py-3 font-bold text-white transition hover:bg-sky-800">Logg inn</button>
+    </div>
+  </main>
+</div>
+
+<div id="dashboard" class="hidden min-h-screen">
+  <header class="border-b border-slate-200 bg-white">
+    <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wide text-sky-700">SkuleTech</p>
+          <h1 class="text-2xl font-black tracking-tight text-slate-950">Tørrvarelager</h1>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span id="role-badge" class="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700"></span>
+          <button onclick="app.refresh()" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm">Oppdater</button>
+          <button onclick="app.logout()" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm">Logg ut</button>
+        </div>
+      </div>
+
+      <nav class="flex gap-1 overflow-x-auto rounded-lg bg-slate-100 p-1">
+        <button id="tab-inventory" onclick="app.switchTab('inventory')" class="tab-btn whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">Lager</button>
+        <button id="tab-count" onclick="app.switchTab('count')" class="tab-btn whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">Vareteljing</button>
+        <button id="tab-report" onclick="app.switchTab('report')" class="tab-btn whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">Rapport</button>
+        <button id="tab-admin" onclick="app.switchTab('admin')" class="tab-btn whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">Varer og avdelingar</button>
+        <a href="etikettar.html" class="ml-auto whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">QR-etikettar</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <p id="app-message" class="mb-4 hidden rounded-lg px-4 py-3 text-sm font-semibold"></p>
+
+    <section id="view-inventory" class="view space-y-5">
+      <div id="inventory-stats" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"></div>
+
+      <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div class="flex flex-col gap-3 border-b border-slate-200 p-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h2 class="text-xl font-black text-slate-950">Alle varer</h2>
+            <p class="text-sm text-slate-600">Søk, sjå lagerstatus og opne QR-sida til ei vare.</p>
+          </div>
+          <div class="flex flex-col gap-2 sm:flex-row">
+            <input id="inventory-search" oninput="app.renderInventory()" class="rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" placeholder="Søk etter vare">
+            <select id="inventory-category" onchange="app.renderInventory()" class="rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100"></select>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[780px] text-left text-sm">
+            <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <tr>
+                <th class="px-4 py-3">Vare</th>
+                <th class="px-4 py-3">Kategori</th>
+                <th class="px-4 py-3 text-right">På lager</th>
+                <th class="px-4 py-3 text-right">Min</th>
+                <th class="px-4 py-3">Hylle</th>
+                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3 text-right">Lenkje</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-table" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <h2 class="text-xl font-black text-slate-950">Siste registreringar</h2>
+        <div id="recent-movements" class="mt-3 divide-y divide-slate-100"></div>
+      </div>
+    </section>
+
+    <section id="view-count" class="view hidden space-y-5">
+      <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h2 class="text-xl font-black text-slate-950">Vareteljing</h2>
+            <p class="text-sm text-slate-600">Skriv inn faktisk tal for varene som er talde. Tomme felt blir hoppa over.</p>
+          </div>
+          <div class="flex flex-col gap-2 sm:flex-row">
+            <button onclick="app.fillCountWithCurrent()" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm">Fyll med dagens tal</button>
+            <button id="save-count-btn" onclick="app.saveCount()" class="rounded-lg bg-sky-700 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-sky-800">Lagre teljing</button>
+          </div>
+        </div>
+        <label class="mt-4 block">
+          <span class="text-sm font-semibold text-slate-700">Merknad</span>
+          <input id="count-note" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" placeholder="Valfritt">
+        </label>
+      </div>
+
+      <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[760px] text-left text-sm">
+            <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <tr>
+                <th class="px-4 py-3">Vare</th>
+                <th class="px-4 py-3">Kategori</th>
+                <th class="px-4 py-3 text-right">Systemet viser</th>
+                <th class="px-4 py-3">Faktisk talt</th>
+                <th class="px-4 py-3">Eining</th>
+              </tr>
+            </thead>
+            <tbody id="count-table" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <h2 class="text-xl font-black text-slate-950">Siste vareteljingar</h2>
+        <div id="recent-counts" class="mt-3 divide-y divide-slate-100"></div>
+      </div>
+    </section>
+
+    <section id="view-report" class="view hidden space-y-5">
+      <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <h2 class="text-xl font-black text-slate-950">Rapport for uttak</h2>
+        <div class="mt-4 grid gap-3 md:grid-cols-4">
+          <label class="block">
+            <span class="text-sm font-semibold text-slate-700">Frå</span>
+            <input id="report-from" type="date" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100">
+          </label>
+          <label class="block">
+            <span class="text-sm font-semibold text-slate-700">Til</span>
+            <input id="report-to" type="date" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100">
+          </label>
+          <label class="block">
+            <span class="text-sm font-semibold text-slate-700">Avdeling</span>
+            <select id="report-department" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100"></select>
+          </label>
+          <div class="flex items-end gap-2">
+            <button onclick="app.loadReport()" class="flex-1 rounded-lg bg-sky-700 px-4 py-2 font-bold text-white shadow-sm hover:bg-sky-800">Hent rapport</button>
+            <button onclick="app.downloadCsv()" class="rounded-lg border border-slate-300 bg-white px-4 py-2 font-bold text-slate-700 shadow-sm">CSV</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="report-summary" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"></div>
+
+      <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[780px] text-left text-sm">
+            <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <tr>
+                <th class="px-4 py-3">Avdeling</th>
+                <th class="px-4 py-3">Kategori</th>
+                <th class="px-4 py-3">Vare</th>
+                <th class="px-4 py-3 text-right">Mengd</th>
+                <th class="px-4 py-3">Eining</th>
+                <th class="px-4 py-3 text-right">Registreringar</th>
+              </tr>
+            </thead>
+            <tbody id="report-table" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-admin" class="view hidden space-y-5">
+      <div id="admin-content"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+const API_URL = 'api/index.php';
+
+const app = {
+  state: {
+    role: null,
+    currentTab: 'inventory',
+    items: [],
+    categories: [],
+    departments: [],
+    recentMovements: [],
+    recentCounts: [],
+    report: null
+  },
+
+  init() {
+    document.getElementById('password-input').focus();
+    this.setDefaultReportDates();
+  },
+
+  async login() {
+    const role = document.getElementById('role-input').value;
+    const password = document.getElementById('password-input').value.trim();
+    if (!password) return;
+    const btn = document.getElementById('login-btn');
+    const err = document.getElementById('login-error');
+    btn.disabled = true;
+    btn.textContent = 'Loggar inn...';
+    err.classList.add('hidden');
+    try {
+      const json = await this.post({ action: 'admin_load', role, password });
+      if (json.error) {
+        err.textContent = json.error;
+        err.classList.remove('hidden');
+        return;
+      }
+      this.applyResponse(json);
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      this.render();
+    } catch {
+      err.textContent = 'Kunne ikkje nå serveren.';
+      err.classList.remove('hidden');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Logg inn';
+    }
+  },
+
+  async logout() {
+    await this.post({ action: 'logout' }).catch(() => null);
+    location.reload();
+  },
+
+  async refresh() {
+    const json = await this.post({ action: 'admin_load', role: this.state.role });
+    if (json.error) {
+      this.showMessage(json.error, false);
+      return;
+    }
+    this.applyResponse(json);
+    this.render();
+    this.showMessage('Oppdatert.', true);
+  },
+
+  async post(payload) {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    return res.json();
+  },
+
+  applyResponse(json) {
+    this.state.role = json.userRole || this.state.role;
+    this.state.items = json.items || [];
+    this.state.categories = json.categories || [];
+    this.state.departments = json.departments || [];
+    this.state.recentMovements = json.recentMovements || [];
+    this.state.recentCounts = json.recentCounts || [];
+  },
+
+  render() {
+    document.getElementById('role-badge').textContent = this.state.role === 'laerar' ? 'Lærar/admin' : 'Driftsleiar';
+    document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
+    document.getElementById(`view-${this.state.currentTab}`).classList.remove('hidden');
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.className = 'tab-btn whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600');
+    const activeBtn = document.getElementById(`tab-${this.state.currentTab}`);
+    if (activeBtn) activeBtn.className = 'tab-btn whitespace-nowrap rounded-md bg-white px-4 py-2 text-sm font-bold text-slate-950 shadow-sm';
+
+    this.renderFilters();
+    if (this.state.currentTab === 'inventory') this.renderInventory();
+    if (this.state.currentTab === 'count') this.renderCount();
+    if (this.state.currentTab === 'report') this.renderReportView();
+    if (this.state.currentTab === 'admin') this.renderAdmin();
+  },
+
+  switchTab(tab) {
+    this.state.currentTab = tab;
+    this.render();
+  },
+
+  renderFilters() {
+    const category = document.getElementById('inventory-category');
+    if (category && !category.dataset.ready) {
+      category.innerHTML = '<option value="">Alle kategoriar</option>' + this.state.categories
+        .map(c => `<option value="${c.id}">${this.esc(c.name)}</option>`)
+        .join('');
+      category.dataset.ready = '1';
+    }
+
+    const reportDep = document.getElementById('report-department');
+    reportDep.innerHTML = '<option value="0">Alle avdelingar</option>' + this.state.departments
+      .filter(d => d.active)
+      .map(d => `<option value="${d.id}">${this.esc(d.name)}</option>`)
+      .join('');
+  },
+
+  renderInventory() {
+    const activeItems = this.state.items.filter(i => i.active);
+    const lowItems = activeItems.filter(i => i.isLow);
+    const emptyItems = activeItems.filter(i => Number(i.stockQuantity) <= 0);
+    const totalMovements = this.state.recentMovements.length;
+    document.getElementById('inventory-stats').innerHTML = [
+      this.statCard('Aktive varer', activeItems.length, 'Varer i lagerlista'),
+      this.statCard('På min-nivå', lowItems.length, 'Treng vurdering'),
+      this.statCard('Tomt eller negativt', emptyItems.length, 'Må sjekkast'),
+      this.statCard('Siste logg', totalMovements, 'Nyaste registreringar')
+    ].join('');
+
+    const term = (document.getElementById('inventory-search')?.value || '').toLowerCase();
+    const categoryId = Number(document.getElementById('inventory-category')?.value || 0);
+    const rows = this.state.items.filter(item => {
+      if (categoryId && item.categoryId !== categoryId) return false;
+      if (!term) return true;
+      return `${item.name} ${item.category} ${item.shelfLabel}`.toLowerCase().includes(term);
+    });
+
+    document.getElementById('inventory-table').innerHTML = rows.map(item => `
+      <tr class="${item.active ? 'bg-white' : 'bg-slate-50 text-slate-400'}">
+        <td class="px-4 py-3 font-bold text-slate-950">${this.esc(item.name)}</td>
+        <td class="px-4 py-3">${this.esc(item.category)}</td>
+        <td class="px-4 py-3 text-right font-bold">${this.formatQty(item.stockQuantity)} ${this.esc(item.unit)}</td>
+        <td class="px-4 py-3 text-right">${this.formatQty(item.minQuantity)}</td>
+        <td class="px-4 py-3">${this.esc(item.shelfLabel) || '-'}</td>
+        <td class="px-4 py-3">${this.statusBadge(item)}</td>
+        <td class="px-4 py-3 text-right">
+          <a href="${this.itemUrl(item)}" class="font-bold text-sky-700 hover:text-sky-900">Opne</a>
+        </td>
+      </tr>
+    `).join('') || '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-500">Ingen varer passar søket.</td></tr>';
+
+    this.renderRecentMovements();
+  },
+
+  renderRecentMovements() {
+    document.getElementById('recent-movements').innerHTML = this.state.recentMovements.map(m => `
+      <div class="grid gap-2 py-3 text-sm sm:grid-cols-[1fr_auto]">
+        <div>
+          <p class="font-bold text-slate-900">${this.esc(m.itemName)} <span class="font-medium text-slate-500">${this.movementLabel(m.movementType)}</span></p>
+          <p class="text-slate-600">${this.esc(m.department || 'Ingen avdeling')} ${m.note ? `- ${this.esc(m.note)}` : ''}</p>
+        </div>
+        <div class="text-left sm:text-right">
+          <p class="font-bold">${this.formatQty(m.quantity)} ${this.esc(m.unit)}</p>
+          <p class="text-xs text-slate-500">${this.formatDateTime(m.createdAt)}</p>
+        </div>
+      </div>
+    `).join('') || '<p class="py-6 text-sm text-slate-500">Ingen registreringar enno.</p>';
+  },
+
+  renderCount() {
+    const activeItems = this.state.items.filter(i => i.active);
+    document.getElementById('count-table').innerHTML = activeItems.map(item => `
+      <tr>
+        <td class="px-4 py-3 font-bold text-slate-950">${this.esc(item.name)}</td>
+        <td class="px-4 py-3">${this.esc(item.category)}</td>
+        <td class="px-4 py-3 text-right">${this.formatQty(item.stockQuantity)}</td>
+        <td class="px-4 py-3">
+          <input id="count-${item.id}" inputmode="decimal" class="w-32 rounded-lg border border-slate-300 px-3 py-2 text-right outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" placeholder="${this.formatQty(item.stockQuantity)}">
+        </td>
+        <td class="px-4 py-3">${this.esc(item.unit)}</td>
+      </tr>
+    `).join('');
+
+    document.getElementById('recent-counts').innerHTML = this.state.recentCounts.map(c => `
+      <div class="flex flex-col justify-between gap-1 py-3 text-sm sm:flex-row sm:items-center">
+        <div>
+          <p class="font-bold text-slate-900">${this.formatDateTime(c.countDate)}</p>
+          <p class="text-slate-600">${this.esc(c.note) || 'Ingen merknad'}</p>
+        </div>
+        <p class="font-semibold text-slate-600">${c.lineCount} varer</p>
+      </div>
+    `).join('') || '<p class="py-6 text-sm text-slate-500">Ingen vareteljingar enno.</p>';
+  },
+
+  fillCountWithCurrent() {
+    this.state.items.filter(i => i.active).forEach(item => {
+      const input = document.getElementById(`count-${item.id}`);
+      if (input) input.value = this.inputQty(item.stockQuantity);
+    });
+  },
+
+  async saveCount() {
+    const lines = this.state.items.filter(i => i.active).map(item => {
+      const input = document.getElementById(`count-${item.id}`);
+      return { itemId: item.id, countedQuantity: input ? input.value.trim() : '' };
+    }).filter(line => line.countedQuantity !== '');
+
+    if (!lines.length) {
+      this.showMessage('Skriv inn minst éi talt mengd.', false);
+      return;
+    }
+
+    const btn = document.getElementById('save-count-btn');
+    btn.disabled = true;
+    btn.textContent = 'Lagrar...';
+    try {
+      const json = await this.post({ action: 'save_count', lines, note: document.getElementById('count-note').value.trim() });
+      if (json.error) {
+        this.showMessage(json.error, false);
+        return;
+      }
+      this.applyResponse(json);
+      document.getElementById('count-note').value = '';
+      this.render();
+      this.showMessage(json.message || 'Vareteljinga er lagra.', true);
+    } catch {
+      this.showMessage('Kunne ikkje lagre teljinga.', false);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Lagre teljing';
+    }
+  },
+
+  renderReportView() {
+    this.renderReportTable();
+  },
+
+  async loadReport() {
+    const payload = {
+      action: 'report',
+      from: document.getElementById('report-from').value,
+      to: document.getElementById('report-to').value,
+      departmentId: Number(document.getElementById('report-department').value || 0)
+    };
+    const json = await this.post(payload);
+    if (json.error) {
+      this.showMessage(json.error, false);
+      return;
+    }
+    this.state.report = json;
+    this.renderReportTable();
+  },
+
+  renderReportTable() {
+    const report = this.state.report;
+    const summary = report?.summary || [];
+    const rows = report?.rows || [];
+
+    document.getElementById('report-summary').innerHTML = summary.map(s =>
+      this.statCard(s.department, s.movementCount, 'uttak i perioden')
+    ).join('') || this.statCard('Ingen rapport', 0, 'Vel periode og hent rapport');
+
+    document.getElementById('report-table').innerHTML = rows.map(row => `
+      <tr>
+        <td class="px-4 py-3 font-bold text-slate-950">${this.esc(row.department)}</td>
+        <td class="px-4 py-3">${this.esc(row.category)}</td>
+        <td class="px-4 py-3">${this.esc(row.item)}</td>
+        <td class="px-4 py-3 text-right font-bold">${this.formatQty(row.quantity)}</td>
+        <td class="px-4 py-3">${this.esc(row.unit)}</td>
+        <td class="px-4 py-3 text-right">${row.movementCount}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">Ingen rapportdata er henta.</td></tr>';
+  },
+
+  downloadCsv() {
+    const rows = this.state.report?.rows || [];
+    if (!rows.length) {
+      this.showMessage('Hent ein rapport før du eksporterer.', false);
+      return;
+    }
+    const header = ['Avdeling', 'Kategori', 'Vare', 'Mengd', 'Eining', 'Registreringar'];
+    const csvRows = [header, ...rows.map(r => [r.department, r.category, r.item, String(r.quantity).replace('.', ','), r.unit, r.movementCount])];
+    const csv = csvRows.map(row => row.map(value => `"${String(value).replaceAll('"', '""')}"`).join(';')).join('\r\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `lager-rapport-${document.getElementById('report-from').value}-${document.getElementById('report-to').value}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  renderAdmin() {
+    const root = document.getElementById('admin-content');
+    if (this.state.role !== 'laerar') {
+      root.innerHTML = `
+        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 class="text-xl font-black text-slate-950">Varer og avdelingar</h2>
+          <p class="mt-2 text-slate-600">Berre lærar/admin kan redigere varelista og avdelingane.</p>
+        </div>`;
+      return;
+    }
+
+    root.innerHTML = `
+      <div class="space-y-5">
+        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <h2 class="text-xl font-black text-slate-950">Ny vare</h2>
+          <div class="mt-4 grid gap-3 md:grid-cols-6">
+            <input id="new-name" class="md:col-span-2 rounded-lg border border-slate-300 px-3 py-2" placeholder="Varenamn">
+            <select id="new-category" class="rounded-lg border border-slate-300 px-3 py-2">${this.categoryOptions('')}</select>
+            <input id="new-unit" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Eining" value="stk">
+            <input id="new-min" inputmode="decimal" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Min">
+            <input id="new-shelf" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Hylle">
+          </div>
+          <button onclick="app.createItem()" class="mt-3 rounded-lg bg-sky-700 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-sky-800">Opprett vare</button>
+        </div>
+
+        <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div class="border-b border-slate-200 p-4">
+            <h2 class="text-xl font-black text-slate-950">Rediger varer</h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full min-w-[1080px] text-left text-sm">
+              <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th class="px-4 py-3">Vare</th>
+                  <th class="px-4 py-3">Kategori</th>
+                  <th class="px-4 py-3">Eining</th>
+                  <th class="px-4 py-3">Min</th>
+                  <th class="px-4 py-3">Hylle</th>
+                  <th class="px-4 py-3">QR-kode</th>
+                  <th class="px-4 py-3">Aktiv</th>
+                  <th class="px-4 py-3 text-right">Lagre</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">${this.state.items.map(item => this.itemAdminRow(item)).join('')}</tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <h2 class="text-xl font-black text-slate-950">Avdelingar</h2>
+          <div class="mt-4 grid gap-3 md:grid-cols-[1fr_120px_120px_auto]">
+            <input id="new-department-name" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Ny avdeling">
+            <input id="new-department-sort" type="number" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Sortering" value="100">
+            <label class="flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2"><input id="new-department-active" type="checkbox" checked> Aktiv</label>
+            <button onclick="app.saveDepartment(0)" class="rounded-lg bg-sky-700 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-sky-800">Legg til</button>
+          </div>
+          <div class="mt-4 divide-y divide-slate-100">${this.state.departments.map(dep => this.departmentRow(dep)).join('')}</div>
+        </div>
+      </div>`;
+  },
+
+  itemAdminRow(item) {
+    return `
+      <tr>
+        <td class="px-4 py-3"><input id="item-name-${item.id}" value="${this.esc(item.name)}" class="w-full rounded-lg border border-slate-300 px-3 py-2"></td>
+        <td class="px-4 py-3"><select id="item-category-${item.id}" class="w-full rounded-lg border border-slate-300 px-3 py-2">${this.categoryOptions(item.categoryId)}</select></td>
+        <td class="px-4 py-3"><input id="item-unit-${item.id}" value="${this.esc(item.unit)}" class="w-24 rounded-lg border border-slate-300 px-3 py-2"></td>
+        <td class="px-4 py-3"><input id="item-min-${item.id}" inputmode="decimal" value="${this.inputQty(item.minQuantity)}" class="w-24 rounded-lg border border-slate-300 px-3 py-2 text-right"></td>
+        <td class="px-4 py-3"><input id="item-shelf-${item.id}" value="${this.esc(item.shelfLabel)}" class="w-28 rounded-lg border border-slate-300 px-3 py-2"></td>
+        <td class="px-4 py-3"><input id="item-token-${item.id}" value="${this.esc(item.qrToken)}" class="w-44 rounded-lg border border-slate-300 px-3 py-2"></td>
+        <td class="px-4 py-3"><input id="item-active-${item.id}" type="checkbox" ${item.active ? 'checked' : ''}></td>
+        <td class="px-4 py-3 text-right"><button onclick="app.saveItem(${item.id})" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm">Lagre</button></td>
+      </tr>`;
+  },
+
+  departmentRow(dep) {
+    return `
+      <div class="grid gap-3 py-3 md:grid-cols-[1fr_120px_120px_auto]">
+        <input id="dep-name-${dep.id}" value="${this.esc(dep.name)}" class="rounded-lg border border-slate-300 px-3 py-2">
+        <input id="dep-sort-${dep.id}" type="number" value="${dep.sortOrder}" class="rounded-lg border border-slate-300 px-3 py-2">
+        <label class="flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2"><input id="dep-active-${dep.id}" type="checkbox" ${dep.active ? 'checked' : ''}> Aktiv</label>
+        <button onclick="app.saveDepartment(${dep.id})" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm">Lagre</button>
+      </div>`;
+  },
+
+  async createItem() {
+    const json = await this.post({
+      action: 'create_item',
+      name: document.getElementById('new-name').value.trim(),
+      categoryId: Number(document.getElementById('new-category').value),
+      unit: document.getElementById('new-unit').value.trim(),
+      minQuantity: document.getElementById('new-min').value.trim() || '0',
+      shelfLabel: document.getElementById('new-shelf').value.trim(),
+      active: true
+    });
+    this.handleSaveResponse(json);
+  },
+
+  async saveItem(itemId) {
+    const json = await this.post({
+      action: 'save_item',
+      itemId,
+      name: document.getElementById(`item-name-${itemId}`).value.trim(),
+      categoryId: Number(document.getElementById(`item-category-${itemId}`).value),
+      unit: document.getElementById(`item-unit-${itemId}`).value.trim(),
+      minQuantity: document.getElementById(`item-min-${itemId}`).value.trim() || '0',
+      shelfLabel: document.getElementById(`item-shelf-${itemId}`).value.trim(),
+      qrToken: document.getElementById(`item-token-${itemId}`).value.trim(),
+      active: document.getElementById(`item-active-${itemId}`).checked
+    });
+    this.handleSaveResponse(json);
+  },
+
+  async saveDepartment(id) {
+    const json = await this.post({
+      action: 'save_department',
+      departmentId: id,
+      name: document.getElementById(id ? `dep-name-${id}` : 'new-department-name').value.trim(),
+      sortOrder: Number(document.getElementById(id ? `dep-sort-${id}` : 'new-department-sort').value || 100),
+      active: document.getElementById(id ? `dep-active-${id}` : 'new-department-active').checked
+    });
+    this.handleSaveResponse(json);
+  },
+
+  handleSaveResponse(json) {
+    if (json.error) {
+      this.showMessage(json.error, false);
+      return;
+    }
+    this.applyResponse(json);
+    this.render();
+    this.showMessage(json.message || 'Lagra.', true);
+  },
+
+  categoryOptions(selected) {
+    return this.state.categories
+      .filter(c => c.active)
+      .map(c => `<option value="${c.id}" ${Number(selected) === c.id ? 'selected' : ''}>${this.esc(c.name)}</option>`)
+      .join('');
+  },
+
+  statCard(label, value, hint) {
+    return `
+      <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <p class="text-sm font-semibold text-slate-500">${this.esc(label)}</p>
+        <p class="mt-1 text-3xl font-black text-slate-950">${this.esc(value)}</p>
+        <p class="mt-1 text-sm text-slate-600">${this.esc(hint)}</p>
+      </div>`;
+  },
+
+  statusBadge(item) {
+    if (!item.active) return '<span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">Inaktiv</span>';
+    if (item.isLow) return '<span class="rounded-full bg-amber-100 px-2 py-1 text-xs font-bold text-amber-900">Lågt</span>';
+    return '<span class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-800">OK</span>';
+  },
+
+  movementLabel(type) {
+    if (type === 'in') return 'lagt inn';
+    if (type === 'out') return 'henta ut';
+    return 'justert ved teljing';
+  },
+
+  itemUrl(item) {
+    const url = new URL('vare.html', location.href);
+    url.searchParams.set('vare', item.qrToken);
+    return url.href;
+  },
+
+  setDefaultReportDates() {
+    const today = this.today();
+    document.getElementById('report-to').value = today;
+    document.getElementById('report-from').value = today.slice(0, 8) + '01';
+  },
+
+  today() {
+    const d = new Date();
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 10);
+  },
+
+  formatQty(value) {
+    return Number(value || 0).toLocaleString('nb-NO', { maximumFractionDigits: 2 });
+  },
+
+  inputQty(value) {
+    return String(Number(value || 0)).replace('.', ',');
+  },
+
+  formatDateTime(value) {
+    if (!value) return '';
+    const date = new Date(String(value).replace(' ', 'T'));
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleString('nb-NO', { dateStyle: 'short', timeStyle: 'short' });
+  },
+
+  showMessage(message, ok) {
+    const el = document.getElementById('app-message');
+    el.textContent = message;
+    el.className = `mb-4 rounded-lg px-4 py-3 text-sm font-semibold ${ok ? 'border border-emerald-200 bg-emerald-50 text-emerald-800' : 'border border-red-200 bg-red-50 text-red-800'}`;
+    clearTimeout(this._messageTimer);
+    this._messageTimer = setTimeout(() => el.classList.add('hidden'), 5000);
+  },
+
+  esc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => app.init());
+</script>
+</body>
+</html>

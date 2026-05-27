@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tørrvarelager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-stone-100 text-slate-900 antialiased">
+  <main class="mx-auto flex min-h-screen w-full max-w-xl flex-col px-4 py-5 sm:py-8">
+    <section class="mb-4 flex items-center justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">SkuleTech</p>
+        <h1 class="text-2xl font-bold text-slate-950">Tørrvarelager</h1>
+      </div>
+      <a href="dashbord.html" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm">Dashbord</a>
+    </section>
+
+    <section id="loading-card" class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+      <p class="font-medium text-slate-700">Hentar vare...</p>
+    </section>
+
+    <section id="error-card" class="hidden rounded-lg border border-red-200 bg-red-50 p-6 text-red-800 shadow-sm">
+      <h2 class="mb-2 text-lg font-bold">Fann ikkje vara</h2>
+      <p id="error-text">Sjekk at QR-koden er riktig.</p>
+    </section>
+
+    <section id="item-card" class="hidden space-y-4">
+      <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <p id="item-category" class="text-sm font-semibold text-sky-700"></p>
+            <h2 id="item-name" class="mt-1 text-3xl font-black tracking-tight text-slate-950"></h2>
+            <p id="item-shelf" class="mt-1 text-sm text-slate-500"></p>
+          </div>
+          <div class="min-w-24 rounded-lg bg-slate-100 px-3 py-2 text-right">
+            <p class="text-xs font-semibold uppercase text-slate-500">På lager</p>
+            <p id="item-stock" class="text-2xl font-black text-slate-950"></p>
+          </div>
+        </div>
+
+        <div id="low-warning" class="hidden rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">
+          Denne vara er på eller under min-nivå.
+        </div>
+      </div>
+
+      <form id="movement-form" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm" onsubmit="app.submit(event)">
+        <fieldset class="mb-5">
+          <legend class="mb-2 text-sm font-bold text-slate-700">Handling</legend>
+          <div class="grid grid-cols-2 gap-2 rounded-lg bg-slate-100 p-1">
+            <label class="cursor-pointer">
+              <input class="peer sr-only" type="radio" name="movementType" value="out" checked onchange="app.updateMode()">
+              <span class="block rounded-md px-3 py-3 text-center text-sm font-bold text-slate-600 peer-checked:bg-white peer-checked:text-slate-950 peer-checked:shadow-sm">Hent ut</span>
+            </label>
+            <label class="cursor-pointer">
+              <input class="peer sr-only" type="radio" name="movementType" value="in" onchange="app.updateMode()">
+              <span class="block rounded-md px-3 py-3 text-center text-sm font-bold text-slate-600 peer-checked:bg-white peer-checked:text-slate-950 peer-checked:shadow-sm">Legg inn</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="grid gap-4">
+          <label class="block">
+            <span class="text-sm font-semibold text-slate-700">Mengd</span>
+            <input id="quantity" inputmode="decimal" autocomplete="off" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-4 text-2xl font-bold outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" placeholder="0" required>
+          </label>
+
+          <label class="block">
+            <span id="department-label" class="text-sm font-semibold text-slate-700">Avdeling som hentar ut</span>
+            <select id="department" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 text-base outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100"></select>
+          </label>
+
+          <label class="block">
+            <span class="text-sm font-semibold text-slate-700">Merknad</span>
+            <textarea id="note" rows="2" class="mt-1 w-full resize-none rounded-lg border border-slate-300 bg-white p-3 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" placeholder="Valfritt"></textarea>
+          </label>
+        </div>
+
+        <p id="form-message" class="mt-4 hidden rounded-lg px-4 py-3 text-sm font-semibold"></p>
+        <button id="submit-btn" class="mt-4 w-full rounded-lg bg-sky-700 px-4 py-4 text-base font-bold text-white shadow-sm transition hover:bg-sky-800">Registrer</button>
+      </form>
+    </section>
+  </main>
+
+<script>
+const API_URL = 'api/index.php';
+
+const app = {
+  token: new URLSearchParams(location.search).get('vare') || new URLSearchParams(location.search).get('token') || '',
+  item: null,
+  departments: [],
+
+  async init() {
+    if (!this.token) {
+      this.showError('QR-lenka manglar varekode.');
+      return;
+    }
+    try {
+      const json = await this.post({ action: 'public_item', token: this.token });
+      if (json.error) {
+        this.showError(json.error);
+        return;
+      }
+      this.item = json.item;
+      this.departments = json.departments || [];
+      this.render();
+    } catch {
+      this.showError('Kunne ikkje nå serveren.');
+    }
+  },
+
+  async post(payload) {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    return res.json();
+  },
+
+  render() {
+    document.getElementById('loading-card').classList.add('hidden');
+    document.getElementById('error-card').classList.add('hidden');
+    document.getElementById('item-card').classList.remove('hidden');
+
+    document.title = `${this.item.name} - Tørrvarelager`;
+    document.getElementById('item-category').textContent = this.item.category;
+    document.getElementById('item-name').textContent = this.item.name;
+    document.getElementById('item-shelf').textContent = this.item.shelfLabel ? `Hylle: ${this.item.shelfLabel}` : 'Ingen hylle er lagt inn.';
+    document.getElementById('item-stock').textContent = `${this.formatQty(this.item.stockQuantity)} ${this.item.unit}`;
+    document.getElementById('low-warning').classList.toggle('hidden', !this.item.isLow);
+
+    const dep = document.getElementById('department');
+    dep.innerHTML = '<option value="">Vel avdeling</option>' + this.departments
+      .map(d => `<option value="${d.id}">${this.esc(d.name)}</option>`)
+      .join('');
+    this.updateMode();
+  },
+
+  updateMode() {
+    const type = this.getType();
+    const dep = document.getElementById('department');
+    const label = document.getElementById('department-label');
+    if (type === 'out') {
+      dep.required = true;
+      label.textContent = 'Avdeling som hentar ut';
+    } else {
+      dep.required = false;
+      label.textContent = 'Avdeling';
+    }
+  },
+
+  async submit(event) {
+    event.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    const quantity = document.getElementById('quantity').value.trim();
+    const departmentId = document.getElementById('department').value;
+    const note = document.getElementById('note').value.trim();
+    const movementType = this.getType();
+
+    btn.disabled = true;
+    btn.textContent = 'Lagrar...';
+    this.hideMessage();
+
+    try {
+      const json = await this.post({
+        action: 'public_movement',
+        token: this.token,
+        movementType,
+        quantity,
+        departmentId,
+        note
+      });
+
+      if (json.error) {
+        this.showMessage(json.error, false);
+        return;
+      }
+
+      this.item = json.item;
+      document.getElementById('quantity').value = '';
+      document.getElementById('note').value = '';
+      document.getElementById('item-stock').textContent = `${this.formatQty(this.item.stockQuantity)} ${this.item.unit}`;
+      document.getElementById('low-warning').classList.toggle('hidden', !this.item.isLow);
+      this.showMessage(json.message || 'Registrert.', true);
+    } catch {
+      this.showMessage('Kunne ikkje lagre. Prøv igjen.', false);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Registrer';
+    }
+  },
+
+  getType() {
+    return document.querySelector('input[name="movementType"]:checked')?.value || 'out';
+  },
+
+  showError(message) {
+    document.getElementById('loading-card').classList.add('hidden');
+    document.getElementById('item-card').classList.add('hidden');
+    document.getElementById('error-text').textContent = message;
+    document.getElementById('error-card').classList.remove('hidden');
+  },
+
+  showMessage(message, ok) {
+    const el = document.getElementById('form-message');
+    el.textContent = message;
+    el.className = `mt-4 rounded-lg px-4 py-3 text-sm font-semibold ${ok ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'}`;
+  },
+
+  hideMessage() {
+    document.getElementById('form-message').classList.add('hidden');
+  },
+
+  formatQty(value) {
+    return Number(value || 0).toLocaleString('nb-NO', { maximumFractionDigits: 2 });
+  },
+
+  esc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => app.init());
+</script>
+</body>
+</html>
