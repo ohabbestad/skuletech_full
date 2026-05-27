@@ -11,6 +11,8 @@ verktøy/*.jsx
 
 # AI-verktøy og lokale konfigurasjonsfiler
 .claude/
+.codex/
+**/codex-temp-*
 
 # Sensitiv data og interne arbeidsdokument
 ALF/kantinedrift/kantineplan.gs
