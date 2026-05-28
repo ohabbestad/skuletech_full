@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instruksjonsplakat - Tørrvarelager</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 12mm;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #e7e5e4;
+      color: #0f172a;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      background: #fff;
+      padding: 16mm;
+      display: flex;
+      flex-direction: column;
+      gap: 10mm;
+    }
+
+    .hero {
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 8mm;
+      display: grid;
+      grid-template-columns: 1fr 38mm;
+      gap: 10mm;
+      align-items: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 4mm;
+      color: #0369a1;
+      font-size: 11pt;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 30pt;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      margin: 5mm 0 0;
+      color: #334155;
+      font-size: 14pt;
+      line-height: 1.35;
+      max-width: 138mm;
+    }
+
+    .qr-demo {
+      width: 38mm;
+      height: 38mm;
+      border: 2mm solid #0f172a;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(5, 1fr);
+      gap: 1.2mm;
+      padding: 2.5mm;
+      background: #fff;
+    }
+
+    .qr-demo span {
+      background: #0f172a;
+    }
+
+    .qr-demo span:nth-child(2),
+    .qr-demo span:nth-child(4),
+    .qr-demo span:nth-child(8),
+    .qr-demo span:nth-child(12),
+    .qr-demo span:nth-child(18),
+    .qr-demo span:nth-child(22),
+    .qr-demo span:nth-child(24) {
+      background: transparent;
+    }
+
+    .steps {
+      display: grid;
+      gap: 5mm;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 16mm 1fr;
+      gap: 5mm;
+      align-items: start;
+      border: 1px solid #cbd5e1;
+      border-radius: 4mm;
+      padding: 5mm;
+      break-inside: avoid;
+    }
+
+    .number {
+      width: 16mm;
+      height: 16mm;
+      border-radius: 50%;
+      background: #0369a1;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18pt;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .step h2 {
+      margin: 0;
+      font-size: 17pt;
+      line-height: 1.15;
+    }
+
+    .step p {
+      margin: 2mm 0 0;
+      color: #334155;
+      font-size: 12.5pt;
+      line-height: 1.35;
+    }
+
+    .choice-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5mm;
+    }
+
+    .choice {
+      border: 2px solid #bae6fd;
+      border-radius: 4mm;
+      padding: 5mm;
+      background: #f0f9ff;
+    }
+
+    .choice strong {
+      display: block;
+      font-size: 15pt;
+      color: #075985;
+      margin-bottom: 2mm;
+    }
+
+    .note {
+      border-left: 2mm solid #f59e0b;
+      background: #fffbeb;
+      padding: 5mm;
+      color: #78350f;
+      font-size: 12.5pt;
+      line-height: 1.35;
+    }
+
+    .footer {
+      margin-top: auto;
+      border-top: 1px solid #cbd5e1;
+      padding-top: 5mm;
+      display: flex;
+      justify-content: space-between;
+      gap: 8mm;
+      color: #475569;
+      font-size: 10.5pt;
+      line-height: 1.3;
+    }
+
+    @media screen {
+      body {
+        padding: 24px;
+      }
+
+      .page {
+        box-shadow: 0 20px 60px rgba(15, 23, 42, 0.2);
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .page {
+        width: auto;
+        min-height: auto;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Felles tørrvarelager</p>
+        <h1>Slik brukar du QR-kodane</h1>
+        <p class="lead">Skann koden på hyllekanten kvar gong du hentar ut eller legg inn varer. Då held lageret seg oppdatert.</p>
+      </div>
+      <div class="qr-demo" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </section>
+
+    <section class="steps" aria-label="Framgangsmåte">
+      <article class="step">
+        <div class="number">1</div>
+        <div>
+          <h2>Skann QR-koden ved vara</h2>
+          <p>Bruk kameraet på mobil eller nettbrett. Koden opnar rett vareside for den vara du står ved.</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="number">2</div>
+        <div>
+          <h2>Vel om du hentar ut eller legg inn</h2>
+          <p>Vel <strong>Hent ut</strong> når du tek noko frå lageret. Vel <strong>Legg inn</strong> når du fyller på.</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="number">3</div>
+        <div>
+          <h2>Skriv inn mengda</h2>
+          <p>Bruk talet som passar med vara si eining, til dømes 1 pakke, 2 flasker eller 0,5 dersom berre halve mengda blir brukt.</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="number">4</div>
+        <div>
+          <h2>Vel avdeling ved uttak</h2>
+          <p>Når du hentar ut varer, vel du kva avdeling som skal registrerast: til dømes Arbeidslivsfag, Mat og helse eller Spesped.</p>
+        </div>
+      </article>
+
+      <article class="step">
+        <div class="number">5</div>
+        <div>
+          <h2>Trykk Registrer</h2>
+          <p>Når registreringa er lagra, kan du lukke sida. Lagerstatusen blir oppdatert automatisk i dashbordet.</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="choice-grid">
+      <div class="choice">
+        <strong>Når noko er tomt</strong>
+        Registrer uttaket likevel, sjølv om lageret viser lågt eller negativt tal. Då blir behovet synleg.
+      </div>
+      <div class="choice">
+        <strong>Usikker på mengda?</strong>
+        Bruk beste overslag og skriv eventuelt ei kort merknad i feltet på varesida.
+      </div>
+    </section>
+
+    <section class="note">
+      QR-kodane skal berre brukast for varer på tørrvarelageret. Ta kontakt med ansvarleg lærar eller driftsleiar dersom ei vare manglar QR-kode eller ligg feil i systemet.
+    </section>
+
+    <footer class="footer">
+      <span>SkuleTech · Tørrvarelager</span>
+      <span>Arbeidslivsfag held lageret oppdatert gjennom vareteljing og innkjøp.</span>
+    </footer>
+  </main>
+</body>
+</html>
