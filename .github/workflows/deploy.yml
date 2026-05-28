@@ -22,7 +22,7 @@ jobs:
         node-version: '24' # Oppdatert til versjon 24 her også
 
     - name: Installer avhengigheter
-      run: npm install
+      run: npm ci --no-bin-links
 
     - name: Bygg Tailwind CSS
       run: npm run build
