@@ -1379,32 +1379,59 @@ function monthly_report_body(array $recipient, array $report, array $departmentN
 {
     $config = lager_config();
     $recipientName = trim((string)($recipient['recipientName'] ?? ''));
+    $analysis = monthly_report_analysis($report, $departmentNames);
     $lines = [];
     $lines[] = $recipientName !== '' ? 'Hei ' . $recipientName . ',' : 'Hei,';
     $lines[] = '';
-    $lines[] = 'Dette er automatisk månadsrapport frå SkuleTech Tørrvarelager.';
+    $lines[] = 'Månadsrapport tørrvarelager - ' . month_label_nn((string)$report['from']);
     $lines[] = 'Periode: ' . format_date_nn((string)$report['from']) . ' - ' . format_date_nn((string)$report['to']);
     $lines[] = 'Avdelingar: ' . ($departmentNames ? implode(', ', $departmentNames) : 'Ingen valde');
     $lines[] = '';
-    $lines[] = 'Samandrag:';
 
-    $summary = $report['summary'] ?? [];
-    if (!$summary) {
-        $lines[] = '- Ingen uttak registrert i perioden.';
+    $lines[] = 'LEIARSAMANDRAG';
+    if ($analysis['totalMovements'] === 0) {
+        $lines[] = 'Det er ikkje registrert uttak for dei valde avdelingane i denne perioden.';
     } else {
-        foreach ($summary as $row) {
-            $lines[] = '- ' . (string)$row['department'] . ': ' . (int)$row['movementCount'] . ' uttak';
+        $lines[] = '- Totalt: ' . $analysis['totalMovements'] . ' uttak';
+        $lines[] = '- Avdelingar med aktivitet: ' . $analysis['activeDepartmentCount'] . ' av ' . count($departmentNames);
+        $lines[] = '- Ulike varer brukt: ' . $analysis['distinctItemCount'];
+        $lines[] = '- Mest aktivitet: ' . monthly_report_ranked_departments($analysis['rankedDepartments']);
+    }
+
+    $lines[] = '';
+    $lines[] = 'OVERSIKT PER AVDELING';
+    foreach ($analysis['departments'] as $department) {
+        $lines[] = '';
+        $lines[] = (string)$department['name'];
+        if ((int)$department['movementCount'] === 0) {
+            $lines[] = '- Ingen uttak registrert.';
+            continue;
+        }
+
+        $lines[] = '- Uttak: ' . (int)$department['movementCount'];
+        $lines[] = '- Ulike varer: ' . (int)$department['itemCount'];
+        $lines[] = '- Mest brukte kategoriar: ' . monthly_report_top_categories_text($department['topCategories']);
+        $lines[] = '- Mest brukte varer:';
+        foreach ($department['topItems'] as $item) {
+            $lines[] = '  * ' . monthly_report_item_line($item);
         }
     }
 
-    $rows = $report['rows'] ?? [];
-    if ($rows) {
+    if ($analysis['totalMovements'] > 0) {
         $lines[] = '';
-        $lines[] = 'Detaljar:';
-        foreach ($rows as $row) {
-            $lines[] = '- ' . (string)$row['department'] . ' / ' . (string)$row['category'] . ' / ' . (string)$row['item']
-                . ': ' . lager_format_qty((float)$row['quantity']) . ' ' . (string)$row['unit']
-                . ' (' . (int)$row['movementCount'] . ' registreringar)';
+        $lines[] = 'DETALJAR PER AVDELING OG KATEGORI';
+        foreach ($analysis['departments'] as $department) {
+            if ((int)$department['movementCount'] === 0) {
+                continue;
+            }
+            $lines[] = '';
+            $lines[] = (string)$department['name'];
+            foreach ($department['categories'] as $categoryName => $items) {
+                $lines[] = '- ' . (string)$categoryName;
+                foreach ($items as $item) {
+                    $lines[] = '  * ' . monthly_report_item_line($item);
+                }
+            }
         }
     }
 
@@ -1415,6 +1442,160 @@ function monthly_report_body(array $recipient, array $report, array $departmentN
     }
 
     return implode("\n", $lines);
+}
+
+function monthly_report_analysis(array $report, array $departmentNames): array
+{
+    $rows = is_array($report['rows'] ?? null) ? $report['rows'] : [];
+    $departments = [];
+    foreach ($departmentNames as $name) {
+        $name = (string)$name;
+        $departments[$name] = monthly_report_empty_department($name);
+    }
+
+    $distinctItems = [];
+    foreach ($rows as $row) {
+        $departmentName = (string)($row['department'] ?? 'Utan avdeling');
+        if (!isset($departments[$departmentName])) {
+            $departments[$departmentName] = monthly_report_empty_department($departmentName);
+        }
+
+        $categoryName = (string)($row['category'] ?? 'Utan kategori');
+        $itemName = (string)($row['item'] ?? '');
+        $unit = (string)($row['unit'] ?? '');
+        $quantity = (float)($row['quantity'] ?? 0);
+        $movementCount = (int)($row['movementCount'] ?? 0);
+        $itemKey = $itemName . '|' . $unit;
+
+        $departments[$departmentName]['movementCount'] += $movementCount;
+        $departments[$departmentName]['itemKeys'][$itemKey] = true;
+        $departments[$departmentName]['categoryCounts'][$categoryName] =
+            ($departments[$departmentName]['categoryCounts'][$categoryName] ?? 0) + $movementCount;
+        $departments[$departmentName]['categories'][$categoryName][] = [
+            'name' => $itemName,
+            'category' => $categoryName,
+            'unit' => $unit,
+            'quantity' => $quantity,
+            'movementCount' => $movementCount,
+        ];
+        $departments[$departmentName]['topItems'][] = [
+            'name' => $itemName,
+            'category' => $categoryName,
+            'unit' => $unit,
+            'quantity' => $quantity,
+            'movementCount' => $movementCount,
+        ];
+        $distinctItems[$itemKey] = true;
+    }
+
+    $totalMovements = 0;
+    $activeDepartmentCount = 0;
+    foreach ($departments as &$department) {
+        $department['itemCount'] = count($department['itemKeys']);
+        unset($department['itemKeys']);
+
+        $department['topCategories'] = monthly_report_top_categories($department['categoryCounts']);
+        unset($department['categoryCounts']);
+
+        usort($department['topItems'], 'monthly_report_compare_usage_rows');
+        $department['topItems'] = array_slice($department['topItems'], 0, 5);
+
+        foreach ($department['categories'] as &$items) {
+            usort($items, 'monthly_report_compare_usage_rows');
+        }
+        unset($items);
+
+        $totalMovements += (int)$department['movementCount'];
+        if ((int)$department['movementCount'] > 0) {
+            $activeDepartmentCount++;
+        }
+    }
+    unset($department);
+
+    $rankedDepartments = array_values($departments);
+    usort($rankedDepartments, static function (array $a, array $b): int {
+        $countCompare = (int)$b['movementCount'] <=> (int)$a['movementCount'];
+        if ($countCompare !== 0) {
+            return $countCompare;
+        }
+        return strcmp((string)$a['name'], (string)$b['name']);
+    });
+
+    return [
+        'totalMovements' => $totalMovements,
+        'activeDepartmentCount' => $activeDepartmentCount,
+        'distinctItemCount' => count($distinctItems),
+        'departments' => array_values($departments),
+        'rankedDepartments' => $rankedDepartments,
+    ];
+}
+
+function monthly_report_empty_department(string $name): array
+{
+    return [
+        'name' => $name,
+        'movementCount' => 0,
+        'itemCount' => 0,
+        'itemKeys' => [],
+        'categoryCounts' => [],
+        'topCategories' => [],
+        'topItems' => [],
+        'categories' => [],
+    ];
+}
+
+function monthly_report_compare_usage_rows(array $a, array $b): int
+{
+    $movementCompare = (int)$b['movementCount'] <=> (int)$a['movementCount'];
+    if ($movementCompare !== 0) {
+        return $movementCompare;
+    }
+    $quantityCompare = (float)$b['quantity'] <=> (float)$a['quantity'];
+    if ($quantityCompare !== 0) {
+        return $quantityCompare;
+    }
+    return strcmp((string)$a['name'], (string)$b['name']);
+}
+
+function monthly_report_top_categories(array $categoryCounts): array
+{
+    arsort($categoryCounts);
+    $top = [];
+    foreach (array_slice($categoryCounts, 0, 3, true) as $name => $count) {
+        $top[] = [
+            'name' => (string)$name,
+            'movementCount' => (int)$count,
+        ];
+    }
+    return $top;
+}
+
+function monthly_report_top_categories_text(array $categories): string
+{
+    if (!$categories) {
+        return 'Ingen uttak';
+    }
+    return implode(', ', array_map(static function (array $category): string {
+        return (string)$category['name'] . ' (' . (int)$category['movementCount'] . ' uttak)';
+    }, $categories));
+}
+
+function monthly_report_ranked_departments(array $departments): string
+{
+    $active = array_values(array_filter($departments, static fn(array $department): bool => (int)$department['movementCount'] > 0));
+    if (!$active) {
+        return 'Ingen avdelingar med registrert bruk';
+    }
+    return implode(', ', array_map(static function (array $department): string {
+        return (string)$department['name'] . ' (' . (int)$department['movementCount'] . ')';
+    }, array_slice($active, 0, 4)));
+}
+
+function monthly_report_item_line(array $item): string
+{
+    return (string)$item['name'] . ': '
+        . lager_format_qty((float)$item['quantity']) . ' ' . (string)$item['unit']
+        . ' fordelt på ' . (int)$item['movementCount'] . ' uttak';
 }
 
 function department_names_for_ids(array $departmentIds): array
