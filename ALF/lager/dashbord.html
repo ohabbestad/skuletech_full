@@ -52,7 +52,7 @@
         <button id="tab-count" onclick="app.switchTab('count')" class="tab-btn whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">Vareteljing</button>
         <button id="tab-report" onclick="app.switchTab('report')" class="tab-btn whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">Rapport</button>
         <button id="tab-admin" onclick="app.switchTab('admin')" class="tab-btn whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">Varer, ansvar og avdelingar</button>
-        <a href="etikettar.html" class="ml-auto whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">QR-etikettar</a>
+        <a href="etikettar.html?v=20260608-session" class="ml-auto whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">QR-etikettar</a>
       </nav>
     </div>
   </header>
@@ -278,6 +278,8 @@ const app = {
   async post(payload, options = {}) {
     const res = await fetch(API_URL, {
       method: 'POST',
+      credentials: 'same-origin',
+      cache: 'no-store',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
     });

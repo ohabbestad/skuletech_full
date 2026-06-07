@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>QR-etikettar - Tørrvarelager</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -57,7 +60,7 @@
         </label>
         <p id="login-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800"></p>
         <button id="login-btn" onclick="app.login()" class="w-full rounded-lg bg-sky-700 px-4 py-3 font-bold text-white hover:bg-sky-800">Logg inn</button>
-        <a href="dashbord.html" class="block text-center text-sm font-semibold text-sky-700">Til dashbord</a>
+        <a href="dashbord.html?v=20260608-session" class="block text-center text-sm font-semibold text-sky-700">Til dashbord</a>
       </div>
     </main>
   </div>
@@ -71,7 +74,7 @@
             <h1 class="text-2xl font-black tracking-tight text-slate-950">QR-etikettar</h1>
           </div>
           <div class="flex flex-wrap gap-2">
-            <a href="dashbord.html" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm">Dashbord</a>
+            <a href="dashbord.html?v=20260608-session" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm">Dashbord</a>
             <button onclick="window.print()" class="rounded-lg bg-sky-700 px-3 py-2 text-sm font-bold text-white shadow-sm hover:bg-sky-800">Skriv ut</button>
           </div>
         </div>
@@ -163,6 +166,8 @@ const app = {
   async post(payload, options = {}) {
     const res = await fetch(API_URL, {
       method: 'POST',
+      credentials: 'same-origin',
+      cache: 'no-store',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
     });
