@@ -439,13 +439,18 @@ const app = {
         });
       }
 
-      if (result === 0 && key !== 'name') {
-        result = this.inventoryTextSortValue(a, 'name').localeCompare(this.inventoryTextSortValue(b, 'name'), 'nb', {
-          numeric: true,
-          sensitivity: 'base'
-        });
+      if (key === 'name') {
+        return result * direction;
       }
-      return result * direction;
+      if (result !== 0) return result * direction;
+      return this.compareInventoryText(this.inventoryTextSortValue(a, 'name'), this.inventoryTextSortValue(b, 'name'));
+    });
+  },
+
+  compareInventoryText(a, b) {
+    return String(a || '').localeCompare(String(b || ''), 'nb', {
+      numeric: true,
+      sensitivity: 'base'
     });
   },
 
@@ -463,10 +468,36 @@ const app = {
   },
 
   inventoryStatusSortValue(item) {
-    if (!item.active) return 3;
-    if (Number(item.stockQuantity) <= 0) return 0;
-    if (item.isLow) return 1;
-    return 2;
+    return this.inventoryStatus(item).sortValue;
+  },
+
+  inventoryStatus(item) {
+    if (!item.active) {
+      return {
+        label: 'Inaktiv',
+        sortValue: 3,
+        className: 'bg-slate-100 text-slate-500'
+      };
+    }
+    if (Number(item.stockQuantity) <= 0) {
+      return {
+        label: 'Tomt',
+        sortValue: 0,
+        className: 'bg-red-100 text-red-800'
+      };
+    }
+    if (item.isLow) {
+      return {
+        label: 'Lågt',
+        sortValue: 1,
+        className: 'bg-amber-100 text-amber-900'
+      };
+    }
+    return {
+      label: 'OK',
+      sortValue: 2,
+      className: 'bg-emerald-100 text-emerald-800'
+    };
   },
 
   setInventorySort(key) {
@@ -1078,9 +1109,8 @@ const app = {
   },
 
   statusBadge(item) {
-    if (!item.active) return '<span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">Inaktiv</span>';
-    if (item.isLow) return '<span class="rounded-full bg-amber-100 px-2 py-1 text-xs font-bold text-amber-900">Lågt</span>';
-    return '<span class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-800">OK</span>';
+    const status = this.inventoryStatus(item);
+    return `<span class="rounded-full px-2 py-1 text-xs font-bold ${status.className}">${this.esc(status.label)}</span>`;
   },
 
   alertStatusBadge(item) {
