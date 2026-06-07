@@ -207,8 +207,23 @@ const app = {
   },
 
   init() {
-    document.getElementById('password-input').focus();
     this.setDefaultReportDates();
+    this.restoreSession();
+  },
+
+  async restoreSession() {
+    try {
+      const json = await this.post({ action: 'admin_load' }, { allowAuthError: true });
+      if (json.error) {
+        this.showLogin();
+        return;
+      }
+      this.applyResponse(json);
+      this.showDashboard();
+      this.render();
+    } catch {
+      this.showLogin();
+    }
   },
 
   async login() {
@@ -221,15 +236,15 @@ const app = {
     btn.textContent = 'Loggar inn...';
     err.classList.add('hidden');
     try {
-      const json = await this.post({ action: 'admin_load', role, password });
+      const json = await this.post({ action: 'admin_load', role, password }, { allowAuthError: true });
       if (json.error) {
         err.textContent = json.error;
         err.classList.remove('hidden');
         return;
       }
       this.applyResponse(json);
-      document.getElementById('login-screen').classList.add('hidden');
-      document.getElementById('dashboard').classList.remove('hidden');
+      document.getElementById('password-input').value = '';
+      this.showDashboard();
       this.render();
     } catch {
       err.textContent = 'Kunne ikkje nå serveren.';
@@ -241,14 +256,14 @@ const app = {
   },
 
   async logout() {
-    await this.post({ action: 'logout' }).catch(() => null);
+    await this.post({ action: 'logout' }, { allowAuthError: true }).catch(() => null);
     location.reload();
   },
 
   async refresh() {
     const json = await this.post({ action: 'admin_load', role: this.state.role });
     if (json.error) {
-      this.showMessage(json.error, false);
+      if (json._status !== 401) this.showMessage(json.error, false);
       return;
     }
     this.applyResponse(json);
@@ -256,13 +271,36 @@ const app = {
     this.showMessage('Oppdatert.', true);
   },
 
-  async post(payload) {
+  async post(payload, options = {}) {
     const res = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
     });
-    return res.json();
+    const json = await res.json();
+    json._status = res.status;
+    if (res.status === 401 && !options.allowAuthError) {
+      this.showLogin(json.error || 'Du må logge inn på nytt.');
+    }
+    return json;
+  },
+
+  showDashboard() {
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+  },
+
+  showLogin(message = null) {
+    document.getElementById('dashboard').classList.add('hidden');
+    document.getElementById('login-screen').classList.remove('hidden');
+    const err = document.getElementById('login-error');
+    if (message) {
+      err.textContent = message;
+      err.classList.remove('hidden');
+    } else {
+      err.classList.add('hidden');
+    }
+    document.getElementById('password-input').focus();
   },
 
   applyResponse(json) {
@@ -413,6 +451,7 @@ const app = {
     try {
       const json = await this.post({ action: 'save_count', lines, note: document.getElementById('count-note').value.trim() });
       if (json.error) {
+        if (json._status === 401) return;
         this.showMessage(json.error, false);
         return;
       }
@@ -441,6 +480,7 @@ const app = {
     };
     const json = await this.post(payload);
     if (json.error) {
+      if (json._status === 401) return;
       this.showMessage(json.error, false);
       return;
     }
@@ -531,23 +571,20 @@ const app = {
             <h2 class="text-xl font-black text-slate-950">Rediger varer</h2>
           </div>
           <div class="overflow-x-auto">
-            <table class="w-full min-w-[1400px] text-left text-sm">
+            <table class="w-full min-w-[1080px] table-fixed text-left text-sm">
               <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                 <tr>
-                  <th class="px-4 py-3">Vare</th>
-                  <th class="px-4 py-3">Kategori</th>
-                  <th class="px-4 py-3">Eining</th>
-                  <th class="px-4 py-3">Min</th>
-                  <th class="px-4 py-3">Hylle</th>
-                  <th class="px-4 py-3">QR-kode</th>
-                  <th class="px-4 py-3">Vareansvarleg</th>
-                  <th class="px-4 py-3">E-post</th>
-                  <th class="px-4 py-3">Varsel</th>
-                  <th class="px-4 py-3">Aktiv</th>
-                  <th class="px-4 py-3 text-right">Lagre</th>
+                  <th class="w-[25%] px-4 py-3">Vare</th>
+                  <th class="w-[18%] px-4 py-3">Kategori</th>
+                  <th class="w-24 px-4 py-3">Eining</th>
+                  <th class="w-24 px-4 py-3">Min</th>
+                  <th class="w-32 px-4 py-3">Hylle</th>
+                  <th class="w-28 px-4 py-3">Varsel</th>
+                  <th class="w-20 px-4 py-3">Aktiv</th>
+                  <th class="w-24 px-4 py-3 text-right">Lagre</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100">${this.state.items.map(item => this.itemAdminRow(item)).join('')}</tbody>
+              <tbody>${this.state.items.map(item => this.itemAdminRow(item)).join('')}</tbody>
             </table>
           </div>
         </div>
@@ -600,18 +637,33 @@ const app = {
 
   itemAdminRow(item) {
     return `
-      <tr>
-        <td class="px-4 py-3"><input id="item-name-${item.id}" value="${this.esc(item.name)}" class="w-full rounded-lg border border-slate-300 px-3 py-2"></td>
-        <td class="px-4 py-3"><select id="item-category-${item.id}" class="w-full rounded-lg border border-slate-300 px-3 py-2">${this.categoryOptions(item.categoryId)}</select></td>
-        <td class="px-4 py-3"><input id="item-unit-${item.id}" value="${this.esc(item.unit)}" class="w-24 rounded-lg border border-slate-300 px-3 py-2"></td>
-        <td class="px-4 py-3"><input id="item-min-${item.id}" inputmode="decimal" value="${this.inputQty(item.minQuantity)}" class="w-24 rounded-lg border border-slate-300 px-3 py-2 text-right"></td>
-        <td class="px-4 py-3"><input id="item-shelf-${item.id}" value="${this.esc(item.shelfLabel)}" class="w-28 rounded-lg border border-slate-300 px-3 py-2"></td>
-        <td class="px-4 py-3"><input id="item-token-${item.id}" value="${this.esc(item.qrToken)}" class="w-44 rounded-lg border border-slate-300 px-3 py-2"></td>
-        <td class="px-4 py-3"><input id="item-contact-name-${item.id}" value="${this.esc(item.purchaseContactName || '')}" class="w-44 rounded-lg border border-slate-300 px-3 py-2" placeholder="${this.esc(item.categoryContactName || 'Kategoriansvarleg')}"></td>
-        <td class="px-4 py-3"><input id="item-contact-email-${item.id}" type="email" value="${this.esc(item.purchaseContactEmail || '')}" class="w-56 rounded-lg border border-slate-300 px-3 py-2" placeholder="${this.esc(item.categoryContactEmail || 'Bruk kategori')}"></td>
+      <tr class="border-t border-slate-100 align-top first:border-t-0">
+        <td class="px-4 py-3"><input id="item-name-${item.id}" value="${this.esc(item.name)}" class="w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2"></td>
+        <td class="px-4 py-3"><select id="item-category-${item.id}" class="w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2">${this.categoryOptions(item.categoryId)}</select></td>
+        <td class="px-4 py-3"><input id="item-unit-${item.id}" value="${this.esc(item.unit)}" class="w-full rounded-lg border border-slate-300 px-3 py-2"></td>
+        <td class="px-4 py-3"><input id="item-min-${item.id}" inputmode="decimal" value="${this.inputQty(item.minQuantity)}" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-right"></td>
+        <td class="px-4 py-3"><input id="item-shelf-${item.id}" value="${this.esc(item.shelfLabel)}" class="w-full rounded-lg border border-slate-300 px-3 py-2"></td>
         <td class="px-4 py-3">${this.alertStatusBadge(item)}</td>
         <td class="px-4 py-3"><input id="item-active-${item.id}" type="checkbox" ${item.active ? 'checked' : ''}></td>
         <td class="px-4 py-3 text-right"><button onclick="app.saveItem(${item.id})" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm">Lagre</button></td>
+      </tr>
+      <tr class="bg-slate-50/70">
+        <td colspan="8" class="px-4 pb-4 pt-0">
+          <div class="grid gap-3 rounded-lg border border-slate-200 bg-white p-3 md:grid-cols-[minmax(220px,1fr)_minmax(220px,1fr)_minmax(280px,1.2fr)]">
+            <label class="block min-w-0">
+              <span class="text-xs font-bold uppercase tracking-wide text-slate-500">QR-kode</span>
+              <input id="item-token-${item.id}" value="${this.esc(item.qrToken)}" class="mt-1 w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2">
+            </label>
+            <label class="block min-w-0">
+              <span class="text-xs font-bold uppercase tracking-wide text-slate-500">Vareansvarleg</span>
+              <input id="item-contact-name-${item.id}" value="${this.esc(item.purchaseContactName || '')}" class="mt-1 w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2" placeholder="${this.esc(item.categoryContactName || 'Kategoriansvarleg')}">
+            </label>
+            <label class="block min-w-0">
+              <span class="text-xs font-bold uppercase tracking-wide text-slate-500">E-post</span>
+              <input id="item-contact-email-${item.id}" type="email" value="${this.esc(item.purchaseContactEmail || '')}" class="mt-1 w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2" placeholder="${this.esc(item.categoryContactEmail || 'Bruk kategori')}">
+            </label>
+          </div>
+        </td>
       </tr>`;
   },
 
@@ -689,6 +741,7 @@ const app = {
   async sendTestAlert(categoryId) {
     const json = await this.post({ action: 'test_purchase_alert', categoryId });
     if (json.error) {
+      if (json._status === 401) return;
       this.showMessage(json.error, false);
       return;
     }
@@ -710,6 +763,7 @@ const app = {
 
   handleSaveResponse(json) {
     if (json.error) {
+      if (json._status === 401) return;
       this.showMessage(json.error, false);
       return;
     }

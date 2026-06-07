@@ -35,18 +35,49 @@ function lager_pdo(): PDO
 
 function lager_start_session(): void
 {
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        return;
+    }
+
     $config = lager_config();
+    $lifetime = lager_session_lifetime_seconds();
+    ini_set('session.gc_maxlifetime', (string)$lifetime);
+    ini_set('session.cookie_lifetime', '0');
+
     session_name($config['session_name'] ?? 'LAGER_SESS');
-    session_set_cookie_params([
-        'lifetime' => 86400,
+    session_set_cookie_params(lager_session_cookie_options(0));
+    session_start();
+}
+
+function lager_session_lifetime_seconds(): int
+{
+    $config = lager_config();
+    $lifetime = (int)($config['session_lifetime_seconds'] ?? 28800);
+    return max(300, $lifetime);
+}
+
+function lager_session_cookie_options(int $lifetime): array
+{
+    return [
+        'lifetime' => $lifetime,
         'path' => '/',
         'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
         'httponly' => true,
         'samesite' => 'Lax',
-    ]);
-    if (session_status() !== PHP_SESSION_ACTIVE) {
-        session_start();
-    }
+    ];
+}
+
+function lager_destroy_session(): void
+{
+    lager_start_session();
+    $cookieName = session_name();
+    $_SESSION = [];
+    session_destroy();
+
+    $cookieOptions = lager_session_cookie_options(0);
+    unset($cookieOptions['lifetime']);
+    $cookieOptions['expires'] = time() - 3600;
+    setcookie($cookieName, '', $cookieOptions);
 }
 
 function lager_json(array $payload, int $status = 200): void
@@ -70,6 +101,15 @@ function lager_require_role(array $allowedRoles): array
     if (empty($_SESSION['lager_user']) || !is_array($_SESSION['lager_user'])) {
         lager_json(['error' => 'Du må logge inn på nytt.'], 401);
     }
+
+    $now = time();
+    $lastSeen = (int)($_SESSION['lager_last_seen_at'] ?? $now);
+    if ($now - $lastSeen > lager_session_lifetime_seconds()) {
+        lager_destroy_session();
+        lager_json(['error' => 'Økta er utgått. Logg inn på nytt.'], 401);
+    }
+
+    $_SESSION['lager_last_seen_at'] = $now;
     $user = $_SESSION['lager_user'];
     if (!in_array($user['role'] ?? '', $allowedRoles, true)) {
         lager_json(['error' => 'Du har ikkje tilgang til denne handlinga.'], 403);

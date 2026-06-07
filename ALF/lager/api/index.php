@@ -18,8 +18,7 @@ try {
     lager_start_session();
 
     if ($action === 'logout') {
-        $_SESSION = [];
-        session_destroy();
+        lager_destroy_session();
         lager_json(['ok' => true]);
     }
 
@@ -89,11 +88,15 @@ function login_with_password(string $role, string $password): void
         lager_json(['error' => 'Feil passord.'], 401);
     }
 
+    session_regenerate_id(true);
+    $now = time();
     $_SESSION['lager_user'] = [
         'id' => (int)$user['id'],
         'username' => $user['username'],
         'role' => $user['role'],
     ];
+    $_SESSION['lager_login_at'] = $now;
+    $_SESSION['lager_last_seen_at'] = $now;
 }
 
 function ensure_requested_role(array $data, array $user): void
