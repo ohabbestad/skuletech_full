@@ -53,6 +53,16 @@ try {
         lager_json(create_item($data, $user));
     }
 
+    if ($action === 'save_category_contact') {
+        $user = lager_require_role(['laerar']);
+        lager_json(save_category_contact($data, $user));
+    }
+
+    if ($action === 'test_purchase_alert') {
+        $user = lager_require_role(['laerar']);
+        lager_json(send_test_purchase_alert($data, $user));
+    }
+
     if ($action === 'save_department') {
         $user = lager_require_role(['laerar']);
         lager_json(save_department($data, $user));
@@ -181,48 +191,61 @@ function register_public_movement(array $data): array
              VALUES (?, ?, ?, ?, ?, ?, ?)'
         )->execute([(int)$item['id'], $departmentId, $type, $quantity, $newStock, $note, 'public']);
 
+        $itemId = (int)$item['id'];
         $pdo->commit();
+        safe_process_low_stock_for_items([$itemId], 'public_movement', 'public');
         return [
             'ok' => true,
             'message' => $type === 'in' ? 'Vara er lagt inn.' : 'Uttaket er registrert.',
-            'item' => load_item_by_id((int)$item['id']),
+            'item' => load_item_by_id($itemId),
         ];
     } catch (Throwable $e) {
-        $pdo->rollBack();
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
         throw $e;
     }
 }
 
 function load_admin_data(array $user): array
 {
+    $includeContacts = (string)$user['role'] === 'laerar';
     return [
         'userRole' => (string)$user['role'],
-        'items' => load_items(),
-        'categories' => load_categories(),
+        'items' => load_items($includeContacts),
+        'categories' => load_categories($includeContacts),
         'departments' => load_departments(false),
         'recentMovements' => load_recent_movements(),
         'recentCounts' => load_recent_counts(),
+        'recentEmailLogs' => $includeContacts ? load_recent_email_logs() : [],
+        'mailEnabled' => $includeContacts ? !empty(lager_config()['mail_enabled']) : false,
     ];
 }
 
-function load_items(): array
+function load_items(bool $includeContacts = false): array
 {
     $rows = lager_pdo()->query(
         'SELECT i.id, i.category_id, i.name, i.unit, i.stock_quantity, i.min_quantity,
-                i.shelf_label, i.qr_token, i.active, c.name AS category_name
+                i.shelf_label, i.qr_token, i.purchase_contact_name, i.purchase_contact_email,
+                i.low_stock_notified_at, i.low_stock_notified_quantity, i.active,
+                c.name AS category_name, c.purchase_contact_name AS category_contact_name,
+                c.purchase_contact_email AS category_contact_email
            FROM lager_items i
            JOIN lager_categories c ON c.id = i.category_id
           ORDER BY c.sort_order, i.name'
     )->fetchAll();
 
-    return array_map('map_item', $rows);
+    return array_map(static fn(array $row): array => map_item($row, $includeContacts), $rows);
 }
 
-function load_item_by_id(int $id): array
+function load_item_by_id(int $id, bool $includeContacts = false): array
 {
     $stmt = lager_pdo()->prepare(
         'SELECT i.id, i.category_id, i.name, i.unit, i.stock_quantity, i.min_quantity,
-                i.shelf_label, i.qr_token, i.active, c.name AS category_name
+                i.shelf_label, i.qr_token, i.purchase_contact_name, i.purchase_contact_email,
+                i.low_stock_notified_at, i.low_stock_notified_quantity, i.active,
+                c.name AS category_name, c.purchase_contact_name AS category_contact_name,
+                c.purchase_contact_email AS category_contact_email
            FROM lager_items i
            JOIN lager_categories c ON c.id = i.category_id
           WHERE i.id = ?
@@ -233,14 +256,14 @@ function load_item_by_id(int $id): array
     if (!$row) {
         lager_json(['error' => 'Fann ikkje vara.'], 404);
     }
-    return map_item($row);
+    return map_item($row, $includeContacts);
 }
 
-function map_item(array $row): array
+function map_item(array $row, bool $includeContacts = false): array
 {
     $stock = (float)$row['stock_quantity'];
     $min = (float)$row['min_quantity'];
-    return [
+    $item = [
         'id' => (int)$row['id'],
         'categoryId' => (int)($row['category_id'] ?? 0),
         'category' => (string)($row['category_name'] ?? ''),
@@ -253,19 +276,49 @@ function map_item(array $row): array
         'active' => (bool)$row['active'],
         'isLow' => $min > 0 && $stock <= $min,
     ];
+
+    if ($includeContacts) {
+        $itemContactEmail = (string)($row['purchase_contact_email'] ?? '');
+        $itemContactName = (string)($row['purchase_contact_name'] ?? '');
+        $categoryContactEmail = (string)($row['category_contact_email'] ?? '');
+        $categoryContactName = (string)($row['category_contact_name'] ?? '');
+        $usesItemContact = $itemContactEmail !== '';
+
+        $item['purchaseContactName'] = $itemContactName;
+        $item['purchaseContactEmail'] = $itemContactEmail;
+        $item['categoryContactName'] = $categoryContactName;
+        $item['categoryContactEmail'] = $categoryContactEmail;
+        $item['effectivePurchaseContactName'] = $usesItemContact ? $itemContactName : $categoryContactName;
+        $item['effectivePurchaseContactEmail'] = $usesItemContact ? $itemContactEmail : $categoryContactEmail;
+        $item['lowStockNotifiedAt'] = $row['low_stock_notified_at'] ?? null;
+        $item['lowStockNotifiedQuantity'] = isset($row['low_stock_notified_quantity'])
+            ? (float)$row['low_stock_notified_quantity']
+            : null;
+    }
+
+    return $item;
 }
 
-function load_categories(): array
+function load_categories(bool $includeContacts = false): array
 {
     $rows = lager_pdo()->query(
-        'SELECT id, name, sort_order, active FROM lager_categories ORDER BY sort_order, name'
+        'SELECT id, name, sort_order, active, purchase_contact_name, purchase_contact_email
+           FROM lager_categories
+          ORDER BY sort_order, name'
     )->fetchAll();
-    return array_map(static fn(array $row): array => [
-        'id' => (int)$row['id'],
-        'name' => (string)$row['name'],
-        'sortOrder' => (int)$row['sort_order'],
-        'active' => (bool)$row['active'],
-    ], $rows);
+    return array_map(static function (array $row) use ($includeContacts): array {
+        $category = [
+            'id' => (int)$row['id'],
+            'name' => (string)$row['name'],
+            'sortOrder' => (int)$row['sort_order'],
+            'active' => (bool)$row['active'],
+        ];
+        if ($includeContacts) {
+            $category['purchaseContactName'] = (string)($row['purchase_contact_name'] ?? '');
+            $category['purchaseContactEmail'] = (string)($row['purchase_contact_email'] ?? '');
+        }
+        return $category;
+    }, $rows);
 }
 
 function load_departments(bool $activeOnly): array
@@ -331,6 +384,34 @@ function load_recent_counts(): array
     ], $rows);
 }
 
+function load_recent_email_logs(): array
+{
+    $rows = lager_pdo()->query(
+        'SELECT l.id, l.event_type, l.status, l.recipient_name, l.recipient_email,
+                l.subject, l.error_message, l.created_by_role, l.created_at,
+                i.name AS item_name, c.name AS category_name
+           FROM lager_email_log l
+      LEFT JOIN lager_items i ON i.id = l.item_id
+      LEFT JOIN lager_categories c ON c.id = l.category_id
+          ORDER BY l.created_at DESC, l.id DESC
+          LIMIT 30'
+    )->fetchAll();
+
+    return array_map(static fn(array $row): array => [
+        'id' => (int)$row['id'],
+        'eventType' => (string)$row['event_type'],
+        'status' => (string)$row['status'],
+        'recipientName' => (string)($row['recipient_name'] ?? ''),
+        'recipientEmail' => (string)($row['recipient_email'] ?? ''),
+        'subject' => (string)($row['subject'] ?? ''),
+        'errorMessage' => (string)($row['error_message'] ?? ''),
+        'createdByRole' => (string)$row['created_by_role'],
+        'createdAt' => (string)$row['created_at'],
+        'itemName' => (string)($row['item_name'] ?? ''),
+        'categoryName' => (string)($row['category_name'] ?? ''),
+    ], $rows);
+}
+
 function save_count(array $data, array $user): array
 {
     $lines = is_array($data['lines'] ?? null) ? $data['lines'] : [];
@@ -364,6 +445,7 @@ function save_count(array $data, array $user): array
         $updateStmt = $pdo->prepare('UPDATE lager_items SET stock_quantity = ? WHERE id = ?');
 
         $savedLines = 0;
+        $touchedItemIds = [];
         foreach ($lines as $line) {
             if (!is_array($line)) {
                 continue;
@@ -389,6 +471,7 @@ function save_count(array $data, array $user): array
             $diff = round($counted - $expected, 2);
             $lineStmt->execute([$countId, $itemId, $expected, $counted, $diff]);
             $updateStmt->execute([$counted, $itemId]);
+            $touchedItemIds[] = $itemId;
 
             if (abs($diff) >= 0.01) {
                 $moveStmt->execute([
@@ -409,6 +492,7 @@ function save_count(array $data, array $user): array
         }
 
         $pdo->commit();
+        safe_process_low_stock_for_items($touchedItemIds, 'count', (string)$user['role']);
         $response = load_admin_data($user);
         $response['ok'] = true;
         $response['message'] = 'Vareteljinga er lagra.';
@@ -416,7 +500,9 @@ function save_count(array $data, array $user): array
         $response['savedLines'] = $savedLines;
         return $response;
     } catch (Throwable $e) {
-        $pdo->rollBack();
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
         throw $e;
     }
 }
@@ -494,6 +580,7 @@ function save_item(array $data, array $user): array
         lager_json(['error' => 'Manglar vare.'], 400);
     }
 
+    $oldItem = load_item_private_row($itemId);
     $payload = item_payload($data);
     $token = trim((string)($data['qrToken'] ?? ''));
     if ($token === '') {
@@ -504,7 +591,8 @@ function save_item(array $data, array $user): array
 
     lager_pdo()->prepare(
         'UPDATE lager_items
-            SET category_id = ?, name = ?, unit = ?, min_quantity = ?, shelf_label = ?, qr_token = ?, active = ?
+            SET category_id = ?, name = ?, unit = ?, min_quantity = ?, shelf_label = ?,
+                qr_token = ?, purchase_contact_name = ?, purchase_contact_email = ?, active = ?
           WHERE id = ?'
     )->execute([
         $payload['categoryId'],
@@ -513,9 +601,16 @@ function save_item(array $data, array $user): array
         $payload['minQuantity'],
         $payload['shelfLabel'],
         $token,
+        $payload['purchaseContactName'],
+        $payload['purchaseContactEmail'],
         $payload['active'] ? 1 : 0,
         $itemId,
     ]);
+
+    if (item_alert_context_changed($oldItem, $payload)) {
+        reset_low_stock_notification([$itemId]);
+        safe_process_low_stock_for_items([$itemId], 'item_saved', (string)$user['role']);
+    }
 
     $response = load_admin_data($user);
     $response['ok'] = true;
@@ -530,8 +625,9 @@ function create_item(array $data, array $user): array
 
     lager_pdo()->prepare(
         'INSERT INTO lager_items
-            (category_id, name, unit, stock_quantity, min_quantity, shelf_label, qr_token, active)
-         VALUES (?, ?, ?, 0, ?, ?, ?, ?)'
+            (category_id, name, unit, stock_quantity, min_quantity, shelf_label,
+             qr_token, purchase_contact_name, purchase_contact_email, active)
+         VALUES (?, ?, ?, 0, ?, ?, ?, ?, ?, ?)'
     )->execute([
         $payload['categoryId'],
         $payload['name'],
@@ -539,8 +635,12 @@ function create_item(array $data, array $user): array
         $payload['minQuantity'],
         $payload['shelfLabel'],
         $token,
+        $payload['purchaseContactName'],
+        $payload['purchaseContactEmail'],
         $payload['active'] ? 1 : 0,
     ]);
+    $itemId = (int)lager_pdo()->lastInsertId();
+    safe_process_low_stock_for_items([$itemId], 'item_created', (string)$user['role']);
 
     $response = load_admin_data($user);
     $response['ok'] = true;
@@ -576,6 +676,8 @@ function item_payload(array $data): array
         'unit' => substr($unit, 0, 40),
         'minQuantity' => lager_parse_decimal($data['minQuantity'] ?? 0, 'Min-nivå'),
         'shelfLabel' => $shelfLabel,
+        'purchaseContactName' => trim_length((string)($data['purchaseContactName'] ?? ''), 160),
+        'purchaseContactEmail' => normalize_optional_email((string)($data['purchaseContactEmail'] ?? ''), 'E-post for vareansvarleg'),
         'active' => !empty($data['active']),
     ];
 }
@@ -605,6 +707,480 @@ function save_department(array $data, array $user): array
     $response['ok'] = true;
     $response['message'] = 'Avdelinga er lagra.';
     return $response;
+}
+
+function save_category_contact(array $data, array $user): array
+{
+    $categoryId = (int)($data['categoryId'] ?? 0);
+    if ($categoryId <= 0) {
+        lager_json(['error' => 'Manglar kategori.'], 400);
+    }
+
+    $name = trim_length((string)($data['purchaseContactName'] ?? ''), 160);
+    $email = normalize_optional_email((string)($data['purchaseContactEmail'] ?? ''), 'E-post for innkjøpsansvarleg');
+    $oldCategory = load_category_private_row($categoryId);
+    $changed = (string)($oldCategory['purchase_contact_name'] ?? '') !== $name
+        || (string)($oldCategory['purchase_contact_email'] ?? '') !== $email;
+
+    $stmt = lager_pdo()->prepare(
+        'UPDATE lager_categories
+            SET purchase_contact_name = ?, purchase_contact_email = ?
+          WHERE id = ?'
+    );
+    $stmt->execute([$name, $email, $categoryId]);
+
+    if ($changed) {
+        $itemIds = load_category_default_contact_low_item_ids($categoryId);
+        reset_low_stock_notification($itemIds);
+        safe_process_low_stock_for_items($itemIds, 'category_contact_saved', (string)$user['role']);
+    }
+
+    $response = load_admin_data($user);
+    $response['ok'] = true;
+    $response['message'] = 'Innkjøpsansvarleg er lagra.';
+    return $response;
+}
+
+function send_test_purchase_alert(array $data, array $user): array
+{
+    $categoryId = (int)($data['categoryId'] ?? 0);
+    if ($categoryId <= 0) {
+        lager_json(['error' => 'Manglar kategori.'], 400);
+    }
+
+    $category = load_category_private_row($categoryId);
+    $recipientName = (string)($category['purchase_contact_name'] ?? '');
+    $recipientEmail = (string)($category['purchase_contact_email'] ?? '');
+    $subject = 'Testvarsel frå tørrvarelageret';
+    $body = implode("\n", [
+        'Dette er ein test av automatisk innkjøpsvarsel frå SkuleTech Tørrvarelager.',
+        '',
+        'Kategori: ' . (string)$category['name'],
+        'Når ei vare i denne kategorien kjem på eller under minimumsnivå, blir varselet sendt til denne adressa.',
+        '',
+        'Dette er berre ein test. Ingen lagerstatus er endra.',
+    ]);
+
+    $result = send_lager_mail($recipientEmail, $recipientName, $subject, $body);
+    log_email_event(
+        null,
+        $categoryId,
+        'test',
+        $result['status'],
+        $recipientName,
+        $recipientEmail,
+        $subject,
+        $body,
+        $result['error'],
+        (string)$user['role']
+    );
+
+    $response = load_admin_data($user);
+    $response['ok'] = true;
+    $response['sent'] = $result['status'] === 'sent';
+    $response['message'] = $result['status'] === 'sent'
+        ? 'Testvarselet er sendt.'
+        : 'Testvarselet vart ikkje sendt: ' . $result['error'];
+    return $response;
+}
+
+function load_item_private_row(int $itemId): array
+{
+    $stmt = lager_pdo()->prepare(
+        'SELECT i.id, i.category_id, i.name, i.unit, i.stock_quantity, i.min_quantity,
+                i.shelf_label, i.purchase_contact_name, i.purchase_contact_email,
+                i.low_stock_notified_at, i.active, c.name AS category_name,
+                c.purchase_contact_name AS category_contact_name,
+                c.purchase_contact_email AS category_contact_email
+           FROM lager_items i
+           JOIN lager_categories c ON c.id = i.category_id
+          WHERE i.id = ?
+          LIMIT 1'
+    );
+    $stmt->execute([$itemId]);
+    $row = $stmt->fetch();
+    if (!$row) {
+        lager_json(['error' => 'Fann ikkje vara.'], 404);
+    }
+    return $row;
+}
+
+function load_category_private_row(int $categoryId): array
+{
+    $stmt = lager_pdo()->prepare(
+        'SELECT id, name, purchase_contact_name, purchase_contact_email
+           FROM lager_categories
+          WHERE id = ?
+          LIMIT 1'
+    );
+    $stmt->execute([$categoryId]);
+    $row = $stmt->fetch();
+    if (!$row) {
+        lager_json(['error' => 'Fann ikkje kategorien.'], 404);
+    }
+    return $row;
+}
+
+function load_category_default_contact_low_item_ids(int $categoryId): array
+{
+    $stmt = lager_pdo()->prepare(
+        'SELECT id
+           FROM lager_items
+          WHERE category_id = ?
+            AND purchase_contact_email = ""
+            AND active = 1
+            AND min_quantity > 0
+            AND stock_quantity <= min_quantity'
+    );
+    $stmt->execute([$categoryId]);
+    return array_map('intval', array_column($stmt->fetchAll(), 'id'));
+}
+
+function item_alert_context_changed(array $oldItem, array $payload): bool
+{
+    return (int)$oldItem['category_id'] !== (int)$payload['categoryId']
+        || abs((float)$oldItem['min_quantity'] - (float)$payload['minQuantity']) >= 0.01
+        || (string)($oldItem['purchase_contact_name'] ?? '') !== $payload['purchaseContactName']
+        || (string)($oldItem['purchase_contact_email'] ?? '') !== $payload['purchaseContactEmail']
+        || (bool)$oldItem['active'] !== (bool)$payload['active'];
+}
+
+function safe_process_low_stock_for_items(array $itemIds, string $source, string $role): void
+{
+    try {
+        process_low_stock_for_items($itemIds, $source, $role);
+    } catch (Throwable $e) {
+        error_log('Lager low-stock notification failed: ' . $e->getMessage());
+    }
+}
+
+function process_low_stock_for_items(array $itemIds, string $source, string $role): void
+{
+    $itemIds = normalize_ids($itemIds);
+    if (!$itemIds) {
+        return;
+    }
+
+    reset_recovered_low_stock_items($itemIds);
+
+    $placeholders = implode(',', array_fill(0, count($itemIds), '?'));
+    $stmt = lager_pdo()->prepare(
+        'SELECT i.id, i.category_id, i.name, i.unit, i.stock_quantity, i.min_quantity,
+                i.shelf_label, i.purchase_contact_name, i.purchase_contact_email,
+                c.name AS category_name, c.purchase_contact_name AS category_contact_name,
+                c.purchase_contact_email AS category_contact_email
+           FROM lager_items i
+           JOIN lager_categories c ON c.id = i.category_id
+          WHERE i.id IN (' . $placeholders . ')
+            AND i.active = 1
+            AND i.min_quantity > 0
+            AND i.stock_quantity <= i.min_quantity
+            AND i.low_stock_notified_at IS NULL
+          ORDER BY c.name, i.name'
+    );
+    $stmt->execute($itemIds);
+    $rows = $stmt->fetchAll();
+    if (!$rows) {
+        return;
+    }
+
+    $groups = [];
+    foreach ($rows as $row) {
+        $recipient = purchase_recipient_for_item($row);
+        if ($recipient['email'] === '' || !filter_var($recipient['email'], FILTER_VALIDATE_EMAIL)) {
+            $error = $recipient['email'] === ''
+                ? 'Manglar e-postadresse for innkjøpsansvarleg.'
+                : 'Ugyldig e-postadresse for innkjøpsansvarleg.';
+            log_email_event(
+                (int)$row['id'],
+                (int)$row['category_id'],
+                'low_stock',
+                'skipped',
+                $recipient['name'],
+                $recipient['email'],
+                'Innkjøpsvarsel vart ikkje sendt',
+                low_stock_body([$row], $recipient['name'], $source),
+                $error,
+                $role
+            );
+            mark_low_stock_notified([(int)$row['id']]);
+            continue;
+        }
+
+        $key = strtolower($recipient['email']);
+        if (!isset($groups[$key])) {
+            $groups[$key] = [
+                'name' => $recipient['name'],
+                'email' => $recipient['email'],
+                'items' => [],
+            ];
+        }
+        $groups[$key]['items'][] = $row;
+    }
+
+    foreach ($groups as $group) {
+        $subject = low_stock_subject($group['items']);
+        $body = low_stock_body($group['items'], $group['name'], $source);
+        $result = send_lager_mail($group['email'], $group['name'], $subject, $body);
+        $idsToMark = [];
+
+        foreach ($group['items'] as $row) {
+            log_email_event(
+                (int)$row['id'],
+                (int)$row['category_id'],
+                'low_stock',
+                $result['status'],
+                $group['name'],
+                $group['email'],
+                $subject,
+                $body,
+                $result['error'],
+                $role
+            );
+            if ($result['status'] !== 'skipped') {
+                $idsToMark[] = (int)$row['id'];
+            }
+        }
+
+        mark_low_stock_notified($idsToMark);
+    }
+}
+
+function reset_recovered_low_stock_items(array $itemIds): void
+{
+    $itemIds = normalize_ids($itemIds);
+    if (!$itemIds) {
+        return;
+    }
+    $placeholders = implode(',', array_fill(0, count($itemIds), '?'));
+    lager_pdo()->prepare(
+        'UPDATE lager_items
+            SET low_stock_notified_at = NULL, low_stock_notified_quantity = NULL
+          WHERE id IN (' . $placeholders . ')
+            AND (active = 0 OR min_quantity <= 0 OR stock_quantity > min_quantity)'
+    )->execute($itemIds);
+}
+
+function reset_low_stock_notification(array $itemIds): void
+{
+    $itemIds = normalize_ids($itemIds);
+    if (!$itemIds) {
+        return;
+    }
+    $placeholders = implode(',', array_fill(0, count($itemIds), '?'));
+    lager_pdo()->prepare(
+        'UPDATE lager_items
+            SET low_stock_notified_at = NULL, low_stock_notified_quantity = NULL
+          WHERE id IN (' . $placeholders . ')'
+    )->execute($itemIds);
+}
+
+function mark_low_stock_notified(array $itemIds): void
+{
+    $itemIds = normalize_ids($itemIds);
+    if (!$itemIds) {
+        return;
+    }
+    $placeholders = implode(',', array_fill(0, count($itemIds), '?'));
+    lager_pdo()->prepare(
+        'UPDATE lager_items
+            SET low_stock_notified_at = CURRENT_TIMESTAMP,
+                low_stock_notified_quantity = stock_quantity
+          WHERE id IN (' . $placeholders . ')'
+    )->execute($itemIds);
+}
+
+function purchase_recipient_for_item(array $row): array
+{
+    $itemEmail = trim((string)($row['purchase_contact_email'] ?? ''));
+    if ($itemEmail !== '') {
+        return [
+            'name' => (string)($row['purchase_contact_name'] ?? ''),
+            'email' => $itemEmail,
+        ];
+    }
+
+    return [
+        'name' => (string)($row['category_contact_name'] ?? ''),
+        'email' => trim((string)($row['category_contact_email'] ?? '')),
+    ];
+}
+
+function low_stock_subject(array $items): string
+{
+    if (count($items) === 1) {
+        return 'Innkjøpsvarsel: ' . (string)$items[0]['name'];
+    }
+    return 'Innkjøpsvarsel: ' . count($items) . ' varer på minimumsnivå';
+}
+
+function low_stock_body(array $items, string $recipientName, string $source): string
+{
+    $config = lager_config();
+    $lines = [];
+    $lines[] = trim($recipientName) !== '' ? 'Hei ' . trim($recipientName) . ',' : 'Hei,';
+    $lines[] = '';
+    $lines[] = 'Dette er eit automatisk innkjøpsvarsel frå SkuleTech Tørrvarelager.';
+    $lines[] = 'Følgjande varer er på eller under minimumsnivå:';
+    $lines[] = '';
+
+    foreach ($items as $item) {
+        $shelf = trim((string)($item['shelf_label'] ?? ''));
+        $line = '- ' . (string)$item['name'] . ' (' . (string)$item['category_name'] . '): '
+            . lager_format_qty((float)$item['stock_quantity']) . ' ' . (string)$item['unit']
+            . ' på lager, min ' . lager_format_qty((float)$item['min_quantity']) . ' ' . (string)$item['unit'];
+        if ($shelf !== '') {
+            $line .= ', hylle ' . $shelf;
+        }
+        $lines[] = $line;
+    }
+
+    $appUrl = trim((string)($config['app_url'] ?? ''));
+    if ($appUrl !== '') {
+        $lines[] = '';
+        $lines[] = 'Opne lagerdashbordet: ' . $appUrl;
+    }
+
+    $lines[] = '';
+    $lines[] = 'Det blir ikkje sendt nytt automatisk varsel for same låg-lager-periode før vara er fylt over minimumsnivå igjen.';
+    $lines[] = 'Kjelde: ' . low_stock_source_label($source);
+    return implode("\n", $lines);
+}
+
+function low_stock_source_label(string $source): string
+{
+    return [
+        'public_movement' => 'QR-registrering',
+        'count' => 'vareteljing',
+        'item_saved' => 'vareadministrasjon',
+        'item_created' => 'ny vare',
+        'category_contact_saved' => 'innkjøpsansvarleg endra',
+    ][$source] ?? 'lageroppdatering';
+}
+
+function send_lager_mail(string $toEmail, string $toName, string $subject, string $body): array
+{
+    $config = lager_config();
+    $toEmail = trim($toEmail);
+    if ($toEmail === '' || !filter_var($toEmail, FILTER_VALIDATE_EMAIL)) {
+        return ['status' => 'skipped', 'error' => 'Mottakar manglar eller har ugyldig e-postadresse.'];
+    }
+
+    if (empty($config['mail_enabled'])) {
+        return ['status' => 'skipped', 'error' => 'E-postsending er ikkje slått på i config.local.php.'];
+    }
+
+    if (!function_exists('mail')) {
+        return ['status' => 'failed', 'error' => 'PHP mail() er ikkje tilgjengeleg på serveren.'];
+    }
+
+    $fromEmail = trim((string)($config['mail_from'] ?? ''));
+    if ($fromEmail === '' || !filter_var($fromEmail, FILTER_VALIDATE_EMAIL)) {
+        return ['status' => 'failed', 'error' => 'Avsendaradresse manglar eller er ugyldig.'];
+    }
+
+    $headers = [
+        'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=UTF-8',
+        'Content-Transfer-Encoding: 8bit',
+        'From: ' . mail_address_header($fromEmail, (string)($config['mail_from_name'] ?? '')),
+        'X-Mailer: PHP/' . PHP_VERSION,
+    ];
+
+    $replyTo = trim((string)($config['mail_reply_to'] ?? ''));
+    if ($replyTo !== '' && filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
+        $headers[] = 'Reply-To: ' . mail_address_header($replyTo, '');
+    }
+
+    $params = '-f ' . (function_exists('escapeshellarg') ? escapeshellarg($fromEmail) : $fromEmail);
+    $sent = @mail(
+        $toEmail,
+        mime_header($subject),
+        str_replace("\n", "\r\n", $body),
+        implode("\r\n", $headers),
+        $params
+    );
+
+    return $sent
+        ? ['status' => 'sent', 'error' => '']
+        : ['status' => 'failed', 'error' => 'Serveren returnerte feil frå mail().'];
+}
+
+function log_email_event(
+    ?int $itemId,
+    ?int $categoryId,
+    string $eventType,
+    string $status,
+    string $recipientName,
+    string $recipientEmail,
+    string $subject,
+    string $message,
+    string $error,
+    string $role
+): void {
+    lager_pdo()->prepare(
+        'INSERT INTO lager_email_log
+            (item_id, category_id, event_type, status, recipient_name, recipient_email,
+             subject, message, error_message, created_by_role)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    )->execute([
+        $itemId,
+        $categoryId,
+        $eventType,
+        $status,
+        trim_length($recipientName, 160),
+        trim_length($recipientEmail, 190),
+        trim_length($subject, 255),
+        $message,
+        trim_length($error, 255),
+        in_array($role, ['system', 'public', 'driftsleiar', 'laerar'], true) ? $role : 'system',
+    ]);
+}
+
+function normalize_ids(array $ids): array
+{
+    return array_values(array_unique(array_filter(array_map('intval', $ids), static fn(int $id): bool => $id > 0)));
+}
+
+function normalize_optional_email(string $email, string $label): string
+{
+    $email = trim_length($email, 190);
+    if ($email === '') {
+        return '';
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        lager_json(['error' => $label . ' er ugyldig.'], 400);
+    }
+    return $email;
+}
+
+function trim_length(string $value, int $maxLength): string
+{
+    $value = trim((string)preg_replace('/[\r\n]+/u', ' ', $value));
+    if (function_exists('mb_substr')) {
+        return mb_substr($value, 0, $maxLength, 'UTF-8');
+    }
+    return substr($value, 0, $maxLength);
+}
+
+function mail_address_header(string $email, string $name): string
+{
+    $name = trim_length($name, 120);
+    if ($name === '') {
+        return $email;
+    }
+    return mime_header($name) . ' <' . $email . '>';
+}
+
+function mime_header(string $value): string
+{
+    return '=?UTF-8?B?' . base64_encode(trim_length($value, 255)) . '?=';
+}
+
+function lager_format_qty(float $value): string
+{
+    $formatted = number_format($value, 2, ',', ' ');
+    return rtrim(rtrim($formatted, '0'), ',');
 }
 
 function ensure_unique_token(string $baseToken, ?int $currentItemId): string

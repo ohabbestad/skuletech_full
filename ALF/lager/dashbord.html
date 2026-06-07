@@ -51,7 +51,7 @@
         <button id="tab-inventory" onclick="app.switchTab('inventory')" class="tab-btn whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">Lager</button>
         <button id="tab-count" onclick="app.switchTab('count')" class="tab-btn whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">Vareteljing</button>
         <button id="tab-report" onclick="app.switchTab('report')" class="tab-btn whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">Rapport</button>
-        <button id="tab-admin" onclick="app.switchTab('admin')" class="tab-btn whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">Varer og avdelingar</button>
+        <button id="tab-admin" onclick="app.switchTab('admin')" class="tab-btn whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">Varer, ansvar og avdelingar</button>
         <a href="etikettar.html" class="ml-auto whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">QR-etikettar</a>
       </nav>
     </div>
@@ -201,6 +201,8 @@ const app = {
     departments: [],
     recentMovements: [],
     recentCounts: [],
+    recentEmailLogs: [],
+    mailEnabled: false,
     report: null
   },
 
@@ -270,6 +272,8 @@ const app = {
     this.state.departments = json.departments || [];
     this.state.recentMovements = json.recentMovements || [];
     this.state.recentCounts = json.recentCounts || [];
+    this.state.recentEmailLogs = json.recentEmailLogs || [];
+    this.state.mailEnabled = Boolean(json.mailEnabled);
   },
 
   render() {
@@ -488,22 +492,36 @@ const app = {
     if (this.state.role !== 'laerar') {
       root.innerHTML = `
         <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 class="text-xl font-black text-slate-950">Varer og avdelingar</h2>
-          <p class="mt-2 text-slate-600">Berre lærar/admin kan redigere varelista og avdelingane.</p>
+          <h2 class="text-xl font-black text-slate-950">Varer, ansvar og avdelingar</h2>
+          <p class="mt-2 text-slate-600">Berre lærar/admin kan redigere varelista, innkjøpsansvarlege og avdelingane.</p>
         </div>`;
       return;
     }
 
     root.innerHTML = `
       <div class="space-y-5">
+        ${this.mailStatusNotice()}
+
+        <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div class="border-b border-slate-200 p-4">
+            <h2 class="text-xl font-black text-slate-950">Innkjøpsansvar per kategori</h2>
+            <p class="mt-1 text-sm text-slate-600">Kategoriansvarleg blir brukt som standard. Ei vare kan overstyre mottakar med eigne felt i varelista.</p>
+          </div>
+          <div class="divide-y divide-slate-100">
+            ${this.categoryContactRows()}
+          </div>
+        </div>
+
         <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
           <h2 class="text-xl font-black text-slate-950">Ny vare</h2>
-          <div class="mt-4 grid gap-3 md:grid-cols-6">
+          <div class="mt-4 grid gap-3 md:grid-cols-8">
             <input id="new-name" class="md:col-span-2 rounded-lg border border-slate-300 px-3 py-2" placeholder="Varenamn">
             <select id="new-category" class="rounded-lg border border-slate-300 px-3 py-2">${this.categoryOptions('')}</select>
             <input id="new-unit" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Eining" value="stk">
             <input id="new-min" inputmode="decimal" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Min">
             <input id="new-shelf" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Hylle">
+            <input id="new-contact-name" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Vareansvarleg">
+            <input id="new-contact-email" type="email" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="E-post">
           </div>
           <button onclick="app.createItem()" class="mt-3 rounded-lg bg-sky-700 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-sky-800">Opprett vare</button>
         </div>
@@ -513,7 +531,7 @@ const app = {
             <h2 class="text-xl font-black text-slate-950">Rediger varer</h2>
           </div>
           <div class="overflow-x-auto">
-            <table class="w-full min-w-[1080px] text-left text-sm">
+            <table class="w-full min-w-[1400px] text-left text-sm">
               <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                 <tr>
                   <th class="px-4 py-3">Vare</th>
@@ -522,6 +540,9 @@ const app = {
                   <th class="px-4 py-3">Min</th>
                   <th class="px-4 py-3">Hylle</th>
                   <th class="px-4 py-3">QR-kode</th>
+                  <th class="px-4 py-3">Vareansvarleg</th>
+                  <th class="px-4 py-3">E-post</th>
+                  <th class="px-4 py-3">Varsel</th>
                   <th class="px-4 py-3">Aktiv</th>
                   <th class="px-4 py-3 text-right">Lagre</th>
                 </tr>
@@ -541,7 +562,40 @@ const app = {
           </div>
           <div class="mt-4 divide-y divide-slate-100">${this.state.departments.map(dep => this.departmentRow(dep)).join('')}</div>
         </div>
+
+        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <h2 class="text-xl font-black text-slate-950">E-postlogg</h2>
+          <div class="mt-3 divide-y divide-slate-100">${this.emailLogRows()}</div>
+        </div>
       </div>`;
+  },
+
+  mailStatusNotice() {
+    if (this.state.mailEnabled) {
+      return `
+        <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900">
+          E-postsending er slått på i serverkonfigurasjonen.
+        </div>`;
+    }
+    return `
+      <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+        E-postsending er ikkje slått på i <span class="font-black">config.local.php</span>. Testar og automatiske varsel blir logga, men ikkje sende.
+      </div>`;
+  },
+
+  categoryContactRows() {
+    return this.state.categories.map(category => `
+      <div class="grid gap-3 p-4 lg:grid-cols-[1fr_220px_280px_auto_auto] lg:items-center">
+        <div>
+          <p class="font-bold text-slate-950">${this.esc(category.name)}</p>
+          <p class="text-xs font-semibold ${category.active ? 'text-emerald-700' : 'text-slate-500'}">${category.active ? 'Aktiv kategori' : 'Inaktiv kategori'}</p>
+        </div>
+        <input id="cat-contact-name-${category.id}" value="${this.esc(category.purchaseContactName || '')}" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Namn">
+        <input id="cat-contact-email-${category.id}" type="email" value="${this.esc(category.purchaseContactEmail || '')}" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="epost@døme.no">
+        <button onclick="app.saveCategoryContact(${category.id})" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm">Lagre</button>
+        <button onclick="app.sendTestAlert(${category.id})" class="rounded-lg bg-sky-700 px-3 py-2 text-sm font-bold text-white shadow-sm hover:bg-sky-800">Test</button>
+      </div>
+    `).join('') || '<p class="p-4 text-sm text-slate-500">Ingen kategoriar er lagde inn.</p>';
   },
 
   itemAdminRow(item) {
@@ -553,6 +607,9 @@ const app = {
         <td class="px-4 py-3"><input id="item-min-${item.id}" inputmode="decimal" value="${this.inputQty(item.minQuantity)}" class="w-24 rounded-lg border border-slate-300 px-3 py-2 text-right"></td>
         <td class="px-4 py-3"><input id="item-shelf-${item.id}" value="${this.esc(item.shelfLabel)}" class="w-28 rounded-lg border border-slate-300 px-3 py-2"></td>
         <td class="px-4 py-3"><input id="item-token-${item.id}" value="${this.esc(item.qrToken)}" class="w-44 rounded-lg border border-slate-300 px-3 py-2"></td>
+        <td class="px-4 py-3"><input id="item-contact-name-${item.id}" value="${this.esc(item.purchaseContactName || '')}" class="w-44 rounded-lg border border-slate-300 px-3 py-2" placeholder="${this.esc(item.categoryContactName || 'Kategoriansvarleg')}"></td>
+        <td class="px-4 py-3"><input id="item-contact-email-${item.id}" type="email" value="${this.esc(item.purchaseContactEmail || '')}" class="w-56 rounded-lg border border-slate-300 px-3 py-2" placeholder="${this.esc(item.categoryContactEmail || 'Bruk kategori')}"></td>
+        <td class="px-4 py-3">${this.alertStatusBadge(item)}</td>
         <td class="px-4 py-3"><input id="item-active-${item.id}" type="checkbox" ${item.active ? 'checked' : ''}></td>
         <td class="px-4 py-3 text-right"><button onclick="app.saveItem(${item.id})" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm">Lagre</button></td>
       </tr>`;
@@ -568,6 +625,25 @@ const app = {
       </div>`;
   },
 
+  emailLogRows() {
+    return this.state.recentEmailLogs.map(log => `
+      <div class="grid gap-2 py-3 text-sm lg:grid-cols-[1fr_auto]">
+        <div>
+          <p class="font-bold text-slate-950">${this.esc(log.subject || this.emailEventLabel(log.eventType))}</p>
+          <p class="text-slate-600">
+            ${this.esc(log.itemName || log.categoryName || 'Utan vare')}
+            ${log.recipientEmail ? ` til ${this.esc(log.recipientName || log.recipientEmail)} <span class="text-slate-500">&lt;${this.esc(log.recipientEmail)}&gt;</span>` : ''}
+          </p>
+          ${log.errorMessage ? `<p class="text-red-700">${this.esc(log.errorMessage)}</p>` : ''}
+        </div>
+        <div class="text-left lg:text-right">
+          ${this.emailStatusBadge(log.status)}
+          <p class="mt-1 text-xs text-slate-500">${this.formatDateTime(log.createdAt)}</p>
+        </div>
+      </div>
+    `).join('') || '<p class="py-6 text-sm text-slate-500">Ingen e-posthendingar enno.</p>';
+  },
+
   async createItem() {
     const json = await this.post({
       action: 'create_item',
@@ -576,6 +652,8 @@ const app = {
       unit: document.getElementById('new-unit').value.trim(),
       minQuantity: document.getElementById('new-min').value.trim() || '0',
       shelfLabel: document.getElementById('new-shelf').value.trim(),
+      purchaseContactName: document.getElementById('new-contact-name').value.trim(),
+      purchaseContactEmail: document.getElementById('new-contact-email').value.trim(),
       active: true
     });
     this.handleSaveResponse(json);
@@ -591,9 +669,32 @@ const app = {
       minQuantity: document.getElementById(`item-min-${itemId}`).value.trim() || '0',
       shelfLabel: document.getElementById(`item-shelf-${itemId}`).value.trim(),
       qrToken: document.getElementById(`item-token-${itemId}`).value.trim(),
+      purchaseContactName: document.getElementById(`item-contact-name-${itemId}`).value.trim(),
+      purchaseContactEmail: document.getElementById(`item-contact-email-${itemId}`).value.trim(),
       active: document.getElementById(`item-active-${itemId}`).checked
     });
     this.handleSaveResponse(json);
+  },
+
+  async saveCategoryContact(categoryId) {
+    const json = await this.post({
+      action: 'save_category_contact',
+      categoryId,
+      purchaseContactName: document.getElementById(`cat-contact-name-${categoryId}`).value.trim(),
+      purchaseContactEmail: document.getElementById(`cat-contact-email-${categoryId}`).value.trim()
+    });
+    this.handleSaveResponse(json);
+  },
+
+  async sendTestAlert(categoryId) {
+    const json = await this.post({ action: 'test_purchase_alert', categoryId });
+    if (json.error) {
+      this.showMessage(json.error, false);
+      return;
+    }
+    this.applyResponse(json);
+    this.render();
+    this.showMessage(json.message || 'Test ferdig.', Boolean(json.sent));
   },
 
   async saveDepartment(id) {
@@ -637,6 +738,23 @@ const app = {
     if (!item.active) return '<span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">Inaktiv</span>';
     if (item.isLow) return '<span class="rounded-full bg-amber-100 px-2 py-1 text-xs font-bold text-amber-900">Lågt</span>';
     return '<span class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-800">OK</span>';
+  },
+
+  alertStatusBadge(item) {
+    if (!item.isLow) return '<span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">Ikkje låg</span>';
+    if (item.lowStockNotifiedAt) return '<span class="rounded-full bg-sky-100 px-2 py-1 text-xs font-bold text-sky-800">Handtert</span>';
+    return '<span class="rounded-full bg-amber-100 px-2 py-1 text-xs font-bold text-amber-900">Ikkje varsla</span>';
+  },
+
+  emailStatusBadge(status) {
+    if (status === 'sent') return '<span class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-800">Sendt</span>';
+    if (status === 'failed') return '<span class="rounded-full bg-red-100 px-2 py-1 text-xs font-bold text-red-800">Feila</span>';
+    return '<span class="rounded-full bg-amber-100 px-2 py-1 text-xs font-bold text-amber-900">Hoppa over</span>';
+  },
+
+  emailEventLabel(type) {
+    if (type === 'test') return 'Testvarsel';
+    return 'Innkjøpsvarsel';
   },
 
   movementLabel(type) {

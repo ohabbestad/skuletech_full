@@ -22,6 +22,11 @@ return [
     'db_pass'      => 'database_passord',
     'setup_key'    => 'eit-langt-hemmeleg-oppsett-passord',
     'session_name' => 'LAGER_SESS',
+    'mail_enabled' => true,
+    'mail_from' => 'lager@skuletech.no',
+    'mail_from_name' => 'SkuleTech Tørrvarelager',
+    'mail_reply_to' => '',
+    'app_url' => 'https://skuletech.no/ALF/lager/dashbord.html',
 ];
 ```
 
@@ -34,6 +39,16 @@ ALF/lager/sql/schema.sql
 ```
 
 Fila lagar tabellar og legg inn startlista med varer, kategoriar og avdelingar.
+
+### Oppgradering av eksisterande database
+
+Dersom tørrvarelageret allereie er sett opp på serveren, køyr denne fila éin gong i phpMyAdmin før du lastar opp ny PHP-kode:
+
+```txt
+ALF/lager/sql/upgrade-email-alerts.sql
+```
+
+Ho legg til innkjøpsansvarlege, varslingsstatus og e-postlogg.
 
 ## 4. Sjekk databasekoplinga
 
@@ -70,3 +85,13 @@ Slett `api/setup.php` frå serveren etterpå.
 4. Opne `etikettar.html` og skriv ut QR-etikettar.
 5. Skann ein QR-kode og registrer eit uttak.
 6. Sjekk at uttaket kjem i rapporten.
+
+## 7. Test innkjøpsvarsel
+
+1. Logg inn som lærar/admin.
+2. Opne `Varer, ansvar og avdelingar`.
+3. Legg inn namn og e-post på ein kategori.
+4. Trykk `Test` og sjekk at e-posten kjem fram.
+5. Set min-nivå på ei vare, registrer uttak frå QR-sida og sjekk e-postloggen i dashbordet.
+
+Bruk ein avsendaradresse på same domene/webhotell som sida. Det gir betre levering og følgjer Domeneshop-reglane for e-post frå webhotell.

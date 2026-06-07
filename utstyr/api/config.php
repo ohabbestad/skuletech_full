@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /*
- * Lokal konfigurasjon for tørrvarelageret.
+ * Lokal konfigurasjon for utstyrslån.
  *
  * På serveren:
  * 1. Kopier denne strukturen til api/config.local.php.
@@ -22,10 +22,5 @@ return [
     'db_user' => 'FYLL_INN_BRUKAR',
     'db_pass' => 'FYLL_INN_PASSORD',
     'setup_key' => 'BYT_TIL_EIT_LANGT_HEMMELEG_OPPSETT_PASSORD',
-    'session_name' => 'LAGER_SESS',
-    'mail_enabled' => false,
-    'mail_from' => 'lager@skuletech.no',
-    'mail_from_name' => 'SkuleTech Tørrvarelager',
-    'mail_reply_to' => '',
-    'app_url' => 'https://skuletech.no/ALF/lager/dashbord.html',
+    'session_name' => 'UTSTYR_SESS',
 ];

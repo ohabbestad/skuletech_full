@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Utstyrslån - Dashbord</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-stone-100 text-slate-900 antialiased">
+
+<div id="login-screen" class="flex min-h-screen items-center justify-center px-4">
+  <main class="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+    <p class="text-xs font-semibold uppercase tracking-wide text-sky-700">SkuleTech</p>
+    <h1 class="mt-1 text-3xl font-black tracking-tight text-slate-950">Utstyrslån</h1>
+    <p class="mt-2 text-sm text-slate-600">Logg inn for å sjå undervisningsmateriell, aktive utlån og fristar.</p>
+
+    <div class="mt-6 space-y-4">
+      <label class="block">
+        <span class="text-sm font-semibold text-slate-700">Rolle</span>
+        <select id="role-input" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100">
+          <option value="tilsett">Tilsett</option>
+          <option value="admin">Admin</option>
+        </select>
+      </label>
+      <label class="block">
+        <span class="text-sm font-semibold text-slate-700">Passord</span>
+        <input id="password-input" type="password" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" onkeydown="if(event.key==='Enter') app.login()">
+      </label>
+      <p id="login-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800"></p>
+      <button id="login-btn" onclick="app.login()" class="w-full rounded-lg bg-sky-700 px-4 py-3 font-bold text-white transition hover:bg-sky-800">Logg inn</button>
+    </div>
+  </main>
+</div>
+
+<div id="dashboard" class="hidden min-h-screen">
+  <header class="border-b border-slate-200 bg-white">
+    <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wide text-sky-700">SkuleTech</p>
+          <h1 class="text-2xl font-black tracking-tight text-slate-950">Utstyrslån</h1>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span id="role-badge" class="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700"></span>
+          <button onclick="app.refresh()" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm">Oppdater</button>
+          <button onclick="app.logout()" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm">Logg ut</button>
+        </div>
+      </div>
+
+      <nav class="flex gap-1 overflow-x-auto rounded-lg bg-slate-100 p-1">
+        <button id="tab-overview" onclick="app.switchTab('overview')" class="tab-btn whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">Oversikt</button>
+        <button id="tab-borrow" onclick="app.switchTab('borrow')" class="tab-btn whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">Lån og lever</button>
+        <button id="tab-admin" onclick="app.switchTab('admin')" class="tab-btn whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">Utstyr og kategoriar</button>
+        <button id="tab-report" onclick="app.switchTab('report')" class="tab-btn whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">Rapport</button>
+        <a href="etikettar.html" class="ml-auto whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600">QR-etikettar</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <p id="app-message" class="mb-4 hidden rounded-lg px-4 py-3 text-sm font-semibold"></p>
+
+    <section id="view-overview" class="view space-y-5">
+      <div id="overview-stats" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"></div>
+
+      <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div class="flex flex-col gap-3 border-b border-slate-200 p-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h2 class="text-xl font-black text-slate-950">Alt utstyr</h2>
+            <p class="text-sm text-slate-600">Søk, sjå kvar utstyret ligg, og kven som har lånt det.</p>
+          </div>
+          <div class="flex flex-col gap-2 sm:flex-row">
+            <input id="overview-search" oninput="app.renderOverview()" class="rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" placeholder="Søk etter utstyr">
+            <select id="overview-category" onchange="app.renderOverview()" class="rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100"></select>
+            <select id="overview-status" onchange="app.renderOverview()" class="rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100">
+              <option value="">Alle statusar</option>
+              <option value="available">Ledig</option>
+              <option value="borrowed">Utlånt</option>
+              <option value="overdue">Forfalt</option>
+              <option value="inactive">Inaktiv</option>
+            </select>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[920px] text-left text-sm">
+            <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <tr>
+                <th class="px-4 py-3">Utstyr</th>
+                <th class="px-4 py-3">Kategori</th>
+                <th class="px-4 py-3">Plassering</th>
+                <th class="px-4 py-3 text-right">Ledig</th>
+                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3">Aktivt lån</th>
+                <th class="px-4 py-3 text-right">Lenkje</th>
+              </tr>
+            </thead>
+            <tbody id="overview-table" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <h2 class="text-xl font-black text-slate-950">Aktive utlån</h2>
+        <div id="active-loans-list" class="mt-3 divide-y divide-slate-100"></div>
+      </div>
+    </section>
+
+    <section id="view-borrow" class="view hidden space-y-5">
+      <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <h2 class="text-xl font-black text-slate-950">Registrer utlån</h2>
+        <div class="mt-4 grid gap-3 lg:grid-cols-5">
+          <label class="block lg:col-span-2">
+            <span class="text-sm font-semibold text-slate-700">Utstyr</span>
+            <select id="borrow-item" onchange="app.onBorrowItemChange()" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100"></select>
+          </label>
+          <label class="block">
+            <span class="text-sm font-semibold text-slate-700">Namn</span>
+            <input id="borrower-name" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" placeholder="Lånar">
+          </label>
+          <label id="borrow-quantity-wrap" class="block">
+            <span class="text-sm font-semibold text-slate-700">Mengd</span>
+            <input id="borrow-quantity" inputmode="numeric" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" value="1">
+          </label>
+          <label class="block">
+            <span class="text-sm font-semibold text-slate-700">Forventa innlevering</span>
+            <input id="expected-return-date" type="date" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100">
+          </label>
+        </div>
+        <label class="mt-3 block">
+          <span class="text-sm font-semibold text-slate-700">Merknad</span>
+          <input id="borrow-note" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" placeholder="Valfritt">
+        </label>
+        <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p id="borrow-item-info" class="text-sm text-slate-600"></p>
+          <button id="create-loan-btn" onclick="app.createLoan()" class="rounded-lg bg-sky-700 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-sky-800">Registrer utlån</button>
+        </div>
+      </div>
+
+      <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 class="text-xl font-black text-slate-950">Lever inn</h2>
+            <p class="text-sm text-slate-600">Vel utlånet i lista og registrer innlevering.</p>
+          </div>
+          <div class="grid gap-2 sm:grid-cols-2">
+            <input id="returner-name" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm" placeholder="Namn ved innlevering">
+            <input id="return-note" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm" placeholder="Merknad">
+          </div>
+        </div>
+        <div id="return-loans-list" class="mt-4 divide-y divide-slate-100"></div>
+      </div>
+    </section>
+
+    <section id="view-admin" class="view hidden space-y-5">
+      <div id="admin-content"></div>
+    </section>
+
+    <section id="view-report" class="view hidden space-y-5">
+      <div id="report-content"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+const API_URL = 'api/index.php';
+
+const app = {
+  state: {
+    role: null,
+    currentTab: 'overview',
+    items: [],
+    categories: [],
+    locations: [],
+    activeLoans: [],
+    recentLoans: [],
+    report: null
+  },
+
+  init() {
+    document.getElementById('password-input').focus();
+    this.setDefaultReportDates();
+  },
+
+  async login() {
+    const role = document.getElementById('role-input').value;
+    const password = document.getElementById('password-input').value.trim();
+    if (!password) return;
+    const btn = document.getElementById('login-btn');
+    const err = document.getElementById('login-error');
+    btn.disabled = true;
+    btn.textContent = 'Loggar inn...';
+    err.classList.add('hidden');
+    try {
+      const json = await this.post({ action: 'login', role, password });
+      if (json.error) {
+        err.textContent = json.error;
+        err.classList.remove('hidden');
+        return;
+      }
+      this.applyResponse(json);
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      this.render();
+    } catch {
+      err.textContent = 'Kunne ikkje nå serveren.';
+      err.classList.remove('hidden');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Logg inn';
+    }
+  },
+
+  async logout() {
+    await this.post({ action: 'logout' }).catch(() => null);
+    location.reload();
+  },
+
+  async refresh() {
+    const json = await this.post({ action: 'dashboard_load', role: this.state.role });
+    if (json.error) {
+      this.showMessage(json.error, false);
+      return;
+    }
+    this.applyResponse(json);
+    this.render();
+    this.showMessage('Oppdatert.', true);
+  },
+
+  async post(payload) {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    return res.json();
+  },
+
+  applyResponse(json) {
+    this.state.role = json.userRole || this.state.role;
+    this.state.items = json.items || this.state.items || [];
+    this.state.categories = json.categories || this.state.categories || [];
+    this.state.locations = json.locations || this.state.locations || [];
+    this.state.activeLoans = json.activeLoans || this.state.activeLoans || [];
+    this.state.recentLoans = json.recentLoans || this.state.recentLoans || [];
+  },
+
+  render() {
+    document.getElementById('role-badge').textContent = this.state.role === 'admin' ? 'Admin' : 'Tilsett';
+    document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
+    document.getElementById(`view-${this.state.currentTab}`).classList.remove('hidden');
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.className = 'tab-btn whitespace-nowrap rounded-md px-4 py-2 text-sm font-bold text-slate-600');
+    const activeBtn = document.getElementById(`tab-${this.state.currentTab}`);
+    if (activeBtn) activeBtn.className = 'tab-btn whitespace-nowrap rounded-md bg-white px-4 py-2 text-sm font-bold text-slate-950 shadow-sm';
+
+    this.renderFilters();
+    if (this.state.currentTab === 'overview') this.renderOverview();
+    if (this.state.currentTab === 'borrow') this.renderBorrow();
+    if (this.state.currentTab === 'admin') this.renderAdmin();
+    if (this.state.currentTab === 'report') this.renderReportView();
+  },
+
+  switchTab(tab) {
+    this.state.currentTab = tab;
+    this.render();
+  },
+
+  renderFilters() {
+    const overviewCategory = document.getElementById('overview-category');
+    const currentCategory = overviewCategory.value || '';
+    overviewCategory.innerHTML = '<option value="">Alle kategoriar</option>' + this.state.categories
+      .filter(c => c.active)
+      .map(c => `<option value="${c.id}">${this.esc(c.name)}</option>`)
+      .join('');
+    overviewCategory.value = currentCategory;
+  },
+
+  renderOverview() {
+    const activeItems = this.state.items.filter(i => i.active);
+    const availableItems = activeItems.filter(i => i.availableQuantity > 0);
+    const borrowedItems = activeItems.filter(i => i.activeQuantity > 0);
+    const overdueLoans = this.state.activeLoans.filter(l => l.isOverdue);
+    document.getElementById('overview-stats').innerHTML = [
+      this.statCard('Aktivt utstyr', activeItems.length, 'registrerte ressursar'),
+      this.statCard('Ledig no', availableItems.length, 'kan lånast ut'),
+      this.statCard('Utlånt', borrowedItems.length, 'har aktive utlån'),
+      this.statCard('Forfalt', overdueLoans.length, 'bør følgjast opp')
+    ].join('');
+
+    const term = (document.getElementById('overview-search')?.value || '').toLowerCase();
+    const categoryId = Number(document.getElementById('overview-category')?.value || 0);
+    const status = document.getElementById('overview-status')?.value || '';
+    const rows = this.state.items.filter(item => {
+      if (categoryId && item.categoryId !== categoryId) return false;
+      if (status === 'available' && (!item.active || item.availableQuantity <= 0)) return false;
+      if (status === 'borrowed' && item.activeQuantity <= 0) return false;
+      if (status === 'overdue' && !item.hasOverdue) return false;
+      if (status === 'inactive' && item.active) return false;
+      if (!term) return true;
+      return `${item.name} ${item.category} ${item.location} ${item.description}`.toLowerCase().includes(term);
+    });
+
+    document.getElementById('overview-table').innerHTML = rows.map(item => {
+      const loans = this.state.activeLoans.filter(loan => loan.itemId === item.id);
+      return `
+        <tr class="${item.active ? 'bg-white' : 'bg-slate-50 text-slate-400'}">
+          <td class="px-4 py-3">
+            <p class="font-bold text-slate-950">${this.esc(item.name)}</p>
+            <p class="max-w-md text-xs text-slate-500">${this.esc(item.description)}</p>
+          </td>
+          <td class="px-4 py-3">${this.esc(item.category)}</td>
+          <td class="px-4 py-3">${this.esc(item.location) || '-'}</td>
+          <td class="px-4 py-3 text-right font-bold">${item.availableQuantity} / ${item.totalQuantity}</td>
+          <td class="px-4 py-3">${this.statusBadge(item)}</td>
+          <td class="px-4 py-3">${loans.length ? loans.map(loan => this.loanMini(loan)).join('') : '<span class="text-slate-400">Ingen</span>'}</td>
+          <td class="px-4 py-3 text-right"><a href="${this.itemUrl(item)}" class="font-bold text-sky-700 hover:text-sky-900">Opne</a></td>
+        </tr>`;
+    }).join('') || '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-500">Ingen utstyr passar søket.</td></tr>';
+
+    this.renderActiveLoans();
+  },
+
+  loanMini(loan) {
+    return `<p class="mb-1 text-xs ${loan.isOverdue ? 'font-bold text-red-700' : 'text-slate-700'}">${this.esc(loan.borrowerName)} til ${this.formatDate(loan.expectedReturnDate)}</p>`;
+  },
+
+  renderActiveLoans() {
+    document.getElementById('active-loans-list').innerHTML = this.state.activeLoans.map(loan => `
+      <div class="grid gap-2 py-3 text-sm sm:grid-cols-[1fr_auto]">
+        <div>
+          <p class="font-bold text-slate-900">${this.esc(loan.itemName)} <span class="font-medium text-slate-500">lånt av ${this.esc(loan.borrowerName)}</span></p>
+          <p class="text-slate-600">${this.esc(loan.location || 'Utan plassering')} ${loan.note ? `- ${this.esc(loan.note)}` : ''}</p>
+        </div>
+        <div class="text-left sm:text-right">
+          <p class="${loan.isOverdue ? 'font-bold text-red-700' : 'font-bold text-slate-900'}">Frist: ${this.formatDate(loan.expectedReturnDate)}</p>
+          <p class="text-xs text-slate-500">${loan.quantity} stk · lånt ${this.formatDateTime(loan.borrowedAt)}</p>
+        </div>
+      </div>
+    `).join('') || '<p class="py-6 text-sm text-slate-500">Ingen aktive utlån.</p>';
+  },
+
+  renderBorrow() {
+    const options = this.state.items
+      .filter(item => item.active && item.availableQuantity > 0)
+      .map(item => `<option value="${item.id}">${this.esc(item.name)} (${item.availableQuantity} ledig)</option>`)
+      .join('');
+    const select = document.getElementById('borrow-item');
+    const old = select.value;
+    select.innerHTML = options || '<option value="">Ingen ledig utstyr</option>';
+    if (old && [...select.options].some(opt => opt.value === old)) select.value = old;
+    this.onBorrowItemChange(false);
+
+    document.getElementById('return-loans-list').innerHTML = this.state.activeLoans.map(loan => `
+      <div class="grid gap-2 py-3 text-sm sm:grid-cols-[1fr_auto] sm:items-center">
+        <div>
+          <p class="font-bold text-slate-900">${this.esc(loan.itemName)} <span class="font-medium text-slate-500">lånt av ${this.esc(loan.borrowerName)}</span></p>
+          <p class="${loan.isOverdue ? 'font-semibold text-red-700' : 'text-slate-600'}">Frist: ${this.formatDate(loan.expectedReturnDate)} · ${loan.quantity} stk</p>
+        </div>
+        <button onclick="app.returnLoan(${loan.id})" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm">Lever inn</button>
+      </div>
+    `).join('') || '<p class="py-6 text-sm text-slate-500">Ingen aktive utlån å levere inn.</p>';
+  },
+
+  onBorrowItemChange(updateDate = true) {
+    const item = this.selectedBorrowItem();
+    const quantityWrap = document.getElementById('borrow-quantity-wrap');
+    const quantity = document.getElementById('borrow-quantity');
+    const due = document.getElementById('expected-return-date');
+    const info = document.getElementById('borrow-item-info');
+    if (!item) {
+      quantityWrap.classList.add('hidden');
+      info.textContent = 'Ingen ledig utstyr er valt.';
+      return;
+    }
+    quantityWrap.classList.toggle('hidden', item.loanMode === 'unique');
+    quantity.value = '1';
+    quantity.max = item.availableQuantity;
+    if (updateDate || !due.value) {
+      due.value = this.dateAfter(item.defaultLoanDays);
+    }
+    info.textContent = `${item.availableQuantity} av ${item.totalQuantity} ledig. Standard lånetid: ${item.defaultLoanDays} dagar.`;
+  },
+
+  selectedBorrowItem() {
+    const id = Number(document.getElementById('borrow-item')?.value || 0);
+    return this.state.items.find(item => item.id === id) || null;
+  },
+
+  async createLoan() {
+    const item = this.selectedBorrowItem();
+    if (!item) {
+      this.showMessage('Vel utstyr først.', false);
+      return;
+    }
+    const btn = document.getElementById('create-loan-btn');
+    btn.disabled = true;
+    btn.textContent = 'Lagrar...';
+    try {
+      const json = await this.post({
+        action: 'create_loan',
+        itemId: item.id,
+        borrowerName: document.getElementById('borrower-name').value.trim(),
+        quantity: item.loanMode === 'unique' ? 1 : document.getElementById('borrow-quantity').value.trim(),
+        expectedReturnDate: document.getElementById('expected-return-date').value,
+        note: document.getElementById('borrow-note').value.trim()
+      });
+      this.handleSaveResponse(json);
+      if (!json.error) {
+        document.getElementById('borrow-note').value = '';
+      }
+    } catch {
+      this.showMessage('Kunne ikkje lagre utlånet.', false);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Registrer utlån';
+    }
+  },
+
+  async returnLoan(loanId) {
+    const json = await this.post({
+      action: 'return_loan',
+      loanId,
+      returnedByName: document.getElementById('returner-name').value.trim(),
+      returnNote: document.getElementById('return-note').value.trim()
+    });
+    this.handleSaveResponse(json);
+    if (!json.error) {
+      document.getElementById('return-note').value = '';
+    }
+  },
+
+  renderAdmin() {
+    const root = document.getElementById('admin-content');
+    if (this.state.role !== 'admin') {
+      root.innerHTML = `
+        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 class="text-xl font-black text-slate-950">Admin</h2>
+          <p class="mt-2 text-slate-600">Berre admin kan redigere utstyr, kategoriar og plasseringar.</p>
+        </div>`;
+      return;
+    }
+
+    root.innerHTML = `
+      <div class="space-y-5">
+        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <h2 class="text-xl font-black text-slate-950">Nytt utstyr</h2>
+          <div class="mt-4 grid gap-3 lg:grid-cols-6">
+            <input id="new-name" class="lg:col-span-2 rounded-lg border border-slate-300 px-3 py-2" placeholder="Namn">
+            <select id="new-category" class="rounded-lg border border-slate-300 px-3 py-2">${this.categoryOptions('')}</select>
+            <select id="new-location" class="rounded-lg border border-slate-300 px-3 py-2">${this.locationOptions('')}</select>
+            <select id="new-mode" class="rounded-lg border border-slate-300 px-3 py-2"><option value="unique">Unikt objekt</option><option value="quantity">Mengdeutstyr</option></select>
+            <input id="new-total" inputmode="numeric" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Mengd" value="1">
+            <input id="new-days" inputmode="numeric" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Lånedagar" value="7">
+            <input id="new-token" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="QR-kode">
+            <input id="new-description" class="lg:col-span-4 rounded-lg border border-slate-300 px-3 py-2" placeholder="Kort skildring">
+          </div>
+          <button onclick="app.createItem()" class="mt-3 rounded-lg bg-sky-700 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-sky-800">Opprett utstyr</button>
+        </div>
+
+        <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div class="border-b border-slate-200 p-4">
+            <h2 class="text-xl font-black text-slate-950">Rediger utstyr</h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full min-w-[1260px] text-left text-sm">
+              <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th class="px-4 py-3">Namn</th>
+                  <th class="px-4 py-3">Kategori</th>
+                  <th class="px-4 py-3">Plassering</th>
+                  <th class="px-4 py-3">Type</th>
+                  <th class="px-4 py-3">Mengd</th>
+                  <th class="px-4 py-3">Dagar</th>
+                  <th class="px-4 py-3">QR</th>
+                  <th class="px-4 py-3">Aktiv</th>
+                  <th class="px-4 py-3 text-right">Lagre</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">${this.state.items.map(item => this.itemAdminRow(item)).join('')}</tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="grid gap-5 lg:grid-cols-2">
+          <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <h2 class="text-xl font-black text-slate-950">Kategoriar</h2>
+            ${this.taxonomyEditor('category')}
+          </div>
+          <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <h2 class="text-xl font-black text-slate-950">Plasseringar</h2>
+            ${this.taxonomyEditor('location')}
+          </div>
+        </div>
+      </div>`;
+  },
+
+  itemAdminRow(item) {
+    return `
+      <tr>
+        <td class="px-4 py-3">
+          <input id="item-name-${item.id}" value="${this.esc(item.name)}" class="w-56 rounded-lg border border-slate-300 px-3 py-2">
+          <input id="item-description-${item.id}" value="${this.esc(item.description)}" class="mt-2 w-56 rounded-lg border border-slate-300 px-3 py-2 text-xs" placeholder="Skildring">
+        </td>
+        <td class="px-4 py-3"><select id="item-category-${item.id}" class="w-44 rounded-lg border border-slate-300 px-3 py-2">${this.categoryOptions(item.categoryId)}</select></td>
+        <td class="px-4 py-3"><select id="item-location-${item.id}" class="w-44 rounded-lg border border-slate-300 px-3 py-2">${this.locationOptions(item.locationId || '')}</select></td>
+        <td class="px-4 py-3"><select id="item-mode-${item.id}" class="w-40 rounded-lg border border-slate-300 px-3 py-2"><option value="unique" ${item.loanMode === 'unique' ? 'selected' : ''}>Unikt</option><option value="quantity" ${item.loanMode === 'quantity' ? 'selected' : ''}>Mengde</option></select></td>
+        <td class="px-4 py-3"><input id="item-total-${item.id}" inputmode="numeric" value="${item.totalQuantity}" class="w-24 rounded-lg border border-slate-300 px-3 py-2 text-right"></td>
+        <td class="px-4 py-3"><input id="item-days-${item.id}" inputmode="numeric" value="${item.defaultLoanDays}" class="w-24 rounded-lg border border-slate-300 px-3 py-2 text-right"></td>
+        <td class="px-4 py-3"><input id="item-token-${item.id}" value="${this.esc(item.qrToken)}" class="w-44 rounded-lg border border-slate-300 px-3 py-2"></td>
+        <td class="px-4 py-3"><input id="item-active-${item.id}" type="checkbox" ${item.active ? 'checked' : ''}></td>
+        <td class="px-4 py-3 text-right"><button onclick="app.saveItem(${item.id})" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm">Lagre</button></td>
+      </tr>`;
+  },
+
+  taxonomyEditor(type) {
+    const items = type === 'category' ? this.state.categories : this.state.locations;
+    const prefix = type === 'category' ? 'cat' : 'loc';
+    const label = type === 'category' ? 'Ny kategori' : 'Ny plassering';
+    return `
+      <div class="mt-4 grid gap-3 md:grid-cols-[1fr_100px_100px_auto]">
+        <input id="new-${prefix}-name" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="${label}">
+        <input id="new-${prefix}-sort" type="number" class="rounded-lg border border-slate-300 px-3 py-2" value="100">
+        <label class="flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2"><input id="new-${prefix}-active" type="checkbox" checked> Aktiv</label>
+        <button onclick="app.saveTaxonomy('${type}', 0)" class="rounded-lg bg-sky-700 px-4 py-2 text-sm font-bold text-white shadow-sm">Legg til</button>
+      </div>
+      <div class="mt-4 divide-y divide-slate-100">${items.map(item => this.taxonomyRow(type, item)).join('')}</div>`;
+  },
+
+  taxonomyRow(type, item) {
+    const prefix = type === 'category' ? 'cat' : 'loc';
+    return `
+      <div class="grid gap-3 py-3 md:grid-cols-[1fr_100px_100px_auto]">
+        <input id="${prefix}-name-${item.id}" value="${this.esc(item.name)}" class="rounded-lg border border-slate-300 px-3 py-2">
+        <input id="${prefix}-sort-${item.id}" type="number" value="${item.sortOrder}" class="rounded-lg border border-slate-300 px-3 py-2">
+        <label class="flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2"><input id="${prefix}-active-${item.id}" type="checkbox" ${item.active ? 'checked' : ''}> Aktiv</label>
+        <button onclick="app.saveTaxonomy('${type}', ${item.id})" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm">Lagre</button>
+      </div>`;
+  },
+
+  async createItem() {
+    const json = await this.post({
+      action: 'admin_create_item',
+      name: document.getElementById('new-name').value.trim(),
+      categoryId: Number(document.getElementById('new-category').value),
+      locationId: Number(document.getElementById('new-location').value || 0),
+      loanMode: document.getElementById('new-mode').value,
+      totalQuantity: document.getElementById('new-total').value.trim() || '1',
+      defaultLoanDays: document.getElementById('new-days').value.trim() || '7',
+      qrToken: document.getElementById('new-token').value.trim(),
+      description: document.getElementById('new-description').value.trim(),
+      active: true
+    });
+    this.handleSaveResponse(json);
+  },
+
+  async saveItem(itemId) {
+    const json = await this.post({
+      action: 'admin_save_item',
+      itemId,
+      name: document.getElementById(`item-name-${itemId}`).value.trim(),
+      description: document.getElementById(`item-description-${itemId}`).value.trim(),
+      categoryId: Number(document.getElementById(`item-category-${itemId}`).value),
+      locationId: Number(document.getElementById(`item-location-${itemId}`).value || 0),
+      loanMode: document.getElementById(`item-mode-${itemId}`).value,
+      totalQuantity: document.getElementById(`item-total-${itemId}`).value.trim() || '1',
+      defaultLoanDays: document.getElementById(`item-days-${itemId}`).value.trim() || '7',
+      qrToken: document.getElementById(`item-token-${itemId}`).value.trim(),
+      active: document.getElementById(`item-active-${itemId}`).checked
+    });
+    this.handleSaveResponse(json);
+  },
+
+  async saveTaxonomy(type, id) {
+    const prefix = type === 'category' ? 'cat' : 'loc';
+    const action = type === 'category' ? 'admin_save_category' : 'admin_save_location';
+    const payload = {
+      action,
+      name: document.getElementById(id ? `${prefix}-name-${id}` : `new-${prefix}-name`).value.trim(),
+      sortOrder: Number(document.getElementById(id ? `${prefix}-sort-${id}` : `new-${prefix}-sort`).value || 100),
+      active: document.getElementById(id ? `${prefix}-active-${id}` : `new-${prefix}-active`).checked
+    };
+    payload[type === 'category' ? 'categoryId' : 'locationId'] = id;
+    const json = await this.post(payload);
+    this.handleSaveResponse(json);
+  },
+
+  renderReportView() {
+    const root = document.getElementById('report-content');
+    if (this.state.role !== 'admin') {
+      root.innerHTML = `
+        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 class="text-xl font-black text-slate-950">Rapport</h2>
+          <p class="mt-2 text-slate-600">Berre admin kan sjå historikk og rapport.</p>
+        </div>`;
+      return;
+    }
+
+    root.innerHTML = `
+      <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <h2 class="text-xl font-black text-slate-950">Rapport for utlån</h2>
+        <div class="mt-4 grid gap-3 md:grid-cols-5">
+          <label class="block">
+            <span class="text-sm font-semibold text-slate-700">Frå</span>
+            <input id="report-from" type="date" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+          </label>
+          <label class="block">
+            <span class="text-sm font-semibold text-slate-700">Til</span>
+            <input id="report-to" type="date" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+          </label>
+          <label class="block">
+            <span class="text-sm font-semibold text-slate-700">Status</span>
+            <select id="report-status" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2">
+              <option value="all">Alle</option>
+              <option value="active">Aktive</option>
+              <option value="returned">Innleverte</option>
+              <option value="overdue">Forfalne</option>
+            </select>
+          </label>
+          <div class="flex items-end gap-2 md:col-span-2">
+            <button onclick="app.loadReport()" class="flex-1 rounded-lg bg-sky-700 px-4 py-2 font-bold text-white shadow-sm hover:bg-sky-800">Hent rapport</button>
+            <button onclick="app.downloadCsv()" class="rounded-lg border border-slate-300 bg-white px-4 py-2 font-bold text-slate-700 shadow-sm">CSV</button>
+          </div>
+        </div>
+      </div>
+      <div id="report-summary" class="grid gap-3 sm:grid-cols-3"></div>
+      <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[1040px] text-left text-sm">
+            <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <tr>
+                <th class="px-4 py-3">Utstyr</th>
+                <th class="px-4 py-3">Lånar</th>
+                <th class="px-4 py-3">Mengd</th>
+                <th class="px-4 py-3">Lånt</th>
+                <th class="px-4 py-3">Frist</th>
+                <th class="px-4 py-3">Innlevert</th>
+                <th class="px-4 py-3">Merknad</th>
+              </tr>
+            </thead>
+            <tbody id="report-table" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>`;
+
+    this.restoreReportInputs();
+    this.renderReportTable();
+  },
+
+  async loadReport() {
+    const payload = {
+      action: 'admin_report',
+      from: document.getElementById('report-from').value,
+      to: document.getElementById('report-to').value,
+      status: document.getElementById('report-status').value
+    };
+    const json = await this.post(payload);
+    if (json.error) {
+      this.showMessage(json.error, false);
+      return;
+    }
+    this.state.report = json;
+    this.renderReportTable();
+  },
+
+  renderReportTable() {
+    const summary = this.state.report?.summary || { loans: 0, active: 0, overdue: 0 };
+    const rows = this.state.report?.rows || [];
+    const summaryEl = document.getElementById('report-summary');
+    const tableEl = document.getElementById('report-table');
+    if (!summaryEl || !tableEl) return;
+    summaryEl.innerHTML = [
+      this.statCard('Utlån', summary.loans, 'i perioden'),
+      this.statCard('Aktive', summary.active, 'ikkje innlevert'),
+      this.statCard('Forfalne', summary.overdue, 'aktive over frist')
+    ].join('');
+    tableEl.innerHTML = rows.map(row => `
+      <tr>
+        <td class="px-4 py-3 font-bold text-slate-950">${this.esc(row.itemName)}</td>
+        <td class="px-4 py-3">${this.esc(row.borrowerName)}</td>
+        <td class="px-4 py-3">${row.quantity}</td>
+        <td class="px-4 py-3">${this.formatDateTime(row.borrowedAt)}</td>
+        <td class="px-4 py-3 ${row.isOverdue && !row.isReturned ? 'font-bold text-red-700' : ''}">${this.formatDate(row.expectedReturnDate)}</td>
+        <td class="px-4 py-3">${row.isReturned ? this.formatDateTime(row.returnedAt) : 'Nei'}</td>
+        <td class="px-4 py-3">${this.esc(row.note || row.returnNote || '')}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-500">Ingen rapportdata er henta.</td></tr>';
+  },
+
+  restoreReportInputs() {
+    const from = document.getElementById('report-from');
+    const to = document.getElementById('report-to');
+    const status = document.getElementById('report-status');
+    if (!from || !to || !status) return;
+    from.value = this.state.report?.from || this.defaultReportFrom || this.today().slice(0, 8) + '01';
+    to.value = this.state.report?.to || this.defaultReportTo || this.today();
+    status.value = this.state.report?.status || 'all';
+  },
+
+  downloadCsv() {
+    const rows = this.state.report?.rows || [];
+    if (!rows.length) {
+      this.showMessage('Hent ein rapport før du eksporterer.', false);
+      return;
+    }
+    const header = ['Utstyr', 'Kategori', 'Plassering', 'Lånar', 'Mengd', 'Lånt', 'Frist', 'Innlevert', 'Merknad'];
+    const csvRows = [header, ...rows.map(r => [
+      r.itemName, r.category, r.location, r.borrowerName, r.quantity, r.borrowedAt,
+      r.expectedReturnDate, r.returnedAt || '', r.note || r.returnNote || ''
+    ])];
+    const csv = csvRows.map(row => row.map(value => `"${String(value ?? '').replaceAll('"', '""')}"`).join(';')).join('\r\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `utstyr-rapport-${this.state.report.from}-${this.state.report.to}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  handleSaveResponse(json) {
+    if (json.error) {
+      this.showMessage(json.error, false);
+      return;
+    }
+    this.applyResponse(json);
+    this.render();
+    this.showMessage(json.message || 'Lagra.', true);
+  },
+
+  categoryOptions(selected) {
+    return this.state.categories
+      .filter(c => c.active || Number(selected) === c.id)
+      .map(c => `<option value="${c.id}" ${Number(selected) === c.id ? 'selected' : ''}>${this.esc(c.name)}</option>`)
+      .join('');
+  },
+
+  locationOptions(selected) {
+    return '<option value="0">Utan plassering</option>' + this.state.locations
+      .filter(l => l.active || Number(selected) === l.id)
+      .map(l => `<option value="${l.id}" ${Number(selected) === l.id ? 'selected' : ''}>${this.esc(l.name)}</option>`)
+      .join('');
+  },
+
+  statCard(label, value, hint) {
+    return `
+      <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <p class="text-sm font-semibold text-slate-500">${this.esc(label)}</p>
+        <p class="mt-1 text-3xl font-black text-slate-950">${this.esc(value)}</p>
+        <p class="mt-1 text-sm text-slate-600">${this.esc(hint)}</p>
+      </div>`;
+  },
+
+  statusBadge(item) {
+    if (!item.active) return '<span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">Inaktiv</span>';
+    if (item.hasOverdue) return '<span class="rounded-full bg-red-100 px-2 py-1 text-xs font-bold text-red-800">Forfalt</span>';
+    if (item.availableQuantity <= 0) return '<span class="rounded-full bg-amber-100 px-2 py-1 text-xs font-bold text-amber-900">Utlånt</span>';
+    return '<span class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-800">Ledig</span>';
+  },
+
+  itemUrl(item) {
+    const url = new URL('vare.html', location.href);
+    url.searchParams.set('utstyr', item.qrToken);
+    return url.href;
+  },
+
+  setDefaultReportDates() {
+    const today = this.today();
+    this.defaultReportTo = today;
+    this.defaultReportFrom = today.slice(0, 8) + '01';
+  },
+
+  dateAfter(days) {
+    const d = new Date();
+    d.setDate(d.getDate() + Number(days || 7));
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 10);
+  },
+
+  today() {
+    const d = new Date();
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 10);
+  },
+
+  formatDate(value) {
+    if (!value) return '';
+    const date = new Date(String(value) + 'T00:00:00');
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleDateString('nb-NO', { dateStyle: 'short' });
+  },
+
+  formatDateTime(value) {
+    if (!value) return '';
+    const date = new Date(String(value).replace(' ', 'T'));
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleString('nb-NO', { dateStyle: 'short', timeStyle: 'short' });
+  },
+
+  showMessage(message, ok) {
+    const el = document.getElementById('app-message');
+    el.textContent = message;
+    el.className = `mb-4 rounded-lg px-4 py-3 text-sm font-semibold ${ok ? 'border border-emerald-200 bg-emerald-50 text-emerald-800' : 'border border-red-200 bg-red-50 text-red-800'}`;
+    clearTimeout(this._messageTimer);
+    this._messageTimer = setTimeout(() => el.classList.add('hidden'), 5000);
+  },
+
+  esc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => app.init());
+</script>
+</body>
+</html>

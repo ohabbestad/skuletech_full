@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Utstyrslån</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-stone-100 text-slate-900 antialiased">
+  <main class="mx-auto flex min-h-screen w-full max-w-2xl flex-col px-4 py-5 sm:py-8">
+    <section class="mb-4 flex items-center justify-between">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">SkuleTech</p>
+        <h1 class="text-2xl font-bold text-slate-950">Utstyrslån</h1>
+      </div>
+      <a href="dashbord.html" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm">Dashbord</a>
+    </section>
+
+    <section id="loading-card" class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+      <p class="font-medium text-slate-700">Hentar utstyr...</p>
+    </section>
+
+    <section id="login-card" class="hidden rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-xl font-black text-slate-950">Logg inn</h2>
+      <p id="login-hint" class="mt-2 text-sm text-slate-600">Du må logge inn som tilsett for å sjå og registrere utlån.</p>
+      <div class="mt-5 grid gap-3">
+        <label class="block">
+          <span class="text-sm font-semibold text-slate-700">Rolle</span>
+          <select id="role-input" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3">
+            <option value="tilsett">Tilsett</option>
+            <option value="admin">Admin</option>
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-sm font-semibold text-slate-700">Passord</span>
+          <input id="password-input" type="password" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3" onkeydown="if(event.key==='Enter') app.login()">
+        </label>
+        <p id="login-error" class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800"></p>
+        <button id="login-btn" onclick="app.login()" class="rounded-lg bg-sky-700 px-4 py-3 font-bold text-white hover:bg-sky-800">Logg inn</button>
+      </div>
+    </section>
+
+    <section id="error-card" class="hidden rounded-lg border border-red-200 bg-red-50 p-6 text-red-800 shadow-sm">
+      <h2 class="mb-2 text-lg font-bold">Fann ikkje utstyret</h2>
+      <p id="error-text">Sjekk at QR-koden er riktig.</p>
+    </section>
+
+    <section id="item-card" class="hidden space-y-4">
+      <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p id="item-category" class="text-sm font-semibold text-sky-700"></p>
+            <h2 id="item-name" class="mt-1 text-3xl font-black tracking-tight text-slate-950"></h2>
+            <p id="item-location" class="mt-2 text-sm text-slate-600"></p>
+            <p id="item-description" class="mt-2 text-sm text-slate-500"></p>
+          </div>
+          <div class="min-w-32 rounded-lg bg-slate-100 px-3 py-2 text-right">
+            <p class="text-xs font-semibold uppercase text-slate-500">Ledig</p>
+            <p id="item-available" class="text-2xl font-black text-slate-950"></p>
+          </div>
+        </div>
+        <div id="status-warning" class="mt-4 hidden rounded-lg px-4 py-3 text-sm font-semibold"></div>
+      </div>
+
+      <form id="loan-form" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm" onsubmit="app.createLoan(event)">
+        <h2 class="text-xl font-black text-slate-950">Lån ut</h2>
+        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+          <label class="block">
+            <span class="text-sm font-semibold text-slate-700">Namn på lånar</span>
+            <input id="borrower-name" autocomplete="name" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required>
+          </label>
+          <label id="quantity-wrap" class="block">
+            <span class="text-sm font-semibold text-slate-700">Mengd</span>
+            <input id="quantity" inputmode="numeric" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" value="1">
+          </label>
+          <label class="block">
+            <span class="text-sm font-semibold text-slate-700">Forventa innlevering</span>
+            <input id="expected-return-date" type="date" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required>
+          </label>
+          <label class="block">
+            <span class="text-sm font-semibold text-slate-700">Merknad</span>
+            <input id="note" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" placeholder="Valfritt">
+          </label>
+        </div>
+        <p id="form-message" class="mt-4 hidden rounded-lg px-4 py-3 text-sm font-semibold"></p>
+        <button id="submit-btn" class="mt-4 w-full rounded-lg bg-sky-700 px-4 py-4 text-base font-bold text-white shadow-sm transition hover:bg-sky-800">Registrer utlån</button>
+      </form>
+
+      <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 class="text-xl font-black text-slate-950">Aktive utlån</h2>
+            <p class="text-sm text-slate-600">Her ser tilsette kven som har utstyret no.</p>
+          </div>
+          <div class="grid gap-2 sm:grid-cols-2">
+            <input id="returner-name" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm" placeholder="Namn ved innlevering">
+            <input id="return-note" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm" placeholder="Merknad">
+          </div>
+        </div>
+        <div id="active-loans" class="mt-4 divide-y divide-slate-100"></div>
+      </section>
+    </section>
+  </main>
+
+<script>
+const API_URL = 'api/index.php';
+
+const app = {
+  token: new URLSearchParams(location.search).get('utstyr') || new URLSearchParams(location.search).get('token') || '',
+  item: null,
+  loans: [],
+  role: null,
+
+  async init() {
+    if (!this.token) {
+      this.showError('QR-lenka manglar utstyrskode.');
+      return;
+    }
+    await this.loadItem();
+  },
+
+  async loadItem(extra = {}) {
+    try {
+      const json = await this.post({ action: 'item_load', token: this.token, ...extra });
+      if (json.error) {
+        if (json.error.includes('logge inn')) {
+          this.showLogin(json.error);
+          return;
+        }
+        this.showError(json.error);
+        return;
+      }
+      this.applyItemResponse(json);
+      this.render();
+    } catch {
+      this.showError('Kunne ikkje nå serveren.');
+    }
+  },
+
+  async login() {
+    const role = document.getElementById('role-input').value;
+    const password = document.getElementById('password-input').value.trim();
+    const err = document.getElementById('login-error');
+    const btn = document.getElementById('login-btn');
+    if (!password) return;
+    err.classList.add('hidden');
+    btn.disabled = true;
+    btn.textContent = 'Loggar inn...';
+    try {
+      const json = await this.post({ action: 'item_load', token: this.token, role, password });
+      if (json.error) {
+        err.textContent = json.error;
+        err.classList.remove('hidden');
+        return;
+      }
+      this.applyItemResponse(json);
+      this.render();
+    } catch {
+      err.textContent = 'Kunne ikkje nå serveren.';
+      err.classList.remove('hidden');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Logg inn';
+    }
+  },
+
+  async post(payload) {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    return res.json();
+  },
+
+  applyItemResponse(json) {
+    this.role = json.userRole || this.role;
+    this.item = json.item || this.item;
+    this.loans = json.itemLoans || json.activeLoans || this.loans || [];
+  },
+
+  render() {
+    document.getElementById('loading-card').classList.add('hidden');
+    document.getElementById('login-card').classList.add('hidden');
+    document.getElementById('error-card').classList.add('hidden');
+    document.getElementById('item-card').classList.remove('hidden');
+
+    document.title = `${this.item.name} - Utstyrslån`;
+    document.getElementById('item-category').textContent = this.item.category;
+    document.getElementById('item-name').textContent = this.item.name;
+    document.getElementById('item-location').textContent = this.item.location ? `Plassering: ${this.item.location}` : 'Ingen plassering er lagt inn.';
+    document.getElementById('item-description').textContent = this.item.description || '';
+    document.getElementById('item-available').textContent = `${this.item.availableQuantity} / ${this.item.totalQuantity}`;
+
+    const warning = document.getElementById('status-warning');
+    if (this.item.hasOverdue) {
+      warning.textContent = 'Dette utstyret har eit forfalt utlån.';
+      warning.className = 'mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800';
+    } else if (this.item.availableQuantity <= 0) {
+      warning.textContent = 'Alt av dette utstyret er utlånt.';
+      warning.className = 'mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900';
+    } else {
+      warning.classList.add('hidden');
+    }
+
+    document.getElementById('quantity-wrap').classList.toggle('hidden', this.item.loanMode === 'unique');
+    const quantity = document.getElementById('quantity');
+    quantity.value = '1';
+    quantity.max = this.item.availableQuantity;
+    document.getElementById('expected-return-date').value = this.dateAfter(this.item.defaultLoanDays);
+    document.getElementById('loan-form').classList.toggle('hidden', this.item.availableQuantity <= 0);
+    this.renderLoans();
+  },
+
+  renderLoans() {
+    document.getElementById('active-loans').innerHTML = this.loans.map(loan => `
+      <div class="grid gap-2 py-3 text-sm sm:grid-cols-[1fr_auto] sm:items-center">
+        <div>
+          <p class="font-bold text-slate-900">${this.esc(loan.borrowerName)} <span class="font-medium text-slate-500">har lånt ${loan.quantity} stk</span></p>
+          <p class="${loan.isOverdue ? 'font-semibold text-red-700' : 'text-slate-600'}">Frist: ${this.formatDate(loan.expectedReturnDate)} · lånt ${this.formatDateTime(loan.borrowedAt)}</p>
+          ${loan.note ? `<p class="text-slate-500">${this.esc(loan.note)}</p>` : ''}
+        </div>
+        <button onclick="app.returnLoan(${loan.id})" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm">Lever inn</button>
+      </div>
+    `).join('') || '<p class="py-6 text-sm text-slate-500">Ingen aktive utlån på dette utstyret.</p>';
+  },
+
+  async createLoan(event) {
+    event.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Lagrar...';
+    this.hideMessage();
+
+    try {
+      const json = await this.post({
+        action: 'create_loan',
+        token: this.token,
+        borrowerName: document.getElementById('borrower-name').value.trim(),
+        quantity: this.item.loanMode === 'unique' ? 1 : document.getElementById('quantity').value.trim(),
+        expectedReturnDate: document.getElementById('expected-return-date').value,
+        note: document.getElementById('note').value.trim()
+      });
+      if (json.error) {
+        this.showMessage(json.error, false);
+        return;
+      }
+      this.applyItemResponse(json);
+      document.getElementById('note').value = '';
+      this.render();
+      this.showMessage(json.message || 'Utlånet er registrert.', true);
+    } catch {
+      this.showMessage('Kunne ikkje lagre utlånet.', false);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Registrer utlån';
+    }
+  },
+
+  async returnLoan(loanId) {
+    const json = await this.post({
+      action: 'return_loan',
+      loanId,
+      returnedByName: document.getElementById('returner-name').value.trim(),
+      returnNote: document.getElementById('return-note').value.trim()
+    });
+    if (json.error) {
+      this.showMessage(json.error, false);
+      return;
+    }
+    this.applyItemResponse(json);
+    document.getElementById('return-note').value = '';
+    this.render();
+    this.showMessage(json.message || 'Innleveringa er registrert.', true);
+  },
+
+  showLogin(message) {
+    document.getElementById('loading-card').classList.add('hidden');
+    document.getElementById('item-card').classList.add('hidden');
+    document.getElementById('error-card').classList.add('hidden');
+    document.getElementById('login-hint').textContent = message || 'Du må logge inn først.';
+    document.getElementById('login-card').classList.remove('hidden');
+    document.getElementById('password-input').focus();
+  },
+
+  showError(message) {
+    document.getElementById('loading-card').classList.add('hidden');
+    document.getElementById('login-card').classList.add('hidden');
+    document.getElementById('item-card').classList.add('hidden');
+    document.getElementById('error-text').textContent = message;
+    document.getElementById('error-card').classList.remove('hidden');
+  },
+
+  showMessage(message, ok) {
+    const el = document.getElementById('form-message');
+    el.textContent = message;
+    el.className = `mt-4 rounded-lg px-4 py-3 text-sm font-semibold ${ok ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'}`;
+  },
+
+  hideMessage() {
+    document.getElementById('form-message').classList.add('hidden');
+  },
+
+  dateAfter(days) {
+    const d = new Date();
+    d.setDate(d.getDate() + Number(days || 7));
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 10);
+  },
+
+  formatDate(value) {
+    if (!value) return '';
+    const date = new Date(String(value) + 'T00:00:00');
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleDateString('nb-NO', { dateStyle: 'short' });
+  },
+
+  formatDateTime(value) {
+    if (!value) return '';
+    const date = new Date(String(value).replace(' ', 'T'));
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleString('nb-NO', { dateStyle: 'short', timeStyle: 'short' });
+  },
+
+  esc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => app.init());
+</script>
+</body>
+</html>
