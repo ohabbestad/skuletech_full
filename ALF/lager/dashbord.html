@@ -203,6 +203,7 @@ const app = {
     recentCounts: [],
     recentEmailLogs: [],
     mailEnabled: false,
+    inventoryQuickFilter: '',
     adminItemSearch: '',
     adminCategoryFilter: '',
     editingItemId: null,
@@ -365,19 +366,15 @@ const app = {
     const emptyItems = activeItems.filter(i => Number(i.stockQuantity) <= 0);
     const totalMovements = this.state.recentMovements.length;
     document.getElementById('inventory-stats').innerHTML = [
-      this.statCard('Aktive varer', activeItems.length, 'Varer i lagerlista'),
-      this.statCard('På min-nivå', lowItems.length, 'Treng vurdering'),
-      this.statCard('Tomt eller negativt', emptyItems.length, 'Må sjekkast'),
-      this.statCard('Siste logg', totalMovements, 'Nyaste registreringar')
+      this.statCard('Aktive varer', activeItems.length, 'Varer i lagerlista', 'active'),
+      this.statCard('På min-nivå', lowItems.length, 'Treng vurdering', 'low'),
+      this.statCard('Tomt eller negativt', emptyItems.length, 'Må sjekkast', 'empty'),
+      this.statCard('Siste logg', totalMovements, 'Nyaste registreringar', 'recent')
     ].join('');
 
     const term = (document.getElementById('inventory-search')?.value || '').toLowerCase();
     const categoryId = Number(document.getElementById('inventory-category')?.value || 0);
-    const rows = this.state.items.filter(item => {
-      if (categoryId && item.categoryId !== categoryId) return false;
-      if (!term) return true;
-      return `${item.name} ${item.category} ${item.shelfLabel}`.toLowerCase().includes(term);
-    });
+    const rows = this.filteredInventoryItems(term, categoryId);
 
     document.getElementById('inventory-table').innerHTML = rows.map(item => `
       <tr class="${item.active ? 'bg-white' : 'bg-slate-50 text-slate-400'}">
@@ -391,9 +388,46 @@ const app = {
           <a href="${this.itemUrl(item)}" class="font-bold text-sky-700 hover:text-sky-900">Opne</a>
         </td>
       </tr>
-    `).join('') || '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-500">Ingen varer passar søket.</td></tr>';
+    `).join('') || '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-500">Ingen varer passar søket eller filteret.</td></tr>';
 
     this.renderRecentMovements();
+  },
+
+  filteredInventoryItems(term, categoryId) {
+    const quickFilter = this.state.inventoryQuickFilter;
+    const recentOrder = quickFilter === 'recent' ? this.recentMovementItemOrder() : new Map();
+    const rows = this.state.items.filter(item => {
+      if (quickFilter === 'active' && !item.active) return false;
+      if (quickFilter === 'low' && !(item.active && item.isLow)) return false;
+      if (quickFilter === 'empty' && !(item.active && Number(item.stockQuantity) <= 0)) return false;
+      if (quickFilter === 'recent' && !recentOrder.has(this.inventoryItemKey(item))) return false;
+      if (categoryId && item.categoryId !== categoryId) return false;
+      if (!term) return true;
+      return `${item.name} ${item.category} ${item.shelfLabel}`.toLowerCase().includes(term);
+    });
+    if (quickFilter === 'recent') {
+      rows.sort((a, b) => recentOrder.get(this.inventoryItemKey(a)) - recentOrder.get(this.inventoryItemKey(b)));
+    }
+    return rows;
+  },
+
+  recentMovementItemOrder() {
+    const order = new Map();
+    this.state.recentMovements.forEach((movement, index) => {
+      const key = this.inventoryItemKey({ id: movement.itemId, name: movement.itemName });
+      if (key && !order.has(key)) order.set(key, index);
+    });
+    return order;
+  },
+
+  inventoryItemKey(item) {
+    if (item.id !== undefined && item.id !== null && item.id !== '') return `id:${item.id}`;
+    return `name:${String(item.name || '').toLowerCase()}`;
+  },
+
+  setInventoryQuickFilter(filter) {
+    this.state.inventoryQuickFilter = this.state.inventoryQuickFilter === filter ? '' : filter;
+    this.renderInventory();
   },
 
   renderRecentMovements() {
@@ -935,7 +969,16 @@ const app = {
       .join('');
   },
 
-  statCard(label, value, hint) {
+  statCard(label, value, hint, inventoryFilter = null) {
+    if (inventoryFilter) {
+      const active = this.state.inventoryQuickFilter === inventoryFilter;
+      return `
+        <button type="button" onclick="app.setInventoryQuickFilter('${inventoryFilter}')" aria-pressed="${active ? 'true' : 'false'}" class="rounded-lg border p-4 text-left shadow-sm transition hover:border-sky-300 hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-sky-200 ${active ? 'border-sky-500 bg-sky-50 ring-2 ring-sky-100' : 'border-slate-200 bg-white'}">
+          <p class="text-sm font-semibold text-slate-500">${this.esc(label)}</p>
+          <p class="mt-1 text-3xl font-black text-slate-950">${this.esc(value)}</p>
+          <p class="mt-1 text-sm text-slate-600">${this.esc(hint)}</p>
+        </button>`;
+    }
     return `
       <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <p class="text-sm font-semibold text-slate-500">${this.esc(label)}</p>
