@@ -37,6 +37,7 @@ return [
     'db_pass'      => 'database_passord_fra_domeneshop',
     'setup_key'    => 'eit-langt-hemmeleg-oppsett-passord',
     'session_name' => 'KANTINE_SESS',
+    'session_lifetime_seconds' => 28800,
 ];
 ```
 

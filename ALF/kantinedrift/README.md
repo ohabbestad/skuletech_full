@@ -32,6 +32,6 @@ Sjå `DOMENESHOP_OPPSETT.md` for fullstendig steg-for-steg-guide.
 ## Sikkerheit
 
 - Passord vert hasha med `password_hash()` / `password_verify()`
-- Sesjonar med `httponly` og `SameSite=Lax`
+- Sesjonar med `httponly`, `SameSite=Lax`, nettlesar-cookie og serverstyrt levetid
 - Alle databasespørjingar brukar prepared statements
 - Rollebasert tilgangskontroll på alle skriveoperasjonar

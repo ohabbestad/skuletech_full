@@ -11,8 +11,7 @@ try {
     $role = (string)($data['role'] ?? '');
 
     if ($action === 'logout') {
-        $_SESSION = [];
-        session_destroy();
+        kantine_destroy_session();
         kantine_json(['ok' => true]);
     }
 
@@ -57,11 +56,15 @@ function login_with_password(string $role, string $password): void
         kantine_json(['error' => 'Feil passord.'], 401);
     }
 
+    session_regenerate_id(true);
+    $now = time();
     $_SESSION['kantine_user'] = [
         'id' => (int)$user['id'],
         'username' => $user['username'],
         'role' => $user['role'],
     ];
+    $_SESSION['kantine_login_at'] = $now;
+    $_SESSION['kantine_last_seen_at'] = $now;
 }
 
 function load_all(): array

@@ -34,13 +34,18 @@
 
     <nav class="bg-indigo-700 text-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
+            <div class="flex min-h-16 flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
                 <div class="flex items-center space-x-3">
                     <span class="text-2xl">🍽️</span>
                     <span class="font-bold text-xl tracking-wide">KantineVeke</span>
                     <span class="ml-4 px-2 py-1 bg-indigo-500 rounded text-xs font-bold uppercase tracking-wider">Lærar / Admin</span>
                 </div>
-                <div id="sync-status" class="text-sm font-medium opacity-80">🟢 Oppdatert</div>
+                <div class="flex items-center gap-3">
+                    <div id="sync-status" class="text-sm font-medium opacity-80">🟢 Oppdatert</div>
+                    <button onclick="app.logout()" class="rounded-lg border border-indigo-300 bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-800">
+                        Logg ut
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
@@ -261,7 +266,20 @@ const app = {
     },
 
     /* ── Auth ──────────────────────────────────────────────── */
-    init() { document.getElementById('password-input').focus(); },
+    init() { this.restoreSession(); },
+
+    async restoreSession() {
+        try {
+            const json = await this._post({ action: 'load' }, { allowAuthError: true });
+            if (json.error) {
+                this.showLogin();
+                return;
+            }
+            this.showDashboard(json);
+        } catch {
+            this.showLogin();
+        }
+    },
 
     async login() {
         const pwd   = document.getElementById('password-input').value.trim();
@@ -272,38 +290,65 @@ const app = {
         btn.disabled = true;
         errEl.classList.add('hidden');
         try {
-            const json = await this._post({ action: 'load', password: pwd });
+            const json = await this._post({ action: 'load', password: pwd }, { allowAuthError: true });
             if (json.error) {
                 errEl.textContent = json.error;
                 errEl.classList.remove('hidden');
-                btn.textContent = 'Logg inn';
-                btn.disabled = false;
                 return;
             }
-            this.state.password = null;
-            this._applyResponse(json);
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('dashboard').classList.remove('hidden');
-            this.state.currentDateId = this.getInitialDateId();
-            this.populateDateSelector();
-            this.renderToday();
-            this.scheduleNextPoll();
+            document.getElementById('password-input').value = '';
+            this.showDashboard(json);
         } catch {
             errEl.textContent = 'Kunne ikkje nå serveren. Prøv igjen.';
             errEl.classList.remove('hidden');
+        } finally {
             btn.textContent = 'Logg inn';
             btn.disabled = false;
         }
     },
 
+    showDashboard(json) {
+        this.state.password = null;
+        this._applyResponse(json);
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        this.state.currentDateId = this.getInitialDateId();
+        this.populateDateSelector();
+        this.renderToday();
+        this.scheduleNextPoll();
+    },
+
+    showLogin(message = null) {
+        document.getElementById('dashboard').classList.add('hidden');
+        document.getElementById('login-screen').classList.remove('hidden');
+        const errEl = document.getElementById('login-error');
+        if (message) {
+            errEl.textContent = message;
+            errEl.classList.remove('hidden');
+        } else {
+            errEl.classList.add('hidden');
+        }
+        document.getElementById('password-input').focus();
+    },
+
+    async logout() {
+        await this._post({ action: 'logout' }, { allowAuthError: true }).catch(() => null);
+        location.reload();
+    },
+
     /* ── API ────────────────────────────────────────────────── */
-    async _post(extra) {
+    async _post(extra, options = {}) {
         const res = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ role: APP_ROLE, password: this.state.password, ...extra })
+            body: JSON.stringify({ role: APP_ROLE, ...extra })
         });
-        return res.json();
+        const json = await res.json();
+        json._status = res.status;
+        if (res.status === 401 && !options.allowAuthError) {
+            this.showLogin(json.error || 'Du må logge inn på nytt.');
+        }
+        return json;
     },
 
     // Poll kvart 10. sekund — hoppar over om admin held på med noko
@@ -339,7 +384,13 @@ const app = {
         this.state.isSaving = true;
         document.getElementById('sync-status').textContent = '⏳ Lagrar...';
         this._post({ action: 'save', ...payload })
-            .then(() => { document.getElementById('sync-status').textContent = '🟢 Oppdatert'; })
+            .then(json => {
+                if (json.error) {
+                    if (json._status !== 401) document.getElementById('sync-status').textContent = '🔴 ' + json.error;
+                    return;
+                }
+                document.getElementById('sync-status').textContent = '🟢 Oppdatert';
+            })
             .catch(() => { document.getElementById('sync-status').textContent = '🔴 Feil ved lagring'; })
             .finally(() => { this.state.isSaving = false; });
     },

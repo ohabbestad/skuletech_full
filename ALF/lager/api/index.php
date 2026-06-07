@@ -344,7 +344,7 @@ function load_departments(bool $activeOnly): array
 function load_recent_movements(): array
 {
     $rows = lager_pdo()->query(
-        'SELECT m.id, m.movement_type, m.quantity, m.stock_after, m.note, m.created_by_role, m.created_at,
+        'SELECT m.id, m.item_id, m.movement_type, m.quantity, m.stock_after, m.note, m.created_by_role, m.created_at,
                 i.name AS item_name, i.unit, d.name AS department_name
            FROM lager_movements m
            JOIN lager_items i ON i.id = m.item_id
@@ -355,6 +355,7 @@ function load_recent_movements(): array
 
     return array_map(static fn(array $row): array => [
         'id' => (int)$row['id'],
+        'itemId' => (int)$row['item_id'],
         'movementType' => (string)$row['movement_type'],
         'quantity' => (float)$row['quantity'],
         'stockAfter' => (float)$row['stock_after'],

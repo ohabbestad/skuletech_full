@@ -23,4 +23,5 @@ return [
     'db_pass' => 'FYLL_INN_PASSORD',
     'setup_key' => 'BYT_TIL_EIT_LANGT_HEMMELEG_OPPSETT_PASSORD',
     'session_name' => 'KANTINE_SESS',
+    'session_lifetime_seconds' => 28800,
 ];
