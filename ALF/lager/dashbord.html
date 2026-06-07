@@ -430,6 +430,8 @@ const app = {
         result = Number(a.minQuantity || 0) - Number(b.minQuantity || 0);
       } else if (key === 'status') {
         result = this.inventoryStatusSortValue(a) - this.inventoryStatusSortValue(b);
+      } else if (key === 'category') {
+        result = this.inventoryCategorySortValue(a) - this.inventoryCategorySortValue(b);
       } else {
         result = this.inventoryTextSortValue(a, key).localeCompare(this.inventoryTextSortValue(b, key), 'nb', {
           numeric: true,
@@ -445,6 +447,13 @@ const app = {
       }
       return result * direction;
     });
+  },
+
+  inventoryCategorySortValue(item) {
+    const categoryIndex = this.state.categories.findIndex(category => Number(category.id) === Number(item.categoryId));
+    if (categoryIndex >= 0) return categoryIndex;
+    if (String(item.category || '').trim().toLocaleLowerCase('nb-NO') === 'anna') return Number.MAX_SAFE_INTEGER;
+    return this.state.categories.length + 1;
   },
 
   inventoryTextSortValue(item, key) {
