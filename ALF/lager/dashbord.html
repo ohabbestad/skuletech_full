@@ -364,12 +364,13 @@ const app = {
     const activeItems = this.state.items.filter(i => i.active);
     const lowItems = activeItems.filter(i => i.isLow);
     const emptyItems = activeItems.filter(i => Number(i.stockQuantity) <= 0);
-    const totalMovements = this.state.recentMovements.length;
+    const recentOrder = this.recentMovementItemOrder();
+    const recentItems = this.state.items.filter(item => this.inventoryItemRecentIndex(item, recentOrder) !== null);
     document.getElementById('inventory-stats').innerHTML = [
       this.statCard('Aktive varer', activeItems.length, 'Varer i lagerlista', 'active'),
       this.statCard('På min-nivå', lowItems.length, 'Treng vurdering', 'low'),
       this.statCard('Tomt eller negativt', emptyItems.length, 'Må sjekkast', 'empty'),
-      this.statCard('Siste logg', totalMovements, 'Nyaste registreringar', 'recent')
+      this.statCard('Varer med ny aktivitet', recentItems.length, 'Frå nyaste registreringar', 'recent')
     ].join('');
 
     const term = (document.getElementById('inventory-search')?.value || '').toLowerCase();
@@ -400,13 +401,13 @@ const app = {
       if (quickFilter === 'active' && !item.active) return false;
       if (quickFilter === 'low' && !(item.active && item.isLow)) return false;
       if (quickFilter === 'empty' && !(item.active && Number(item.stockQuantity) <= 0)) return false;
-      if (quickFilter === 'recent' && !recentOrder.has(this.inventoryItemKey(item))) return false;
+      if (quickFilter === 'recent' && this.inventoryItemRecentIndex(item, recentOrder) === null) return false;
       if (categoryId && item.categoryId !== categoryId) return false;
       if (!term) return true;
       return `${item.name} ${item.category} ${item.shelfLabel}`.toLowerCase().includes(term);
     });
     if (quickFilter === 'recent') {
-      rows.sort((a, b) => recentOrder.get(this.inventoryItemKey(a)) - recentOrder.get(this.inventoryItemKey(b)));
+      rows.sort((a, b) => this.inventoryItemRecentIndex(a, recentOrder) - this.inventoryItemRecentIndex(b, recentOrder));
     }
     return rows;
   },
@@ -414,15 +415,28 @@ const app = {
   recentMovementItemOrder() {
     const order = new Map();
     this.state.recentMovements.forEach((movement, index) => {
-      const key = this.inventoryItemKey({ id: movement.itemId, name: movement.itemName });
-      if (key && !order.has(key)) order.set(key, index);
+      this.inventoryItemKeys({ id: movement.itemId, name: movement.itemName }).forEach(key => {
+        if (!order.has(key)) order.set(key, index);
+      });
     });
     return order;
   },
 
-  inventoryItemKey(item) {
-    if (item.id !== undefined && item.id !== null && item.id !== '') return `id:${item.id}`;
-    return `name:${String(item.name || '').toLowerCase()}`;
+  inventoryItemRecentIndex(item, recentOrder) {
+    for (const key of this.inventoryItemKeys(item)) {
+      if (recentOrder.has(key)) return recentOrder.get(key);
+    }
+    return null;
+  },
+
+  inventoryItemKeys(item) {
+    const keys = [];
+    if (item.id !== undefined && item.id !== null && item.id !== '') {
+      keys.push(`id:${item.id}`);
+    }
+    const name = String(item.name || '').trim().toLocaleLowerCase('nb-NO');
+    if (name) keys.push(`name:${name}`);
+    return keys;
   },
 
   setInventoryQuickFilter(filter) {

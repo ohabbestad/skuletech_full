@@ -14,6 +14,8 @@ AGENTS.md
 .claude/
 .codex/
 **/codex-temp-*
+.tmp-chrome-profile*/
+skuletech-lager-dashbord-*.png
 
 # Sensitiv data og interne arbeidsdokument
 ALF/kantinedrift/kantineplan.gs
