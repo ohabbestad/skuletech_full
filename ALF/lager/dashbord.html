@@ -78,12 +78,12 @@
           <table class="w-full min-w-[780px] text-left text-sm">
             <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
               <tr>
-                <th class="px-4 py-3">Vare</th>
-                <th class="px-4 py-3">Kategori</th>
-                <th class="px-4 py-3 text-right">På lager</th>
-                <th class="px-4 py-3 text-right">Min</th>
-                <th class="px-4 py-3">Hylle</th>
-                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3"><button type="button" onclick="app.setInventorySort('name')" class="flex w-full items-center gap-1 text-left font-bold uppercase tracking-wide hover:text-slate-900">Vare <span data-inventory-sort-icon="name"></span></button></th>
+                <th class="px-4 py-3"><button type="button" onclick="app.setInventorySort('category')" class="flex w-full items-center gap-1 text-left font-bold uppercase tracking-wide hover:text-slate-900">Kategori <span data-inventory-sort-icon="category"></span></button></th>
+                <th class="px-4 py-3 text-right"><button type="button" onclick="app.setInventorySort('stock')" class="flex w-full items-center justify-end gap-1 font-bold uppercase tracking-wide hover:text-slate-900">På lager <span data-inventory-sort-icon="stock"></span></button></th>
+                <th class="px-4 py-3 text-right"><button type="button" onclick="app.setInventorySort('min')" class="flex w-full items-center justify-end gap-1 font-bold uppercase tracking-wide hover:text-slate-900">Min <span data-inventory-sort-icon="min"></span></button></th>
+                <th class="px-4 py-3"><button type="button" onclick="app.setInventorySort('shelf')" class="flex w-full items-center gap-1 text-left font-bold uppercase tracking-wide hover:text-slate-900">Hylle <span data-inventory-sort-icon="shelf"></span></button></th>
+                <th class="px-4 py-3"><button type="button" onclick="app.setInventorySort('status')" class="flex w-full items-center gap-1 text-left font-bold uppercase tracking-wide hover:text-slate-900">Status <span data-inventory-sort-icon="status"></span></button></th>
                 <th class="px-4 py-3 text-right">Lenkje</th>
               </tr>
             </thead>
@@ -204,6 +204,8 @@ const app = {
     recentEmailLogs: [],
     mailEnabled: false,
     inventoryQuickFilter: '',
+    inventorySortKey: '',
+    inventorySortDirection: 'asc',
     adminItemSearch: '',
     adminCategoryFilter: '',
     editingItemId: null,
@@ -393,6 +395,7 @@ const app = {
       </tr>
     `).join('') || '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-500">Ingen varer passar søket eller filteret.</td></tr>';
 
+    this.updateInventorySortHeaders();
     this.renderRecentMovements();
   },
 
@@ -408,10 +411,72 @@ const app = {
       if (!term) return true;
       return `${item.name} ${item.category} ${item.shelfLabel}`.toLowerCase().includes(term);
     });
-    if (quickFilter === 'recent') {
+    if (quickFilter === 'recent' && !this.state.inventorySortKey) {
       rows.sort((a, b) => this.inventoryItemRecentIndex(a, recentOrder) - this.inventoryItemRecentIndex(b, recentOrder));
     }
-    return rows;
+    return this.sortInventoryItems(rows);
+  },
+
+  sortInventoryItems(rows) {
+    const key = this.state.inventorySortKey;
+    if (!key) return rows;
+
+    const direction = this.state.inventorySortDirection === 'desc' ? -1 : 1;
+    return [...rows].sort((a, b) => {
+      let result = 0;
+      if (key === 'stock') {
+        result = Number(a.stockQuantity || 0) - Number(b.stockQuantity || 0);
+      } else if (key === 'min') {
+        result = Number(a.minQuantity || 0) - Number(b.minQuantity || 0);
+      } else if (key === 'status') {
+        result = this.inventoryStatusSortValue(a) - this.inventoryStatusSortValue(b);
+      } else {
+        result = this.inventoryTextSortValue(a, key).localeCompare(this.inventoryTextSortValue(b, key), 'nb', {
+          numeric: true,
+          sensitivity: 'base'
+        });
+      }
+
+      if (result === 0 && key !== 'name') {
+        result = this.inventoryTextSortValue(a, 'name').localeCompare(this.inventoryTextSortValue(b, 'name'), 'nb', {
+          numeric: true,
+          sensitivity: 'base'
+        });
+      }
+      return result * direction;
+    });
+  },
+
+  inventoryTextSortValue(item, key) {
+    if (key === 'category') return String(item.category || '');
+    if (key === 'shelf') return String(item.shelfLabel || '');
+    return String(item.name || '');
+  },
+
+  inventoryStatusSortValue(item) {
+    if (!item.active) return 3;
+    if (Number(item.stockQuantity) <= 0) return 0;
+    if (item.isLow) return 1;
+    return 2;
+  },
+
+  setInventorySort(key) {
+    if (this.state.inventorySortKey === key) {
+      this.state.inventorySortDirection = this.state.inventorySortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.state.inventorySortKey = key;
+      this.state.inventorySortDirection = 'asc';
+    }
+    this.renderInventory();
+  },
+
+  updateInventorySortHeaders() {
+    document.querySelectorAll('[data-inventory-sort-icon]').forEach(icon => {
+      const key = icon.dataset.inventorySortIcon;
+      icon.textContent = this.state.inventorySortKey === key
+        ? (this.state.inventorySortDirection === 'asc' ? '^' : 'v')
+        : '';
+    });
   },
 
   recentMovementItemOrder() {
