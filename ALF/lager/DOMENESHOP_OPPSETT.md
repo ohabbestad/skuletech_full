@@ -27,6 +27,8 @@ return [
     'mail_from_name' => 'SkuleTech Tørrvarelager',
     'mail_reply_to' => '',
     'app_url' => 'https://skuletech.no/ALF/lager/dashbord.html',
+    'monthly_report_token' => 'eit-langt-hemmeleg-token-for-manadsrapport',
+    'timezone' => 'Europe/Oslo',
 ];
 ```
 
@@ -49,6 +51,12 @@ ALF/lager/sql/upgrade-email-alerts.sql
 ```
 
 Ho legg til innkjøpsansvarlege, varslingsstatus og e-postlogg.
+
+Køyr deretter denne fila for faste mottakarar av månadsrapport:
+
+```txt
+ALF/lager/sql/upgrade-monthly-report-recipients.sql
+```
 
 ## 4. Sjekk databasekoplinga
 
@@ -95,3 +103,16 @@ Slett `api/setup.php` frå serveren etterpå.
 5. Set min-nivå på ei vare, registrer uttak frå QR-sida og sjekk e-postloggen i dashbordet.
 
 Bruk ein avsendaradresse på same domene/webhotell som sida. Det gir betre levering og følgjer Domeneshop-reglane for e-post frå webhotell.
+
+## 8. Set opp månadsrapport
+
+1. Logg inn som lærar/admin.
+2. Opne `Rapport`.
+3. Legg inn faste mottakarar og vel avdelingane dei skal få rapport frå.
+4. Set ein månadsjobb på webhotellet som kallar denne URL-en den 1. i kvar månad:
+
+```txt
+https://skuletech.no/ALF/lager/api/index.php?action=send_monthly_reports&token=DITT_HEMMELEGE_TOKEN
+```
+
+Rapporten gjeld førre månad. Dersom jobben blir kalla fleire gonger same dag, blir ikkje same mottakar sendt på nytt for same månad.

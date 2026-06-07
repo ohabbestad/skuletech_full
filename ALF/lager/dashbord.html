@@ -162,6 +162,8 @@
         </div>
       </div>
 
+      <div id="monthly-report-admin"></div>
+
       <div id="report-summary" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"></div>
 
       <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -202,6 +204,7 @@ const app = {
     recentMovements: [],
     recentCounts: [],
     recentEmailLogs: [],
+    monthlyReportRecipients: [],
     mailEnabled: false,
     inventoryQuickFilter: '',
     inventorySortKey: '',
@@ -319,6 +322,7 @@ const app = {
     this.state.recentMovements = json.recentMovements || [];
     this.state.recentCounts = json.recentCounts || [];
     this.state.recentEmailLogs = json.recentEmailLogs || [];
+    this.state.monthlyReportRecipients = json.monthlyReportRecipients || [];
     this.state.mailEnabled = Boolean(json.mailEnabled);
     if (this.state.editingItemId && !this.state.items.some(item => item.id === this.state.editingItemId)) {
       this.state.editingItemId = null;
@@ -632,7 +636,98 @@ const app = {
   },
 
   renderReportView() {
+    this.renderMonthlyReportAdmin();
     this.renderReportTable();
+  },
+
+  renderMonthlyReportAdmin() {
+    const root = document.getElementById('monthly-report-admin');
+    if (!root) return;
+    if (this.state.role !== 'laerar') {
+      root.innerHTML = '';
+      return;
+    }
+
+    root.innerHTML = `
+      <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div class="border-b border-slate-200 p-4">
+          <h2 class="text-xl font-black text-slate-950">Fast månadsrapport</h2>
+          <p class="mt-1 text-sm text-slate-600">Mottakarar som skal få rapport for valde avdelingar den 1. i kvar månad.</p>
+        </div>
+        <div class="space-y-4 p-4">
+          ${this.state.mailEnabled ? '' : `
+            <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+              E-postsending er ikkje slått på i <span class="font-black">config.local.php</span>. Månadsrapportar blir logga, men ikkje sende.
+            </div>`}
+          <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <div class="grid gap-3 lg:grid-cols-[1fr_1fr_auto] lg:items-end">
+              <label class="block">
+                <span class="text-xs font-bold uppercase tracking-wide text-slate-500">Namn</span>
+                <input id="monthly-name-new" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" placeholder="Namn">
+              </label>
+              <label class="block">
+                <span class="text-xs font-bold uppercase tracking-wide text-slate-500">E-post</span>
+                <input id="monthly-email-new" type="email" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" placeholder="epost@døme.no">
+              </label>
+              <button onclick="app.saveMonthlyReportRecipient(0)" class="rounded-lg bg-sky-700 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-sky-800">Legg til</button>
+            </div>
+            <div class="mt-3">
+              <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Avdelingar</p>
+              <div class="mt-2 flex flex-wrap gap-2">${this.monthlyDepartmentCheckboxes('new', this.activeDepartmentIds())}</div>
+            </div>
+          </div>
+          <div class="divide-y divide-slate-100">${this.monthlyReportRecipientRows()}</div>
+        </div>
+      </div>`;
+  },
+
+  monthlyReportRecipientRows() {
+    if (!this.state.monthlyReportRecipients.length) {
+      return '<p class="py-6 text-sm text-slate-500">Ingen faste mottakarar er lagde inn.</p>';
+    }
+    return this.state.monthlyReportRecipients.map(recipient => `
+      <div class="space-y-3 py-4">
+        <div class="grid gap-3 lg:grid-cols-[1fr_1fr_auto_auto] lg:items-end">
+          <label class="block">
+            <span class="text-xs font-bold uppercase tracking-wide text-slate-500">Namn</span>
+            <input id="monthly-name-${recipient.id}" value="${this.esc(recipient.recipientName || '')}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100">
+          </label>
+          <label class="block">
+            <span class="text-xs font-bold uppercase tracking-wide text-slate-500">E-post</span>
+            <input id="monthly-email-${recipient.id}" type="email" value="${this.esc(recipient.recipientEmail || '')}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100">
+          </label>
+          <label class="flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold text-slate-700">
+            <input id="monthly-active-${recipient.id}" type="checkbox" ${recipient.active ? 'checked' : ''}>
+            Aktiv
+          </label>
+          <div class="flex gap-2">
+            <button onclick="app.saveMonthlyReportRecipient(${recipient.id})" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm">Lagre</button>
+            <button onclick="app.deleteMonthlyReportRecipient(${recipient.id})" class="rounded-lg border border-red-200 bg-white px-3 py-2 text-sm font-bold text-red-700 shadow-sm">Slett</button>
+          </div>
+        </div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Avdelingar</p>
+          <div class="mt-2 flex flex-wrap gap-2">${this.monthlyDepartmentCheckboxes(String(recipient.id), recipient.departmentIds || [])}</div>
+          <p class="mt-2 text-xs text-slate-500">${recipient.lastSentMonth ? `Sist sendt for ${this.esc(recipient.lastSentMonth)}` : 'Ikkje sendt enno'}</p>
+        </div>
+      </div>
+    `).join('');
+  },
+
+  monthlyDepartmentCheckboxes(ownerId, selectedIds) {
+    const selected = new Set((selectedIds || []).map(id => String(id)));
+    return this.state.departments
+      .filter(dep => dep.active || selected.has(String(dep.id)))
+      .map(dep => `
+        <label class="flex items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700">
+          <input type="checkbox" data-monthly-department="${this.esc(ownerId)}" value="${dep.id}" ${selected.has(String(dep.id)) ? 'checked' : ''}>
+          ${this.esc(dep.name)}
+        </label>
+      `).join('') || '<span class="text-sm text-amber-700">Ingen avdelingar er lagde inn.</span>';
+  },
+
+  activeDepartmentIds() {
+    return this.state.departments.filter(dep => dep.active).map(dep => dep.id);
   },
 
   async loadReport() {
@@ -787,10 +882,7 @@ const app = {
 
   mailStatusNotice() {
     if (this.state.mailEnabled) {
-      return `
-        <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900">
-          E-postsending er slått på i serverkonfigurasjonen.
-        </div>`;
+      return '';
     }
     return `
       <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
@@ -1071,6 +1163,34 @@ const app = {
     this.handleSaveResponse(json);
   },
 
+  selectedMonthlyDepartmentIds(ownerId) {
+    return Array.from(document.querySelectorAll(`[data-monthly-department="${ownerId}"]:checked`))
+      .map(input => Number(input.value))
+      .filter(Boolean);
+  },
+
+  async saveMonthlyReportRecipient(id) {
+    const key = id || 'new';
+    const json = await this.post({
+      action: 'save_monthly_report_recipient',
+      recipientId: id,
+      recipientName: document.getElementById(`monthly-name-${key}`).value.trim(),
+      recipientEmail: document.getElementById(`monthly-email-${key}`).value.trim(),
+      departmentIds: this.selectedMonthlyDepartmentIds(String(key)),
+      active: id ? document.getElementById(`monthly-active-${id}`).checked : true
+    });
+    this.handleSaveResponse(json);
+  },
+
+  async deleteMonthlyReportRecipient(id) {
+    if (!confirm('Vil du slette denne mottakaren for månadsrapport?')) return;
+    const json = await this.post({
+      action: 'delete_monthly_report_recipient',
+      recipientId: id
+    });
+    this.handleSaveResponse(json);
+  },
+
   handleSaveResponse(json, options = {}) {
     if (json.error) {
       if (json._status === 401) return;
@@ -1127,6 +1247,7 @@ const app = {
 
   emailEventLabel(type) {
     if (type === 'test') return 'Testvarsel';
+    if (type === 'monthly_report') return 'Månadsrapport';
     return 'Innkjøpsvarsel';
   },
 

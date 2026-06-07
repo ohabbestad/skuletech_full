@@ -28,4 +28,6 @@ return [
     'mail_from_name' => 'SkuleTech Tørrvarelager',
     'mail_reply_to' => '',
     'app_url' => 'https://skuletech.no/ALF/lager/dashbord.html',
+    'monthly_report_token' => 'BYT_TIL_EIT_LANGT_HEMMELEG_TOKEN',
+    'timezone' => 'Europe/Oslo',
 ];

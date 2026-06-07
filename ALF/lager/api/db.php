@@ -92,7 +92,8 @@ function lager_request(): array
 {
     $raw = file_get_contents('php://input') ?: '';
     $data = json_decode($raw, true);
-    return is_array($data) ? $data : [];
+    $body = is_array($data) ? $data : [];
+    return array_merge($_GET, $body);
 }
 
 function lager_require_role(array $allowedRoles): array

@@ -15,6 +15,10 @@ try {
         lager_json(register_public_movement($data));
     }
 
+    if ($action === 'send_monthly_reports') {
+        lager_json(send_monthly_reports_from_token($data));
+    }
+
     lager_start_session();
 
     if ($action === 'logout') {
@@ -65,6 +69,16 @@ try {
     if ($action === 'save_department') {
         $user = lager_require_role(['laerar']);
         lager_json(save_department($data, $user));
+    }
+
+    if ($action === 'save_monthly_report_recipient') {
+        $user = lager_require_role(['laerar']);
+        lager_json(save_monthly_report_recipient($data, $user));
+    }
+
+    if ($action === 'delete_monthly_report_recipient') {
+        $user = lager_require_role(['laerar']);
+        lager_json(delete_monthly_report_recipient($data, $user));
     }
 
     lager_json(['error' => 'Ukjend handling.'], 400);
@@ -222,6 +236,7 @@ function load_admin_data(array $user): array
         'recentCounts' => load_recent_counts(),
         'recentEmailLogs' => $includeContacts ? load_recent_email_logs() : [],
         'mailEnabled' => $includeContacts ? !empty(lager_config()['mail_enabled']) : false,
+        'monthlyReportRecipients' => $includeContacts ? load_monthly_report_recipients() : [],
     ];
 }
 
@@ -520,11 +535,20 @@ function load_report(array $data, array $user): array
     }
 
     $departmentId = (int)($data['departmentId'] ?? 0);
+    $departmentIds = $departmentId > 0 ? [$departmentId] : [];
+    $report = build_report_data($from, $to, $departmentIds);
+    $report['departmentId'] = $departmentId;
+    return $report;
+}
+
+function build_report_data(string $from, string $to, array $departmentIds = []): array
+{
+    $departmentIds = normalize_ids($departmentIds);
     $params = [$from . ' 00:00:00', $to . ' 23:59:59'];
     $deptWhere = '';
-    if ($departmentId > 0) {
-        $deptWhere = ' AND m.department_id = ?';
-        $params[] = $departmentId;
+    if ($departmentIds) {
+        $deptWhere = ' AND m.department_id IN (' . implode(',', array_fill(0, count($departmentIds), '?')) . ')';
+        $params = array_merge($params, $departmentIds);
     }
 
     $sql = 'SELECT COALESCE(d.name, \'Utan avdeling\') AS department_name,
@@ -539,8 +563,8 @@ function load_report(array $data, array $user): array
          LEFT JOIN lager_departments d ON d.id = m.department_id
              WHERE m.movement_type = "out"
                AND m.created_at BETWEEN ? AND ?' . $deptWhere . '
-             GROUP BY department_name, c.name, i.name, i.unit
-             ORDER BY department_name, c.name, i.name';
+             GROUP BY department_name, d.sort_order, c.name, i.name, i.unit
+             ORDER BY COALESCE(d.sort_order, 999), department_name, c.name, i.name';
     $stmt = lager_pdo()->prepare($sql);
     $stmt->execute($params);
     $rows = $stmt->fetchAll();
@@ -551,8 +575,8 @@ function load_report(array $data, array $user): array
                 LEFT JOIN lager_departments d ON d.id = m.department_id
                     WHERE m.movement_type = "out"
                       AND m.created_at BETWEEN ? AND ?' . $deptWhere . '
-                    GROUP BY department_name
-                    ORDER BY department_name';
+                    GROUP BY department_name, d.sort_order
+                    ORDER BY COALESCE(d.sort_order, 999), department_name';
     $summaryStmt = lager_pdo()->prepare($summarySql);
     $summaryStmt->execute($params);
     $summary = $summaryStmt->fetchAll();
@@ -561,7 +585,7 @@ function load_report(array $data, array $user): array
         'ok' => true,
         'from' => $from,
         'to' => $to,
-        'departmentId' => $departmentId,
+        'departmentIds' => $departmentIds,
         'rows' => array_map(static fn(array $row): array => [
             'department' => (string)$row['department_name'],
             'category' => (string)$row['category_name'],
@@ -711,6 +735,153 @@ function save_department(array $data, array $user): array
     $response['ok'] = true;
     $response['message'] = 'Avdelinga er lagra.';
     return $response;
+}
+
+function load_monthly_report_recipients(bool $activeOnly = false, string $dueMonth = ''): array
+{
+    $where = [];
+    $params = [];
+    if ($activeOnly) {
+        $where[] = 'r.active = 1';
+    }
+    if ($dueMonth !== '') {
+        $where[] = 'r.last_sent_month <> ?';
+        $params[] = $dueMonth;
+    }
+
+    $sql = 'SELECT r.id, r.recipient_name, r.recipient_email, r.active,
+                   r.last_sent_month, r.last_sent_at,
+                   GROUP_CONCAT(d.id ORDER BY d.sort_order, d.name SEPARATOR ",") AS department_ids,
+                   GROUP_CONCAT(d.name ORDER BY d.sort_order, d.name SEPARATOR ", ") AS department_names
+              FROM lager_monthly_report_recipients r
+         LEFT JOIN lager_monthly_report_recipient_departments rd ON rd.recipient_id = r.id
+         LEFT JOIN lager_departments d ON d.id = rd.department_id';
+    if ($where) {
+        $sql .= ' WHERE ' . implode(' AND ', $where);
+    }
+    $sql .= ' GROUP BY r.id, r.recipient_name, r.recipient_email, r.active, r.last_sent_month, r.last_sent_at
+              ORDER BY r.active DESC, r.recipient_name, r.recipient_email';
+
+    $stmt = lager_pdo()->prepare($sql);
+    $stmt->execute($params);
+    return array_map(static function (array $row): array {
+        $departmentIds = [];
+        if (!empty($row['department_ids'])) {
+            $departmentIds = array_values(array_filter(array_map('intval', explode(',', (string)$row['department_ids']))));
+        }
+
+        return [
+            'id' => (int)$row['id'],
+            'recipientName' => (string)$row['recipient_name'],
+            'recipientEmail' => (string)$row['recipient_email'],
+            'active' => (bool)$row['active'],
+            'departmentIds' => $departmentIds,
+            'departmentNames' => (string)($row['department_names'] ?? ''),
+            'lastSentMonth' => (string)($row['last_sent_month'] ?? ''),
+            'lastSentAt' => $row['last_sent_at'] ?? null,
+        ];
+    }, $stmt->fetchAll());
+}
+
+function save_monthly_report_recipient(array $data, array $user): array
+{
+    $recipientId = (int)($data['recipientId'] ?? 0);
+    $name = trim_length((string)($data['recipientName'] ?? ''), 160);
+    $email = strtolower(normalize_optional_email((string)($data['recipientEmail'] ?? ''), 'E-post for månadsrapport'));
+    if ($email === '') {
+        lager_json(['error' => 'E-post for månadsrapport manglar.'], 400);
+    }
+
+    $departmentIds = normalize_ids(is_array($data['departmentIds'] ?? null) ? $data['departmentIds'] : []);
+    if (!$departmentIds) {
+        lager_json(['error' => 'Vel minst éi avdeling for månadsrapporten.'], 400);
+    }
+    assert_departments_exist($departmentIds);
+
+    $dupe = lager_pdo()->prepare(
+        'SELECT id FROM lager_monthly_report_recipients WHERE recipient_email = ? AND (? = 0 OR id <> ?) LIMIT 1'
+    );
+    $dupe->execute([$email, $recipientId, $recipientId]);
+    if ($dupe->fetch()) {
+        lager_json(['error' => 'Denne e-postadressa er allereie lagt inn som mottakar.'], 400);
+    }
+
+    $pdo = lager_pdo();
+    $pdo->beginTransaction();
+    try {
+        if ($recipientId > 0) {
+            $stmt = $pdo->prepare(
+                'UPDATE lager_monthly_report_recipients
+                    SET recipient_name = ?, recipient_email = ?, active = ?
+                  WHERE id = ?'
+            );
+            $stmt->execute([$name, $email, !empty($data['active']) ? 1 : 0, $recipientId]);
+            if ($stmt->rowCount() === 0) {
+                $exists = $pdo->prepare('SELECT id FROM lager_monthly_report_recipients WHERE id = ? LIMIT 1');
+                $exists->execute([$recipientId]);
+                if (!$exists->fetch()) {
+                    $pdo->rollBack();
+                    lager_json(['error' => 'Fann ikkje mottakaren.'], 404);
+                }
+            }
+        } else {
+            $pdo->prepare(
+                'INSERT INTO lager_monthly_report_recipients (recipient_name, recipient_email, active)
+                 VALUES (?, ?, ?)'
+            )->execute([$name, $email, !empty($data['active']) ? 1 : 0]);
+            $recipientId = (int)$pdo->lastInsertId();
+        }
+
+        $pdo->prepare('DELETE FROM lager_monthly_report_recipient_departments WHERE recipient_id = ?')
+            ->execute([$recipientId]);
+        $insert = $pdo->prepare(
+            'INSERT INTO lager_monthly_report_recipient_departments (recipient_id, department_id) VALUES (?, ?)'
+        );
+        foreach ($departmentIds as $departmentId) {
+            $insert->execute([$recipientId, $departmentId]);
+        }
+
+        $pdo->commit();
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $e;
+    }
+
+    $response = load_admin_data($user);
+    $response['ok'] = true;
+    $response['message'] = 'Mottakar for månadsrapport er lagra.';
+    return $response;
+}
+
+function delete_monthly_report_recipient(array $data, array $user): array
+{
+    $recipientId = (int)($data['recipientId'] ?? 0);
+    if ($recipientId <= 0) {
+        lager_json(['error' => 'Manglar mottakar.'], 400);
+    }
+
+    lager_pdo()->prepare('DELETE FROM lager_monthly_report_recipients WHERE id = ?')->execute([$recipientId]);
+    $response = load_admin_data($user);
+    $response['ok'] = true;
+    $response['message'] = 'Mottakaren er fjerna.';
+    return $response;
+}
+
+function assert_departments_exist(array $departmentIds): void
+{
+    $departmentIds = normalize_ids($departmentIds);
+    if (!$departmentIds) {
+        return;
+    }
+    $placeholders = implode(',', array_fill(0, count($departmentIds), '?'));
+    $stmt = lager_pdo()->prepare('SELECT id FROM lager_departments WHERE id IN (' . $placeholders . ')');
+    $stmt->execute($departmentIds);
+    $found = normalize_ids(array_column($stmt->fetchAll(), 'id'));
+    if (count($found) !== count($departmentIds)) {
+        lager_json(['error' => 'Ei eller fleire avdelingar finst ikkje.'], 400);
+    }
 }
 
 function save_category_contact(array $data, array $user): array
@@ -1060,6 +1231,244 @@ function low_stock_source_label(string $source): string
         'item_created' => 'ny vare',
         'category_contact_saved' => 'innkjøpsansvarleg endra',
     ][$source] ?? 'lageroppdatering';
+}
+
+function send_monthly_reports_from_token(array $data): array
+{
+    $config = lager_config();
+    $expectedToken = trim((string)($config['monthly_report_token'] ?? ''));
+    $providedToken = trim((string)($data['token'] ?? ''));
+    if ($expectedToken === '' || $expectedToken === 'BYT_TIL_EIT_LANGT_HEMMELEG_TOKEN') {
+        lager_json(['error' => 'Månadsrapport-token er ikkje sett i config.local.php.'], 503);
+    }
+    if ($providedToken === '' || !hash_equals($expectedToken, $providedToken)) {
+        lager_json(['error' => 'Ugyldig token.'], 403);
+    }
+
+    $now = new DateTimeImmutable('now', lager_timezone());
+    $force = !empty($data['force']);
+    if (!$force && $now->format('d') !== '01') {
+        return [
+            'ok' => true,
+            'sent' => 0,
+            'failed' => 0,
+            'skipped' => 0,
+            'message' => 'Månadsrapport blir berre sendt den 1. i månaden.',
+        ];
+    }
+
+    [$from, $to, $month] = monthly_report_period($now, (string)($data['month'] ?? ''));
+    return send_monthly_reports($from, $to, $month);
+}
+
+function send_monthly_reports(string $from, string $to, string $month): array
+{
+    $recipients = load_monthly_report_recipients(true, $month);
+    $sent = 0;
+    $failed = 0;
+    $skipped = 0;
+    $details = [];
+
+    foreach ($recipients as $recipient) {
+        $departmentIds = normalize_ids($recipient['departmentIds'] ?? []);
+        $subject = 'Månadsrapport tørrvarelager: ' . month_label_nn($from);
+        if (!$departmentIds) {
+            $skipped++;
+            log_email_event(
+                null,
+                null,
+                'monthly_report',
+                'skipped',
+                (string)$recipient['recipientName'],
+                (string)$recipient['recipientEmail'],
+                $subject,
+                '',
+                'Mottakaren har ingen avdelingar valde.',
+                'system'
+            );
+            $details[] = [
+                'recipient' => (string)$recipient['recipientEmail'],
+                'status' => 'skipped',
+                'error' => 'Ingen avdelingar valde.',
+            ];
+            continue;
+        }
+
+        $report = build_report_data($from, $to, $departmentIds);
+        $departmentNames = department_names_for_ids($departmentIds);
+        $body = monthly_report_body($recipient, $report, $departmentNames);
+        $result = send_lager_mail(
+            (string)$recipient['recipientEmail'],
+            (string)$recipient['recipientName'],
+            $subject,
+            $body
+        );
+
+        log_email_event(
+            null,
+            null,
+            'monthly_report',
+            $result['status'],
+            (string)$recipient['recipientName'],
+            (string)$recipient['recipientEmail'],
+            $subject,
+            $body,
+            $result['error'],
+            'system'
+        );
+
+        if ($result['status'] === 'sent') {
+            mark_monthly_report_sent((int)$recipient['id'], $month);
+            $sent++;
+        } elseif ($result['status'] === 'failed') {
+            $failed++;
+        } else {
+            $skipped++;
+        }
+
+        $details[] = [
+            'recipient' => (string)$recipient['recipientEmail'],
+            'status' => $result['status'],
+            'error' => $result['error'],
+        ];
+    }
+
+    return [
+        'ok' => true,
+        'from' => $from,
+        'to' => $to,
+        'month' => $month,
+        'sent' => $sent,
+        'failed' => $failed,
+        'skipped' => $skipped,
+        'details' => $details,
+    ];
+}
+
+function monthly_report_period(DateTimeImmutable $now, string $month): array
+{
+    $timezone = lager_timezone();
+    if ($month !== '') {
+        if (!preg_match('/^\d{4}-\d{2}$/', $month)) {
+            lager_json(['error' => 'Månaden må skrivast som YYYY-MM.'], 400);
+        }
+        $start = DateTimeImmutable::createFromFormat('!Y-m-d', $month . '-01', $timezone);
+        if (!$start || $start->format('Y-m') !== $month) {
+            lager_json(['error' => 'Månaden er ugyldig.'], 400);
+        }
+    } else {
+        $start = $now->modify('first day of previous month');
+    }
+
+    $start = $start->setTime(0, 0);
+    $end = $start->modify('last day of this month');
+    return [$start->format('Y-m-d'), $end->format('Y-m-d'), $start->format('Y-m')];
+}
+
+function lager_timezone(): DateTimeZone
+{
+    $timezone = (string)(lager_config()['timezone'] ?? 'Europe/Oslo');
+    try {
+        return new DateTimeZone($timezone);
+    } catch (Throwable $e) {
+        return new DateTimeZone('Europe/Oslo');
+    }
+}
+
+function monthly_report_body(array $recipient, array $report, array $departmentNames): string
+{
+    $config = lager_config();
+    $recipientName = trim((string)($recipient['recipientName'] ?? ''));
+    $lines = [];
+    $lines[] = $recipientName !== '' ? 'Hei ' . $recipientName . ',' : 'Hei,';
+    $lines[] = '';
+    $lines[] = 'Dette er automatisk månadsrapport frå SkuleTech Tørrvarelager.';
+    $lines[] = 'Periode: ' . format_date_nn((string)$report['from']) . ' - ' . format_date_nn((string)$report['to']);
+    $lines[] = 'Avdelingar: ' . ($departmentNames ? implode(', ', $departmentNames) : 'Ingen valde');
+    $lines[] = '';
+    $lines[] = 'Samandrag:';
+
+    $summary = $report['summary'] ?? [];
+    if (!$summary) {
+        $lines[] = '- Ingen uttak registrert i perioden.';
+    } else {
+        foreach ($summary as $row) {
+            $lines[] = '- ' . (string)$row['department'] . ': ' . (int)$row['movementCount'] . ' uttak';
+        }
+    }
+
+    $rows = $report['rows'] ?? [];
+    if ($rows) {
+        $lines[] = '';
+        $lines[] = 'Detaljar:';
+        foreach ($rows as $row) {
+            $lines[] = '- ' . (string)$row['department'] . ' / ' . (string)$row['category'] . ' / ' . (string)$row['item']
+                . ': ' . lager_format_qty((float)$row['quantity']) . ' ' . (string)$row['unit']
+                . ' (' . (int)$row['movementCount'] . ' registreringar)';
+        }
+    }
+
+    $appUrl = trim((string)($config['app_url'] ?? ''));
+    if ($appUrl !== '') {
+        $lines[] = '';
+        $lines[] = 'Opne rapporten i dashbordet: ' . $appUrl;
+    }
+
+    return implode("\n", $lines);
+}
+
+function department_names_for_ids(array $departmentIds): array
+{
+    $departmentIds = normalize_ids($departmentIds);
+    if (!$departmentIds) {
+        return [];
+    }
+    $placeholders = implode(',', array_fill(0, count($departmentIds), '?'));
+    $stmt = lager_pdo()->prepare(
+        'SELECT name FROM lager_departments
+          WHERE id IN (' . $placeholders . ')
+          ORDER BY sort_order, name'
+    );
+    $stmt->execute($departmentIds);
+    return array_map(static fn(array $row): string => (string)$row['name'], $stmt->fetchAll());
+}
+
+function mark_monthly_report_sent(int $recipientId, string $month): void
+{
+    lager_pdo()->prepare(
+        'UPDATE lager_monthly_report_recipients
+            SET last_sent_month = ?, last_sent_at = CURRENT_TIMESTAMP
+          WHERE id = ?'
+    )->execute([$month, $recipientId]);
+}
+
+function month_label_nn(string $date): string
+{
+    $dt = DateTimeImmutable::createFromFormat('!Y-m-d', $date, lager_timezone());
+    if (!$dt) {
+        return $date;
+    }
+    $months = [
+        1 => 'januar',
+        2 => 'februar',
+        3 => 'mars',
+        4 => 'april',
+        5 => 'mai',
+        6 => 'juni',
+        7 => 'juli',
+        8 => 'august',
+        9 => 'september',
+        10 => 'oktober',
+        11 => 'november',
+        12 => 'desember',
+    ];
+    return $months[(int)$dt->format('n')] . ' ' . $dt->format('Y');
+}
+
+function format_date_nn(string $date): string
+{
+    $dt = DateTimeImmutable::createFromFormat('!Y-m-d', $date, lager_timezone());
+    return $dt ? $dt->format('d.m.Y') : $date;
 }
 
 function send_lager_mail(string $toEmail, string $toName, string $subject, string $body): array

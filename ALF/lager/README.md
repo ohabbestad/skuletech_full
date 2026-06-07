@@ -24,12 +24,23 @@ Lagerstyring for felles tørrvarelager i arbeidslivsfag/skulekvardag.
 - `api/health.php` - sjekk databasekopling
 - `sql/schema.sql` - tabellar og frødata frå varelista
 - `sql/upgrade-email-alerts.sql` - oppgradering for eksisterande database med e-postvarsel
+- `sql/upgrade-monthly-report-recipients.sql` - oppgradering for faste mottakarar av månadsrapport
 
 ## Innkjøpsvarsel
 
 Lærar/admin kan leggje inn innkjøpsansvarleg per kategori og eventuelt overstyre ansvarleg på enkeltvarer. Når ei aktiv vare med min-nivå kjem på eller under min-nivå, sender serveren e-post til rett ansvarleg. Det blir berre sendt eitt varsel per låg-lager-periode. Når vara blir fylt over min-nivå igjen, blir varslingsstatus nullstilt.
 
 E-postsending krev at `mail_enabled` er sett til `true` i `api/config.local.php` på serveren, og at `mail_from` er ei gyldig avsendaradresse for domenet/webhotellet.
+
+## Fast månadsrapport
+
+Lærar/admin kan registrere faste mottakarar på rapportsida og velje kva avdelingar kvar mottakar skal få rapport frå. Driftsleiar ser framleis berre vanleg rapportvising.
+
+Automatisk utsending krev at `monthly_report_token` er sett i `api/config.local.php`, og at webhotellet har ein månadsjobb som kallar:
+
+`https://skuletech.no/ALF/lager/api/index.php?action=send_monthly_reports&token=DIN_HEMMELEGE_TOKEN`
+
+Jobben bør køyre den 1. i kvar månad. Serveren sender då rapport for førre månad, og markerer mottakaren som sendt for den månaden for å unngå duplikat.
 
 ## Viktig etter oppsett
 
