@@ -203,6 +203,9 @@ const app = {
     recentCounts: [],
     recentEmailLogs: [],
     mailEnabled: false,
+    adminItemSearch: '',
+    adminCategoryFilter: '',
+    editingItemId: null,
     report: null
   },
 
@@ -312,6 +315,12 @@ const app = {
     this.state.recentCounts = json.recentCounts || [];
     this.state.recentEmailLogs = json.recentEmailLogs || [];
     this.state.mailEnabled = Boolean(json.mailEnabled);
+    if (this.state.editingItemId && !this.state.items.some(item => item.id === this.state.editingItemId)) {
+      this.state.editingItemId = null;
+    }
+    if (this.state.adminCategoryFilter && !this.state.categories.some(category => String(category.id) === String(this.state.adminCategoryFilter))) {
+      this.state.adminCategoryFilter = '';
+    }
   },
 
   render() {
@@ -568,23 +577,37 @@ const app = {
 
         <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
           <div class="border-b border-slate-200 p-4">
-            <h2 class="text-xl font-black text-slate-950">Rediger varer</h2>
+            <div class="grid gap-3 lg:grid-cols-[1fr_minmax(260px,360px)_220px] lg:items-end">
+              <div>
+                <h2 class="text-xl font-black text-slate-950">Rediger varer</h2>
+                <p id="admin-item-count" class="mt-1 text-sm text-slate-600">${this.adminItemCountText()}</p>
+              </div>
+              <label class="block">
+                <span class="text-xs font-bold uppercase tracking-wide text-slate-500">Søk</span>
+                <input id="admin-item-search" value="${this.esc(this.state.adminItemSearch)}" oninput="app.setAdminItemSearch(this.value)" autocomplete="off" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" placeholder="Vare, hylle, QR eller ansvarleg">
+              </label>
+              <label class="block">
+                <span class="text-xs font-bold uppercase tracking-wide text-slate-500">Kategori</span>
+                <select id="admin-category-filter" onchange="app.setAdminCategoryFilter(this.value)" class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100">
+                  ${this.adminCategoryFilterOptions()}
+                </select>
+              </label>
+            </div>
           </div>
           <div class="overflow-x-auto">
-            <table class="w-full min-w-[1080px] table-fixed text-left text-sm">
+            <table class="w-full min-w-[980px] text-left text-sm">
               <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                 <tr>
-                  <th class="w-[25%] px-4 py-3">Vare</th>
-                  <th class="w-[18%] px-4 py-3">Kategori</th>
-                  <th class="w-24 px-4 py-3">Eining</th>
-                  <th class="w-24 px-4 py-3">Min</th>
-                  <th class="w-32 px-4 py-3">Hylle</th>
+                  <th class="w-[26%] px-4 py-3">Vare</th>
+                  <th class="w-[16%] px-4 py-3">Kategori</th>
+                  <th class="w-36 px-4 py-3">Lager/min</th>
+                  <th class="w-[22%] px-4 py-3">Ansvarleg</th>
                   <th class="w-28 px-4 py-3">Varsel</th>
                   <th class="w-20 px-4 py-3">Aktiv</th>
-                  <th class="w-24 px-4 py-3 text-right">Lagre</th>
+                  <th class="w-24 px-4 py-3 text-right">Rediger</th>
                 </tr>
               </thead>
-              <tbody>${this.state.items.map(item => this.itemAdminRow(item)).join('')}</tbody>
+              <tbody id="admin-item-table-body">${this.adminItemTableRows()}</tbody>
             </table>
           </div>
         </div>
@@ -635,36 +658,168 @@ const app = {
     `).join('') || '<p class="p-4 text-sm text-slate-500">Ingen kategoriar er lagde inn.</p>';
   },
 
+  adminCategoryFilterOptions() {
+    return '<option value="">Alle kategoriar</option>' + this.state.categories
+      .map(category => `<option value="${category.id}" ${String(this.state.adminCategoryFilter) === String(category.id) ? 'selected' : ''}>${this.esc(category.name)}</option>`)
+      .join('');
+  },
+
+  filteredAdminItems() {
+    const query = this.state.adminItemSearch.trim().toLocaleLowerCase('nb-NO');
+    const categoryFilter = String(this.state.adminCategoryFilter || '');
+    return this.state.items.filter(item => {
+      const matchesCategory = !categoryFilter || String(item.categoryId) === categoryFilter;
+      if (!matchesCategory) return false;
+      if (!query) return true;
+      return [
+        item.name,
+        item.category,
+        item.shelfLabel,
+        item.qrToken,
+        item.purchaseContactName,
+        item.purchaseContactEmail,
+        item.categoryContactName,
+        item.categoryContactEmail,
+        item.effectivePurchaseContactName,
+        item.effectivePurchaseContactEmail
+      ].some(value => String(value || '').toLocaleLowerCase('nb-NO').includes(query));
+    });
+  },
+
+  adminItemCountText() {
+    const count = this.filteredAdminItems().length;
+    const total = this.state.items.length;
+    const totalLabel = total === 1 ? 'vare' : 'varer';
+    const countLabel = count === 1 ? 'vare' : 'varer';
+    if (count === total) return `${total} ${totalLabel} i lista`;
+    return `${count} ${countLabel} av ${total} ${totalLabel} viste`;
+  },
+
+  adminItemTableRows() {
+    const rows = this.filteredAdminItems();
+    if (!rows.length) {
+      return '<tr><td colspan="7" class="px-4 py-8 text-center text-slate-500">Ingen varer passar søket eller filteret.</td></tr>';
+    }
+    return rows.map(item => this.itemAdminRow(item)).join('');
+  },
+
+  renderAdminItemList() {
+    const body = document.getElementById('admin-item-table-body');
+    if (body) body.innerHTML = this.adminItemTableRows();
+    const count = document.getElementById('admin-item-count');
+    if (count) count.textContent = this.adminItemCountText();
+  },
+
+  closeEditorIfHidden() {
+    if (!this.state.editingItemId) return;
+    const isVisible = this.filteredAdminItems().some(item => item.id === this.state.editingItemId);
+    if (!isVisible) this.state.editingItemId = null;
+  },
+
+  setAdminItemSearch(value) {
+    this.state.adminItemSearch = value;
+    this.closeEditorIfHidden();
+    this.renderAdminItemList();
+  },
+
+  setAdminCategoryFilter(value) {
+    this.state.adminCategoryFilter = value;
+    this.closeEditorIfHidden();
+    this.renderAdminItemList();
+  },
+
+  editItem(itemId) {
+    this.state.editingItemId = this.state.editingItemId === itemId ? null : itemId;
+    this.renderAdminItemList();
+  },
+
+  closeItemEditor() {
+    this.state.editingItemId = null;
+    this.renderAdminItemList();
+  },
+
   itemAdminRow(item) {
+    const isEditing = this.state.editingItemId === item.id;
+    const contactName = item.effectivePurchaseContactName || item.effectivePurchaseContactEmail || 'Ingen ansvarleg';
+    const contactEmail = item.effectivePurchaseContactEmail || '';
+    const contactSource = item.purchaseContactEmail ? 'Vare' : 'Kategori';
+    const activeBadge = item.active
+      ? '<span class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-800">Ja</span>'
+      : '<span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">Nei</span>';
+    const editButtonClass = isEditing
+      ? 'rounded-lg bg-slate-900 px-3 py-2 text-sm font-bold text-white shadow-sm'
+      : 'rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50';
     return `
-      <tr class="border-t border-slate-100 align-top first:border-t-0">
-        <td class="px-4 py-3"><input id="item-name-${item.id}" value="${this.esc(item.name)}" class="w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2"></td>
-        <td class="px-4 py-3"><select id="item-category-${item.id}" class="w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2">${this.categoryOptions(item.categoryId)}</select></td>
-        <td class="px-4 py-3"><input id="item-unit-${item.id}" value="${this.esc(item.unit)}" class="w-full rounded-lg border border-slate-300 px-3 py-2"></td>
-        <td class="px-4 py-3"><input id="item-min-${item.id}" inputmode="decimal" value="${this.inputQty(item.minQuantity)}" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-right"></td>
-        <td class="px-4 py-3"><input id="item-shelf-${item.id}" value="${this.esc(item.shelfLabel)}" class="w-full rounded-lg border border-slate-300 px-3 py-2"></td>
+      <tr class="border-t border-slate-100 align-top first:border-t-0 ${isEditing ? 'bg-sky-50/40' : 'bg-white'}">
+        <td class="px-4 py-3">
+          <p class="font-bold text-slate-950">${this.esc(item.name)}</p>
+          <p class="mt-0.5 text-xs text-slate-500">${item.shelfLabel ? `Hylle: ${this.esc(item.shelfLabel)}` : 'Utan hylle'} · QR: ${this.esc(item.qrToken)}</p>
+        </td>
+        <td class="px-4 py-3 text-slate-700">${this.esc(item.category)}</td>
+        <td class="px-4 py-3">
+          <p class="font-bold text-slate-950">${this.formatQty(item.stockQuantity)} ${this.esc(item.unit)}</p>
+          <p class="text-xs text-slate-500">Min ${this.formatQty(item.minQuantity)}</p>
+        </td>
+        <td class="px-4 py-3">
+          <p class="font-semibold text-slate-800">${this.esc(contactName)}</p>
+          ${contactEmail ? `<p class="mt-0.5 truncate text-xs text-slate-500">${this.esc(contactEmail)}</p>` : '<p class="mt-0.5 text-xs text-amber-700">Manglar e-post</p>'}
+          <p class="mt-0.5 text-xs text-slate-500">${contactSource}</p>
+        </td>
         <td class="px-4 py-3">${this.alertStatusBadge(item)}</td>
-        <td class="px-4 py-3"><input id="item-active-${item.id}" type="checkbox" ${item.active ? 'checked' : ''}></td>
-        <td class="px-4 py-3 text-right"><button onclick="app.saveItem(${item.id})" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm">Lagre</button></td>
+        <td class="px-4 py-3">${activeBadge}</td>
+        <td class="px-4 py-3 text-right"><button onclick="app.editItem(${item.id})" class="${editButtonClass}">${isEditing ? 'Lukk' : 'Rediger'}</button></td>
       </tr>
-      <tr class="bg-slate-50/70">
-        <td colspan="8" class="px-4 pb-4 pt-0">
-          <div class="grid gap-3 rounded-lg border border-slate-200 bg-white p-3 md:grid-cols-[minmax(220px,1fr)_minmax(220px,1fr)_minmax(280px,1.2fr)]">
-            <label class="block min-w-0">
-              <span class="text-xs font-bold uppercase tracking-wide text-slate-500">QR-kode</span>
-              <input id="item-token-${item.id}" value="${this.esc(item.qrToken)}" class="mt-1 w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2">
-            </label>
-            <label class="block min-w-0">
-              <span class="text-xs font-bold uppercase tracking-wide text-slate-500">Vareansvarleg</span>
-              <input id="item-contact-name-${item.id}" value="${this.esc(item.purchaseContactName || '')}" class="mt-1 w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2" placeholder="${this.esc(item.categoryContactName || 'Kategoriansvarleg')}">
-            </label>
-            <label class="block min-w-0">
-              <span class="text-xs font-bold uppercase tracking-wide text-slate-500">E-post</span>
-              <input id="item-contact-email-${item.id}" type="email" value="${this.esc(item.purchaseContactEmail || '')}" class="mt-1 w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2" placeholder="${this.esc(item.categoryContactEmail || 'Bruk kategori')}">
-            </label>
+      ${isEditing ? `
+      <tr class="bg-sky-50/40">
+        <td colspan="7" class="px-4 pb-5">
+          <div class="rounded-lg border border-sky-100 bg-white p-4 shadow-sm">
+            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+              <label class="block min-w-0 xl:col-span-2">
+                <span class="text-xs font-bold uppercase tracking-wide text-slate-500">Varenamn</span>
+                <input id="item-name-${item.id}" value="${this.esc(item.name)}" class="mt-1 w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100">
+              </label>
+              <label class="block min-w-0">
+                <span class="text-xs font-bold uppercase tracking-wide text-slate-500">Kategori</span>
+                <select id="item-category-${item.id}" class="mt-1 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100">${this.categoryOptions(item.categoryId)}</select>
+              </label>
+              <label class="block min-w-0">
+                <span class="text-xs font-bold uppercase tracking-wide text-slate-500">Eining</span>
+                <input id="item-unit-${item.id}" value="${this.esc(item.unit)}" class="mt-1 w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100">
+              </label>
+              <label class="block min-w-0">
+                <span class="text-xs font-bold uppercase tracking-wide text-slate-500">Min</span>
+                <input id="item-min-${item.id}" inputmode="decimal" value="${this.inputQty(item.minQuantity)}" class="mt-1 w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2 text-right outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100">
+              </label>
+              <label class="block min-w-0">
+                <span class="text-xs font-bold uppercase tracking-wide text-slate-500">Hylle</span>
+                <input id="item-shelf-${item.id}" value="${this.esc(item.shelfLabel)}" class="mt-1 w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100">
+              </label>
+              <label class="block min-w-0">
+                <span class="text-xs font-bold uppercase tracking-wide text-slate-500">QR-kode</span>
+                <input id="item-token-${item.id}" value="${this.esc(item.qrToken)}" class="mt-1 w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100">
+              </label>
+              <label class="block min-w-0">
+                <span class="text-xs font-bold uppercase tracking-wide text-slate-500">Vareansvarleg</span>
+                <input id="item-contact-name-${item.id}" value="${this.esc(item.purchaseContactName || '')}" class="mt-1 w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" placeholder="${this.esc(item.categoryContactName || 'Kategoriansvarleg')}">
+              </label>
+              <label class="block min-w-0 xl:col-span-2">
+                <span class="text-xs font-bold uppercase tracking-wide text-slate-500">E-post</span>
+                <input id="item-contact-email-${item.id}" type="email" value="${this.esc(item.purchaseContactEmail || '')}" class="mt-1 w-full min-w-0 rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" placeholder="${this.esc(item.categoryContactEmail || 'Bruk kategori')}">
+              </label>
+            </div>
+            <div class="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
+              <label class="flex items-center gap-2 text-sm font-bold text-slate-700">
+                <input id="item-active-${item.id}" type="checkbox" ${item.active ? 'checked' : ''} class="h-4 w-4 rounded border-slate-300 text-sky-700 focus:ring-sky-600">
+                Aktiv vare
+              </label>
+              <div class="flex gap-2">
+                <button onclick="app.saveItem(${item.id})" class="rounded-lg bg-sky-700 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-sky-800">Lagre</button>
+                <button onclick="app.closeItemEditor()" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm">Lukk</button>
+              </div>
+            </div>
           </div>
         </td>
-      </tr>`;
+      </tr>` : ''}`;
   },
 
   departmentRow(dep) {
@@ -725,7 +880,7 @@ const app = {
       purchaseContactEmail: document.getElementById(`item-contact-email-${itemId}`).value.trim(),
       active: document.getElementById(`item-active-${itemId}`).checked
     });
-    this.handleSaveResponse(json);
+    this.handleSaveResponse(json, { closeItemEditor: true });
   },
 
   async saveCategoryContact(categoryId) {
@@ -761,12 +916,13 @@ const app = {
     this.handleSaveResponse(json);
   },
 
-  handleSaveResponse(json) {
+  handleSaveResponse(json, options = {}) {
     if (json.error) {
       if (json._status === 401) return;
       this.showMessage(json.error, false);
       return;
     }
+    if (options.closeItemEditor) this.state.editingItemId = null;
     this.applyResponse(json);
     this.render();
     this.showMessage(json.message || 'Lagra.', true);
