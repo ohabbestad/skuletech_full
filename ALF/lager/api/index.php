@@ -56,6 +56,11 @@ try {
         lager_json(create_item($data, $user));
     }
 
+    if ($action === 'save_category') {
+        $user = lager_require_role(['laerar']);
+        lager_json(save_category($data, $user));
+    }
+
     if ($action === 'save_category_contact') {
         $user = lager_require_role(['laerar']);
         lager_json(save_category_contact($data, $user));
@@ -551,18 +556,25 @@ function build_report_data(string $from, string $to, array $departmentIds = []):
         $params = array_merge($params, $departmentIds);
     }
 
+    $movementWhere = ' AND (
+                  m.movement_type = "out"
+                  OR (m.movement_type = "in" AND m.department_id IS NOT NULL)
+               )';
+
     $sql = 'SELECT COALESCE(d.name, \'Utan avdeling\') AS department_name,
                    c.name AS category_name,
                    i.name AS item_name,
                    i.unit,
-                   SUM(m.quantity) AS total_quantity,
-                   COUNT(*) AS movement_count
+                   SUM(CASE WHEN m.movement_type = "out" THEN m.quantity ELSE 0 END) AS out_quantity,
+                   SUM(CASE WHEN m.movement_type = "in" THEN m.quantity ELSE 0 END) AS in_quantity,
+                   SUM(CASE WHEN m.movement_type = "out" THEN m.quantity ELSE -m.quantity END) AS net_quantity,
+                   SUM(CASE WHEN m.movement_type = "out" THEN 1 ELSE 0 END) AS movement_count,
+                   SUM(CASE WHEN m.movement_type = "in" THEN 1 ELSE 0 END) AS return_count
               FROM lager_movements m
               JOIN lager_items i ON i.id = m.item_id
               JOIN lager_categories c ON c.id = i.category_id
          LEFT JOIN lager_departments d ON d.id = m.department_id
-             WHERE m.movement_type = "out"
-               AND m.created_at BETWEEN ? AND ?' . $deptWhere . '
+             WHERE m.created_at BETWEEN ? AND ?' . $movementWhere . $deptWhere . '
              GROUP BY department_name, d.sort_order, c.name, i.name, i.unit
              ORDER BY COALESCE(d.sort_order, 999), department_name, c.name, i.name';
     $stmt = lager_pdo()->prepare($sql);
@@ -570,11 +582,11 @@ function build_report_data(string $from, string $to, array $departmentIds = []):
     $rows = $stmt->fetchAll();
 
     $summarySql = 'SELECT COALESCE(d.name, \'Utan avdeling\') AS department_name,
-                          COUNT(*) AS movement_count
+                          SUM(CASE WHEN m.movement_type = "out" THEN 1 ELSE 0 END) AS movement_count,
+                          SUM(CASE WHEN m.movement_type = "in" THEN 1 ELSE 0 END) AS return_count
                      FROM lager_movements m
                 LEFT JOIN lager_departments d ON d.id = m.department_id
-                    WHERE m.movement_type = "out"
-                      AND m.created_at BETWEEN ? AND ?' . $deptWhere . '
+                    WHERE m.created_at BETWEEN ? AND ?' . $movementWhere . $deptWhere . '
                     GROUP BY department_name, d.sort_order
                     ORDER BY COALESCE(d.sort_order, 999), department_name';
     $summaryStmt = lager_pdo()->prepare($summarySql);
@@ -591,12 +603,16 @@ function build_report_data(string $from, string $to, array $departmentIds = []):
             'category' => (string)$row['category_name'],
             'item' => (string)$row['item_name'],
             'unit' => (string)$row['unit'],
-            'quantity' => (float)$row['total_quantity'],
+            'quantity' => (float)$row['net_quantity'],
+            'outQuantity' => (float)$row['out_quantity'],
+            'inQuantity' => (float)$row['in_quantity'],
             'movementCount' => (int)$row['movement_count'],
+            'returnCount' => (int)$row['return_count'],
         ], $rows),
         'summary' => array_map(static fn(array $row): array => [
             'department' => (string)$row['department_name'],
             'movementCount' => (int)$row['movement_count'],
+            'returnCount' => (int)$row['return_count'],
         ], $summary),
     ];
 }
@@ -882,6 +898,61 @@ function assert_departments_exist(array $departmentIds): void
     if (count($found) !== count($departmentIds)) {
         lager_json(['error' => 'Ei eller fleire avdelingar finst ikkje.'], 400);
     }
+}
+
+function save_category(array $data, array $user): array
+{
+    $categoryId = (int)($data['categoryId'] ?? 0);
+    $name = trim_length((string)($data['name'] ?? ''), 120);
+    if ($name === '') {
+        lager_json(['error' => 'Kategorinamn manglar.'], 400);
+    }
+
+    $sortOrder = (int)($data['sortOrder'] ?? 100);
+    $active = !empty($data['active']) ? 1 : 0;
+    $contactName = trim_length((string)($data['purchaseContactName'] ?? ''), 160);
+    $contactEmail = normalize_optional_email((string)($data['purchaseContactEmail'] ?? ''), 'E-post for innkjøpsansvarleg');
+
+    $dupe = lager_pdo()->prepare(
+        'SELECT id FROM lager_categories WHERE name = ? AND (? = 0 OR id <> ?) LIMIT 1'
+    );
+    $dupe->execute([$name, $categoryId, $categoryId]);
+    if ($dupe->fetch()) {
+        lager_json(['error' => 'Denne kategorien finst allereie.'], 400);
+    }
+
+    $oldCategory = null;
+    if ($categoryId > 0) {
+        $oldCategory = load_category_private_row($categoryId);
+        lager_pdo()->prepare(
+            'UPDATE lager_categories
+                SET name = ?, sort_order = ?, active = ?,
+                    purchase_contact_name = ?, purchase_contact_email = ?
+              WHERE id = ?'
+        )->execute([$name, $sortOrder, $active, $contactName, $contactEmail, $categoryId]);
+    } else {
+        lager_pdo()->prepare(
+            'INSERT INTO lager_categories
+                (name, sort_order, active, purchase_contact_name, purchase_contact_email)
+             VALUES (?, ?, ?, ?, ?)'
+        )->execute([$name, $sortOrder, $active, $contactName, $contactEmail]);
+        $categoryId = (int)lager_pdo()->lastInsertId();
+    }
+
+    if ($oldCategory !== null) {
+        $contactChanged = (string)($oldCategory['purchase_contact_name'] ?? '') !== $contactName
+            || (string)($oldCategory['purchase_contact_email'] ?? '') !== $contactEmail;
+        if ($contactChanged) {
+            $itemIds = load_category_default_contact_low_item_ids($categoryId);
+            reset_low_stock_notification($itemIds);
+            safe_process_low_stock_for_items($itemIds, 'category_saved', (string)$user['role']);
+        }
+    }
+
+    $response = load_admin_data($user);
+    $response['ok'] = true;
+    $response['message'] = 'Kategorien er lagra.';
+    return $response;
 }
 
 function save_category_contact(array $data, array $user): array
@@ -1229,6 +1300,7 @@ function low_stock_source_label(string $source): string
         'count' => 'vareteljing',
         'item_saved' => 'vareadministrasjon',
         'item_created' => 'ny vare',
+        'category_saved' => 'kategori endra',
         'category_contact_saved' => 'innkjøpsansvarleg endra',
     ][$source] ?? 'lageroppdatering';
 }
@@ -1389,12 +1461,13 @@ function monthly_report_body(array $recipient, array $report, array $departmentN
     $lines[] = '';
 
     $lines[] = 'LEIARSAMANDRAG';
-    if ($analysis['totalMovements'] === 0) {
-        $lines[] = 'Det er ikkje registrert uttak for dei valde avdelingane i denne perioden.';
+    if ($analysis['totalActivity'] === 0) {
+        $lines[] = 'Det er ikkje registrert uttak eller innleggingar frå dei valde avdelingane i denne perioden.';
     } else {
-        $lines[] = '- Totalt: ' . $analysis['totalMovements'] . ' uttak';
+        $lines[] = '- Uttak: ' . $analysis['totalMovements'] . ' registreringar';
+        $lines[] = '- Innleggingar frå avdeling: ' . $analysis['totalReturns'] . ' registreringar';
         $lines[] = '- Avdelingar med aktivitet: ' . $analysis['activeDepartmentCount'] . ' av ' . count($departmentNames);
-        $lines[] = '- Ulike varer brukt: ' . $analysis['distinctItemCount'];
+        $lines[] = '- Ulike varer registrerte: ' . $analysis['distinctItemCount'];
         $lines[] = '- Mest aktivitet: ' . monthly_report_ranked_departments($analysis['rankedDepartments']);
     }
 
@@ -1403,25 +1476,26 @@ function monthly_report_body(array $recipient, array $report, array $departmentN
     foreach ($analysis['departments'] as $department) {
         $lines[] = '';
         $lines[] = (string)$department['name'];
-        if ((int)$department['movementCount'] === 0) {
-            $lines[] = '- Ingen uttak registrert.';
+        if ((int)$department['activityCount'] === 0) {
+            $lines[] = '- Ingen uttak eller innleggingar registrert.';
             continue;
         }
 
         $lines[] = '- Uttak: ' . (int)$department['movementCount'];
+        $lines[] = '- Innleggingar frå avdeling: ' . (int)$department['returnCount'];
         $lines[] = '- Ulike varer: ' . (int)$department['itemCount'];
-        $lines[] = '- Mest brukte kategoriar: ' . monthly_report_top_categories_text($department['topCategories']);
-        $lines[] = '- Mest brukte varer:';
+        $lines[] = '- Kategoriar med mest aktivitet: ' . monthly_report_top_categories_text($department['topCategories']);
+        $lines[] = '- Varer med høgast netto forbruk:';
         foreach ($department['topItems'] as $item) {
             $lines[] = '  * ' . monthly_report_item_line($item);
         }
     }
 
-    if ($analysis['totalMovements'] > 0) {
+    if ($analysis['totalActivity'] > 0) {
         $lines[] = '';
         $lines[] = 'DETALJAR PER AVDELING OG KATEGORI';
         foreach ($analysis['departments'] as $department) {
-            if ((int)$department['movementCount'] === 0) {
+            if ((int)$department['activityCount'] === 0) {
                 continue;
             }
             $lines[] = '';
@@ -1464,31 +1538,47 @@ function monthly_report_analysis(array $report, array $departmentNames): array
         $itemName = (string)($row['item'] ?? '');
         $unit = (string)($row['unit'] ?? '');
         $quantity = (float)($row['quantity'] ?? 0);
+        $outQuantity = (float)($row['outQuantity'] ?? $quantity);
+        $inQuantity = (float)($row['inQuantity'] ?? 0);
         $movementCount = (int)($row['movementCount'] ?? 0);
+        $returnCount = (int)($row['returnCount'] ?? 0);
+        $activityCount = $movementCount + $returnCount;
         $itemKey = $itemName . '|' . $unit;
 
         $departments[$departmentName]['movementCount'] += $movementCount;
+        $departments[$departmentName]['returnCount'] += $returnCount;
+        $departments[$departmentName]['activityCount'] += $activityCount;
         $departments[$departmentName]['itemKeys'][$itemKey] = true;
         $departments[$departmentName]['categoryCounts'][$categoryName] =
-            ($departments[$departmentName]['categoryCounts'][$categoryName] ?? 0) + $movementCount;
+            ($departments[$departmentName]['categoryCounts'][$categoryName] ?? 0) + $activityCount;
         $departments[$departmentName]['categories'][$categoryName][] = [
             'name' => $itemName,
             'category' => $categoryName,
             'unit' => $unit,
             'quantity' => $quantity,
+            'outQuantity' => $outQuantity,
+            'inQuantity' => $inQuantity,
             'movementCount' => $movementCount,
+            'returnCount' => $returnCount,
+            'activityCount' => $activityCount,
         ];
         $departments[$departmentName]['topItems'][] = [
             'name' => $itemName,
             'category' => $categoryName,
             'unit' => $unit,
             'quantity' => $quantity,
+            'outQuantity' => $outQuantity,
+            'inQuantity' => $inQuantity,
             'movementCount' => $movementCount,
+            'returnCount' => $returnCount,
+            'activityCount' => $activityCount,
         ];
         $distinctItems[$itemKey] = true;
     }
 
     $totalMovements = 0;
+    $totalReturns = 0;
+    $totalActivity = 0;
     $activeDepartmentCount = 0;
     foreach ($departments as &$department) {
         $department['itemCount'] = count($department['itemKeys']);
@@ -1506,7 +1596,9 @@ function monthly_report_analysis(array $report, array $departmentNames): array
         unset($items);
 
         $totalMovements += (int)$department['movementCount'];
-        if ((int)$department['movementCount'] > 0) {
+        $totalReturns += (int)$department['returnCount'];
+        $totalActivity += (int)$department['activityCount'];
+        if ((int)$department['activityCount'] > 0) {
             $activeDepartmentCount++;
         }
     }
@@ -1514,7 +1606,7 @@ function monthly_report_analysis(array $report, array $departmentNames): array
 
     $rankedDepartments = array_values($departments);
     usort($rankedDepartments, static function (array $a, array $b): int {
-        $countCompare = (int)$b['movementCount'] <=> (int)$a['movementCount'];
+        $countCompare = (int)$b['activityCount'] <=> (int)$a['activityCount'];
         if ($countCompare !== 0) {
             return $countCompare;
         }
@@ -1523,6 +1615,8 @@ function monthly_report_analysis(array $report, array $departmentNames): array
 
     return [
         'totalMovements' => $totalMovements,
+        'totalReturns' => $totalReturns,
+        'totalActivity' => $totalActivity,
         'activeDepartmentCount' => $activeDepartmentCount,
         'distinctItemCount' => count($distinctItems),
         'departments' => array_values($departments),
@@ -1535,6 +1629,8 @@ function monthly_report_empty_department(string $name): array
     return [
         'name' => $name,
         'movementCount' => 0,
+        'returnCount' => 0,
+        'activityCount' => 0,
         'itemCount' => 0,
         'itemKeys' => [],
         'categoryCounts' => [],
@@ -1546,13 +1642,17 @@ function monthly_report_empty_department(string $name): array
 
 function monthly_report_compare_usage_rows(array $a, array $b): int
 {
-    $movementCompare = (int)$b['movementCount'] <=> (int)$a['movementCount'];
-    if ($movementCompare !== 0) {
-        return $movementCompare;
-    }
     $quantityCompare = (float)$b['quantity'] <=> (float)$a['quantity'];
     if ($quantityCompare !== 0) {
         return $quantityCompare;
+    }
+    $outCompare = (float)($b['outQuantity'] ?? 0) <=> (float)($a['outQuantity'] ?? 0);
+    if ($outCompare !== 0) {
+        return $outCompare;
+    }
+    $movementCompare = (int)($b['activityCount'] ?? 0) <=> (int)($a['activityCount'] ?? 0);
+    if ($movementCompare !== 0) {
+        return $movementCompare;
     }
     return strcmp((string)$a['name'], (string)$b['name']);
 }
@@ -1564,7 +1664,7 @@ function monthly_report_top_categories(array $categoryCounts): array
     foreach (array_slice($categoryCounts, 0, 3, true) as $name => $count) {
         $top[] = [
             'name' => (string)$name,
-            'movementCount' => (int)$count,
+            'activityCount' => (int)$count,
         ];
     }
     return $top;
@@ -1573,29 +1673,33 @@ function monthly_report_top_categories(array $categoryCounts): array
 function monthly_report_top_categories_text(array $categories): string
 {
     if (!$categories) {
-        return 'Ingen uttak';
+        return 'Ingen registreringar';
     }
     return implode(', ', array_map(static function (array $category): string {
-        return (string)$category['name'] . ' (' . (int)$category['movementCount'] . ' uttak)';
+        return (string)$category['name'] . ' (' . (int)$category['activityCount'] . ' registreringar)';
     }, $categories));
 }
 
 function monthly_report_ranked_departments(array $departments): string
 {
-    $active = array_values(array_filter($departments, static fn(array $department): bool => (int)$department['movementCount'] > 0));
+    $active = array_values(array_filter($departments, static fn(array $department): bool => (int)$department['activityCount'] > 0));
     if (!$active) {
         return 'Ingen avdelingar med registrert bruk';
     }
     return implode(', ', array_map(static function (array $department): string {
-        return (string)$department['name'] . ' (' . (int)$department['movementCount'] . ')';
+        return (string)$department['name'] . ' (' . (int)$department['activityCount'] . ')';
     }, array_slice($active, 0, 4)));
 }
 
 function monthly_report_item_line(array $item): string
 {
+    $unit = (string)$item['unit'];
     return (string)$item['name'] . ': '
-        . lager_format_qty((float)$item['quantity']) . ' ' . (string)$item['unit']
-        . ' fordelt på ' . (int)$item['movementCount'] . ' uttak';
+        . lager_format_qty((float)$item['quantity']) . ' ' . $unit
+        . ' netto (uttak ' . lager_format_qty((float)($item['outQuantity'] ?? 0))
+        . ' ' . $unit . ', inn ' . lager_format_qty((float)($item['inQuantity'] ?? 0))
+        . ' ' . $unit
+        . ', registreringar ' . (int)($item['activityCount'] ?? 0) . ')';
 }
 
 function department_names_for_ids(array $departmentIds): array

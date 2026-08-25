@@ -141,7 +141,7 @@
 
     <section id="view-report" class="view hidden space-y-5">
       <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 class="text-xl font-black text-slate-950">Rapport for uttak</h2>
+        <h2 class="text-xl font-black text-slate-950">Rapport for netto uttak</h2>
         <div class="mt-4 grid gap-3 md:grid-cols-4">
           <label class="block">
             <span class="text-sm font-semibold text-slate-700">Frå</span>
@@ -168,15 +168,17 @@
 
       <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
         <div class="overflow-x-auto">
-          <table class="w-full min-w-[780px] text-left text-sm">
+          <table class="w-full min-w-[940px] text-left text-sm">
             <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
               <tr>
                 <th class="px-4 py-3">Avdeling</th>
                 <th class="px-4 py-3">Kategori</th>
                 <th class="px-4 py-3">Vare</th>
-                <th class="px-4 py-3 text-right">Mengd</th>
+                <th class="px-4 py-3 text-right">Netto</th>
+                <th class="px-4 py-3 text-right">Uttak</th>
+                <th class="px-4 py-3 text-right">Inn</th>
                 <th class="px-4 py-3">Eining</th>
-                <th class="px-4 py-3 text-right">Registreringar</th>
+                <th class="px-4 py-3 text-right">Uttak/inn</th>
               </tr>
             </thead>
             <tbody id="report-table" class="divide-y divide-slate-100"></tbody>
@@ -360,11 +362,14 @@ const app = {
 
   renderFilters() {
     const category = document.getElementById('inventory-category');
-    if (category && !category.dataset.ready) {
+    if (category) {
+      const selected = category.value || '';
       category.innerHTML = '<option value="">Alle kategoriar</option>' + this.state.categories
         .map(c => `<option value="${c.id}">${this.esc(c.name)}</option>`)
         .join('');
-      category.dataset.ready = '1';
+      if (selected && this.state.categories.some(c => String(c.id) === selected)) {
+        category.value = selected;
+      }
     }
 
     const reportDep = document.getElementById('report-department');
@@ -761,7 +766,7 @@ const app = {
     const rows = report?.rows || [];
 
     document.getElementById('report-summary').innerHTML = summary.map(s =>
-      this.statCard(s.department, s.movementCount, 'uttak i perioden')
+      this.statCard(s.department, `${s.movementCount} / ${s.returnCount || 0}`, 'registreringar uttak/inn')
     ).join('') || this.statCard('Ingen rapport', 0, 'Vel periode og hent rapport');
 
     document.getElementById('report-table').innerHTML = rows.map(row => `
@@ -770,10 +775,12 @@ const app = {
         <td class="px-4 py-3">${this.esc(row.category)}</td>
         <td class="px-4 py-3">${this.esc(row.item)}</td>
         <td class="px-4 py-3 text-right font-bold">${this.formatQty(row.quantity)}</td>
+        <td class="px-4 py-3 text-right">${this.formatQty(row.outQuantity)}</td>
+        <td class="px-4 py-3 text-right">${this.formatQty(row.inQuantity)}</td>
         <td class="px-4 py-3">${this.esc(row.unit)}</td>
-        <td class="px-4 py-3 text-right">${row.movementCount}</td>
+        <td class="px-4 py-3 text-right">${row.movementCount} / ${row.returnCount || 0}</td>
       </tr>
-    `).join('') || '<tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">Ingen rapportdata er henta.</td></tr>';
+    `).join('') || '<tr><td colspan="8" class="px-4 py-8 text-center text-slate-500">Ingen rapportdata er henta.</td></tr>';
   },
 
   downloadCsv() {
@@ -782,8 +789,18 @@ const app = {
       this.showMessage('Hent ein rapport før du eksporterer.', false);
       return;
     }
-    const header = ['Avdeling', 'Kategori', 'Vare', 'Mengd', 'Eining', 'Registreringar'];
-    const csvRows = [header, ...rows.map(r => [r.department, r.category, r.item, String(r.quantity).replace('.', ','), r.unit, r.movementCount])];
+    const header = ['Avdeling', 'Kategori', 'Vare', 'Netto', 'Uttak', 'Inn frå avdeling', 'Eining', 'Uttaksregistreringar', 'Innregistreringar'];
+    const csvRows = [header, ...rows.map(r => [
+      r.department,
+      r.category,
+      r.item,
+      String(r.quantity).replace('.', ','),
+      String(r.outQuantity || 0).replace('.', ','),
+      String(r.inQuantity || 0).replace('.', ','),
+      r.unit,
+      r.movementCount,
+      r.returnCount || 0
+    ])];
     const csv = csvRows.map(row => row.map(value => `"${String(value).replaceAll('"', '""')}"`).join(';')).join('\r\n');
     const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -817,6 +834,18 @@ const app = {
           <div class="divide-y divide-slate-100">
             ${this.categoryContactRows()}
           </div>
+        </div>
+
+        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <h2 class="text-xl font-black text-slate-950">Ny kategori</h2>
+          <div class="mt-4 grid gap-3 md:grid-cols-[1fr_120px_120px] lg:grid-cols-[1fr_120px_120px_220px_280px]">
+            <input id="new-category-name" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Kategorinamn">
+            <input id="new-category-sort" type="number" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Sortering" value="100">
+            <label class="flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2"><input id="new-category-active" type="checkbox" checked> Aktiv</label>
+            <input id="new-category-contact-name" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="Innkjøpsansvarleg">
+            <input id="new-category-contact-email" type="email" class="rounded-lg border border-slate-300 px-3 py-2" placeholder="epost@døme.no">
+          </div>
+          <button onclick="app.saveCategory(0)" class="mt-3 rounded-lg bg-sky-700 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-sky-800">Legg til kategori</button>
         </div>
 
         <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -1136,6 +1165,20 @@ const app = {
       active: document.getElementById(`item-active-${itemId}`).checked
     });
     this.handleSaveResponse(json, { closeItemEditor: true });
+  },
+
+  async saveCategory(categoryId) {
+    const isNew = Number(categoryId) <= 0;
+    const json = await this.post({
+      action: 'save_category',
+      categoryId,
+      name: document.getElementById(isNew ? 'new-category-name' : `cat-name-${categoryId}`).value.trim(),
+      sortOrder: Number(document.getElementById(isNew ? 'new-category-sort' : `cat-sort-${categoryId}`).value || 100),
+      active: document.getElementById(isNew ? 'new-category-active' : `cat-active-${categoryId}`).checked,
+      purchaseContactName: document.getElementById(isNew ? 'new-category-contact-name' : `cat-contact-name-${categoryId}`).value.trim(),
+      purchaseContactEmail: document.getElementById(isNew ? 'new-category-contact-email' : `cat-contact-email-${categoryId}`).value.trim()
+    });
+    this.handleSaveResponse(json);
   },
 
   async saveCategoryContact(categoryId) {

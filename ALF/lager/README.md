@@ -32,6 +32,10 @@ Lærar/admin kan leggje inn innkjøpsansvarleg per kategori og eventuelt oversty
 
 E-postsending krev at `mail_enabled` er sett til `true` i `api/config.local.php` på serveren, og at `mail_from` er ei gyldig avsendaradresse for domenet/webhotellet.
 
+## Rapportar
+
+Rapporten viser netto forbruk per avdeling og vare: `uttak - innlegging frå same avdeling`. Når varer blir lagde inn utan avdeling, blir det rekna som vanleg lagerpåfyll og trekkjast ikkje frå avdelingsrapporten.
+
 ## Fast månadsrapport
 
 Lærar/admin kan registrere faste mottakarar på rapportsida og velje kva avdelingar kvar mottakar skal få rapport frå. Driftsleiar ser framleis berre vanleg rapportvising.
