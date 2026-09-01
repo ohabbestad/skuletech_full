@@ -264,6 +264,7 @@ function allowed_allergen_ids(): array
         'peanotter',
         'soya',
         'mjolk',
+        'laktose',
         'notter',
         'selleri',
         'sennep',

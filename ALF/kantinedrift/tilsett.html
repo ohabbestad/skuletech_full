@@ -87,6 +87,23 @@
 <script>
 const API_URL  = 'api/index.php';
 const APP_ROLE = 'tilsett';
+const ALLERGENS = [
+    { id: 'gluten', label: 'Gluten' },
+    { id: 'skalldyr', label: 'Skaldyr' },
+    { id: 'egg', label: 'Egg' },
+    { id: 'fisk', label: 'Fisk' },
+    { id: 'peanotter', label: 'Peanøtter' },
+    { id: 'soya', label: 'Soya' },
+    { id: 'mjolk', label: 'Mjølk' },
+    { id: 'laktose', label: 'Laktose' },
+    { id: 'notter', label: 'Nøtter' },
+    { id: 'selleri', label: 'Selleri' },
+    { id: 'sennep', label: 'Sennep' },
+    { id: 'sesam', label: 'Sesamfrø' },
+    { id: 'sulfitt', label: 'Svoveldioksid/sulfitt' },
+    { id: 'lupin', label: 'Lupin' },
+    { id: 'blautdyr', label: 'Blautdyr' }
+];
 
 const app = {
 
@@ -242,6 +259,34 @@ const app = {
     /* ── Hjelpar ────────────────────────────────────────────── */
     esc: str => String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'),
 
+    normalizeAllergens(value) {
+        let ids = [];
+        if (Array.isArray(value)) {
+            ids = value;
+        } else if (typeof value === 'string' && value.trim()) {
+            try {
+                const parsed = JSON.parse(value);
+                ids = Array.isArray(parsed) ? parsed : [];
+            } catch {
+                ids = [];
+            }
+        }
+        const allowed = new Set(ALLERGENS.map(a => a.id));
+        return [...new Set(ids.map(String).filter(id => allowed.has(id)))];
+    },
+
+    getMenuAllergenIds(dateId) {
+        return this.normalizeAllergens(this.state.menus[dateId]?.allergens || []);
+    },
+
+    formatAllergens(ids) {
+        const selected = new Set(this.normalizeAllergens(ids));
+        return ALLERGENS
+            .filter(a => selected.has(a.id))
+            .map(a => a.label)
+            .join(', ');
+    },
+
     getWeekdayName(dateId) {
         const d = new Date(dateId + 'T12:00:00');
         return ['Sundag','Måndag','Tysdag','Onsdag','Torsdag','Fredag','Laurdag'][d.getDay()];
@@ -365,15 +410,22 @@ const app = {
 
         // Meny — berre lesemodus for tilsett
         const menyTekst = this.state.menus[dateId]?.['dagens'] || '';
+        const allergenText = this.formatAllergens(this.getMenuAllergenIds(dateId));
         menuEl.innerHTML = `
           <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 shadow-sm">
             <div class="flex items-center mb-2">
               <span class="text-2xl mr-3">🍲</span>
-              <h3 class="text-xl font-bold text-amber-900">Dagens Meny</h3>
+              <h3 class="text-xl font-bold text-amber-900">Dagens meny</h3>
             </div>
             <p class="text-amber-800 text-lg font-medium ml-9">
               ${menyTekst ? this.esc(menyTekst) : '<i class="text-amber-700/60 font-normal">Ingen meny er lagt inn enno.</i>'}
             </p>
+            ${menyTekst && allergenText
+              ? `<div class="mt-4 ml-9 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-900">
+                   <p class="text-xs font-bold uppercase tracking-wide text-red-700 mb-1">Allergen og matomsyn</p>
+                   <p class="font-bold"><span>Inneheld:</span> ${this.esc(allergenText)}</p>
+                 </div>`
+              : ''}
           </div>`;
 
         const { tidleg, seint } = this.getDayStaffing(dateId);

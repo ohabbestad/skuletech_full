@@ -121,13 +121,14 @@
 const API_URL  = 'api/index.php';
 const APP_ROLE = 'driftsleiar';
 const ALLERGENS = [
-    { id: 'gluten', label: 'Glutenhaldig korn' },
+    { id: 'gluten', label: 'Gluten' },
     { id: 'skalldyr', label: 'Skaldyr' },
     { id: 'egg', label: 'Egg' },
     { id: 'fisk', label: 'Fisk' },
     { id: 'peanotter', label: 'Peanøtter' },
     { id: 'soya', label: 'Soya' },
     { id: 'mjolk', label: 'Mjølk' },
+    { id: 'laktose', label: 'Laktose' },
     { id: 'notter', label: 'Nøtter' },
     { id: 'selleri', label: 'Selleri' },
     { id: 'sennep', label: 'Sennep' },
@@ -580,7 +581,7 @@ const app = {
                         placeholder="Skriv meny og trykk Lagra..."
                         oninput="app.updateMenuDraft('${dateId}')">${this.esc(draft.value)}</textarea>
               <div class="mt-4">
-                <p class="text-xs font-bold uppercase tracking-wide text-amber-700 mb-2">Allergen i retten</p>
+                <p class="text-xs font-bold uppercase tracking-wide text-amber-700 mb-2">Allergen og matomsyn</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
                   ${this.renderAllergenOptions(dateId, draft.allergens)}
                 </div>

@@ -543,13 +543,14 @@
     <script>
         var API_URL = 'api/index.php';
         var ALLERGENS = [
-            { id: 'gluten', label: 'Glutenhaldig korn' },
+            { id: 'gluten', label: 'Gluten' },
             { id: 'skalldyr', label: 'Skaldyr' },
             { id: 'egg', label: 'Egg' },
             { id: 'fisk', label: 'Fisk' },
             { id: 'peanotter', label: 'Peanøtter' },
             { id: 'soya', label: 'Soya' },
             { id: 'mjolk', label: 'Mjølk' },
+            { id: 'laktose', label: 'Laktose' },
             { id: 'notter', label: 'Nøtter' },
             { id: 'selleri', label: 'Selleri' },
             { id: 'sennep', label: 'Sennep' },
@@ -627,7 +628,7 @@
             var labels = getAllergenLabels(dateId);
             if (!labels.length) return '';
             return '<div class="allergen-box">' +
-                '<p class="allergen-label">Allergen</p>' +
+                '<p class="allergen-label">Allergen og matomsyn</p>' +
                 '<p class="allergen-text"><strong>Inneheld:</strong> ' + esc(labels.join(', ')) + '</p>' +
                 '</div>';
         }
