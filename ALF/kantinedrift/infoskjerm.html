@@ -109,26 +109,17 @@
             <!-- ── MOBIL: fokus på i dag (berre < md) ──────────── -->
             <div id="mobile-today" class="block md:hidden space-y-4"></div>
 
-            <!-- ── DESKTOP: fullveke-grid (berre ≥ md) ──────────── -->
+            <!-- ── DESKTOP: rullande 4-dagarsvising (berre ≥ md) ── -->
             <div class="hidden md:block space-y-10">
 
-                <!-- Denne veka -->
                 <section id="section-this-week" class="hidden">
                     <h2
                         class="text-slate-600 text-sm font-extrabold uppercase tracking-wider mb-4 pl-3 border-l-4 border-indigo-500">
-                        Denne veka</h2>
+                        Komande kantinedagar</h2>
                     <div id="grid-this-week" class="grid gap-4 items-stretch"
-                        style="grid-template-columns:var(--this-week-cols, repeat(5,1fr))"></div>
+                        style="grid-template-columns:repeat(4,minmax(0,1fr))"></div>
                 </section>
 
-                <!-- Neste veke -->
-                <section id="section-next-week" class="hidden">
-                    <h2
-                        class="text-slate-600 text-sm font-extrabold uppercase tracking-wider mb-4 pl-3 border-l-4 border-indigo-500">
-                        Neste veke</h2>
-                    <div id="grid-next-week" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-stretch">
-                    </div>
-                </section>
             </div>
 
             <!-- Ingen data (begge layout) -->
@@ -275,34 +266,35 @@
                 return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
             },
 
-            _mondayOf(dateId) {
-                const d = new Date(dateId + 'T12:00:00');
-                const dow = d.getDay();
-                const diff = (dow === 0 ? -6 : 1) - dow;
-                d.setDate(d.getDate() + diff);
-                return this._toId(d);
+            isWeekday(dateId) {
+                const day = new Date(dateId + 'T12:00:00').getDay();
+                return day >= 1 && day <= 5;
             },
 
-            getWeeks() {
+            getDisplayStartId() {
                 const todayId = this.getTodayId();
-                const monThis = this._mondayOf(todayId);
-                const friThis = (() => { const d = new Date(monThis + 'T12:00:00'); d.setDate(d.getDate() + 4); return this._toId(d); })();
-                const monNext = (() => { const d = new Date(monThis + 'T12:00:00'); d.setDate(d.getDate() + 7); return this._toId(d); })();
-                const friNext = (() => { const d = new Date(monNext + 'T12:00:00'); d.setDate(d.getDate() + 4); return this._toId(d); })();
+                const start = new Date(todayId + 'T12:00:00');
+                const day = start.getDay();
+                if (day === 6) start.setDate(start.getDate() + 2);
+                if (day === 0) start.setDate(start.getDate() + 1);
+                return this._toId(start);
+            },
 
-                let thisWeek = this.state.kalender.filter(d => d.id >= monThis && d.id <= friThis).sort((a, b) => a.id.localeCompare(b.id));
-                let nextWeek = this.state.kalender.filter(d => d.id >= monNext && d.id <= friNext).sort((a, b) => a.id.localeCompare(b.id));
+            getDisplayDays() {
+                const startId = this.getDisplayStartId();
+                let days = this.state.kalender
+                    .filter(d => d.id >= startId && this.isWeekday(d.id))
+                    .sort((a, b) => a.id.localeCompare(b.id))
+                    .slice(0, 4);
 
-                if (!thisWeek.length) {
-                    const future = this.state.kalender.filter(d => d.id > todayId).sort((a, b) => a.id.localeCompare(b.id));
-                    if (future.length) {
-                        const veke = future[0].veke;
-                        thisWeek = this.state.kalender.filter(d => d.veke === veke).sort((a, b) => a.id.localeCompare(b.id));
-                        const nv = future.find(d => d.veke > veke);
-                        nextWeek = nv ? this.state.kalender.filter(d => d.veke === nv.veke).sort((a, b) => a.id.localeCompare(b.id)) : [];
-                    }
+                if (!days.length) {
+                    const todayId = this.getTodayId();
+                    days = this.state.kalender
+                        .filter(d => d.id >= todayId && this.isWeekday(d.id))
+                        .sort((a, b) => a.id.localeCompare(b.id))
+                        .slice(0, 4);
                 }
-                return { thisWeek, nextWeek };
+                return days;
             },
 
             /* ── API ─────────────────────────────────────────────── */
@@ -328,8 +320,9 @@
             },
 
             /* ── Bygg eit dagkort (desktop) ─────────────────────── */
-            buildCard(day, todayId, animate) {
+            buildCard(day, todayId, animate, focusId = todayId) {
                 const isToday = day.id === todayId;
+                const isFocus = day.id === focusId;
                 const isClosed = day.status === 'closed';
                 const weekday = this.getWeekdayName(day.id);
                 const dateStr = this.getDateStr(day.id);
@@ -339,14 +332,14 @@
                 const alternativeHtml = this.alternativeBlock(day.id);
 
                 let cardBg, border, todayClass, sizeClass, padding, opacity;
-                if (isToday && !isClosed) {
+                if (isFocus && !isClosed) {
                     cardBg = 'bg-indigo-600';
                     border = 'border-indigo-700';
                     todayClass = 'today-card';
                     sizeClass = 'z-10 shadow-2xl shadow-indigo-300/60 mt-0';
                     padding = 'pt-10 sm:pt-12 pb-6 px-5 sm:px-6';
                     opacity = '';
-                } else if (isToday && isClosed) {
+                } else if (isFocus && isClosed) {
                     cardBg = 'bg-slate-300';
                     border = 'border-slate-400';
                     todayClass = '';
@@ -362,17 +355,17 @@
                 }
 
                 const animClass = animate ? 'init-animate' : '';
-                const dayTextCls = isToday ? 'text-white' : isClosed ? 'text-slate-400' : 'text-slate-800';
-                const dateTextCls = isToday ? 'text-indigo-100' : isClosed ? 'text-slate-400' : 'text-slate-500';
+                const dayTextCls = isFocus ? 'text-white' : isClosed ? 'text-slate-400' : 'text-slate-800';
+                const dateTextCls = isFocus ? 'text-indigo-100' : isClosed ? 'text-slate-400' : 'text-slate-500';
 
                 const statusBadge = isClosed
                     ? `<span class="inline-flex items-center bg-red-100 text-red-700 border border-red-200 text-xs font-bold px-3 py-1 rounded-full">Stengt</span>`
-                    : (isToday
+                    : (isFocus
                         ? `<span class="inline-flex items-center bg-white/20 text-white border border-white/30 text-xs font-bold px-3 py-1 rounded-full">Open</span>`
                         : `<span class="inline-flex items-center bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold px-3 py-1 rounded-full">Open</span>`);
 
-                const todayLabel = isToday
-                    ? `<span class="bg-white text-indigo-700 text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full shadow">I dag</span>`
+                const todayLabel = isFocus
+                    ? `<span class="bg-white text-indigo-700 text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full shadow">${isToday ? 'I dag' : 'Neste dag'}</span>`
                     : '';
 
                 // Menyfargar: gul = har meny, grå = ingen meny / stengt — same på alle korttypar
@@ -419,10 +412,10 @@
             /* ── Mobil-render (i dag + vekeoversikt) ────────────── */
             renderMobile() {
                 const container = document.getElementById('mobile-today');
-                const { thisWeek, nextWeek } = this.getWeeks();
+                const displayDays = this.getDisplayDays();
                 const todayId = this.getTodayId();
 
-                if (!thisWeek.length && !nextWeek.length) {
+                if (!displayDays.length) {
                     container.innerHTML = `
                       <div class="text-center py-16">
                         <p class="text-slate-500">Kantineplanen er ikkje publisert enno.</p>
@@ -430,12 +423,7 @@
                     return;
                 }
 
-                const allDays = [...thisWeek, ...nextWeek];
-
-                // Finn i-dag, eller næraste kommande dag
-                let mainDay = allDays.find(d => d.id === todayId)
-                    || allDays.find(d => d.id > todayId)
-                    || allDays[0];
+                const mainDay = displayDays[0];
 
                 const isClosed = mainDay.status === 'closed';
                 const isToday = mainDay.id === todayId;
@@ -491,7 +479,7 @@
                   </div>`;
 
                 /* ── Resterande dagar (kompakt liste) ── */
-                const restDays = allDays.filter(d => d.id !== mainDay.id);
+                const restDays = displayDays.slice(1);
                 let restHtml = '';
                 if (restDays.length) {
                     const rows = restDays.map(d => {
@@ -522,7 +510,7 @@
                     }).join('');
                     restHtml = `
                       <div>
-                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Veka elles</h3>
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Komande dagar</h3>
                         <div class="space-y-2">${rows}</div>
                       </div>`;
                 }
@@ -534,41 +522,29 @@
             render() {
                 const noData = document.getElementById('no-data-msg');
                 const secThis = document.getElementById('section-this-week');
-                const secNext = document.getElementById('section-next-week');
                 const gridThis = document.getElementById('grid-this-week');
-                const gridNext = document.getElementById('grid-next-week');
 
-                const { thisWeek, nextWeek } = this.getWeeks();
+                const displayDays = this.getDisplayDays();
                 const todayId = this.getTodayId();
+                const focusId = displayDays[0]?.id || todayId;
                 const animate = this.state.firstLoad;
                 this.state.firstLoad = false;
 
                 // Mobil render alltid
                 this.renderMobile();
 
-                if (!thisWeek.length) {
+                if (!displayDays.length) {
                     secThis.classList.add('hidden');
-                    secNext.classList.add('hidden');
                     noData.classList.remove('hidden');
+                    gridThis.innerHTML = '';
                     return;
                 }
 
                 noData.classList.add('hidden');
 
                 secThis.classList.remove('hidden');
-                const todayIdx = thisWeek.findIndex(d => d.id === todayId);
-                gridThis.style.gridTemplateColumns = todayIdx >= 0
-                    ? thisWeek.map((_, i) => i === todayIdx ? '1.4fr' : '1fr').join(' ')
-                    : `repeat(${thisWeek.length}, 1fr)`;
-                gridThis.innerHTML = thisWeek.map(day => this.buildCard(day, todayId, animate)).join('');
-
-                if (nextWeek.length) {
-                    secNext.classList.remove('hidden');
-                    gridNext.style.gridTemplateColumns = `repeat(${nextWeek.length}, 1fr)`;
-                    gridNext.innerHTML = nextWeek.map(day => this.buildCard(day, todayId, false)).join('');
-                } else {
-                    secNext.classList.add('hidden');
-                }
+                gridThis.style.gridTemplateColumns = `repeat(${displayDays.length}, minmax(0, 1fr))`;
+                gridThis.innerHTML = displayDays.map(day => this.buildCard(day, todayId, animate, focusId)).join('');
             },
 
             /* ── Analog klokke ──────────────────────────────────── */

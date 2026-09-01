@@ -783,23 +783,6 @@
                 '</div>';
         }
 
-        function hasAlternative(dateId) {
-            return !!(state.menus[dateId] && state.menus[dateId]['alternativ']);
-        }
-
-        function allergenCount(dateId) {
-            return getAllergenLabels(dateId).length + getAllergenLabels(dateId, 'alternativ_allergens').length;
-        }
-
-        function needsMoreVerticalSpace(days) {
-            for (var i = 0; i < days.length; i++) {
-                if (hasAlternative(days[i].id) || allergenCount(days[i].id) > 4) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         function getTodayId() {
             var t = new Date();
             return t.getFullYear() + '-' + pad2(t.getMonth() + 1) + '-' + pad2(t.getDate());
@@ -807,20 +790,6 @@
 
         function dateToId(d) {
             return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
-        }
-
-        function mondayOf(dateId) {
-            var d = new Date(dateId + 'T12:00:00');
-            var dow = d.getDay();
-            var diff = (dow === 0 ? -6 : 1) - dow;
-            d.setDate(d.getDate() + diff);
-            return dateToId(d);
-        }
-
-        function addDays(dateId, n) {
-            var d = new Date(dateId + 'T12:00:00');
-            d.setDate(d.getDate() + n);
-            return dateToId(d);
         }
 
         var DAGNAMN = ['Sundag', 'Måndag', 'Tysdag', 'Onsdag', 'Torsdag', 'Fredag', 'Laurdag'];
@@ -838,49 +807,41 @@
             return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
         }
 
-        function getWeeks() {
+        function isWeekday(dateId) {
+            var day = new Date(dateId + 'T12:00:00').getDay();
+            return day >= 1 && day <= 5;
+        }
+
+        function getDisplayStartId() {
             var todayId = getTodayId();
-            var monThis = mondayOf(todayId);
-            var friThis = addDays(monThis, 4);
-            var monNext = addDays(monThis, 7);
-            var friNext = addDays(monNext, 4);
+            var start = new Date(todayId + 'T12:00:00');
+            var day = start.getDay();
+            if (day === 6) start.setDate(start.getDate() + 2);
+            if (day === 0) start.setDate(start.getDate() + 1);
+            return dateToId(start);
+        }
 
-            var thisWeek = state.kalender.filter(function (d) {
-                return d.id >= monThis && d.id <= friThis;
-            }).sort(sortById);
+        function getDisplayDays() {
+            var startId = getDisplayStartId();
+            var days = state.kalender.filter(function (d) {
+                return d.id >= startId && isWeekday(d.id);
+            }).sort(sortById).slice(0, 4);
 
-            var nextWeek = state.kalender.filter(function (d) {
-                return d.id >= monNext && d.id <= friNext;
-            }).sort(sortById);
-
-            if (!thisWeek.length) {
-                var future = state.kalender.filter(function (d) {
-                    return d.id > todayId;
-                }).sort(sortById);
-
-                if (future.length) {
-                    var veke = future[0].veke;
-                    thisWeek = state.kalender.filter(function (d) {
-                        return d.veke === veke;
-                    }).sort(sortById);
-
-                    var nv = null;
-                    for (var i = 0; i < future.length; i++) {
-                        if (future[i].veke > veke) { nv = future[i]; break; }
-                    }
-                    nextWeek = nv ? state.kalender.filter(function (d) {
-                        return d.veke === nv.veke;
-                    }).sort(sortById) : [];
-                }
+            if (!days.length) {
+                var todayId = getTodayId();
+                days = state.kalender.filter(function (d) {
+                    return d.id >= todayId && isWeekday(d.id);
+                }).sort(sortById).slice(0, 4);
             }
 
-            return { thisWeek: thisWeek, nextWeek: nextWeek };
+            return days;
         }
 
         /* ── Bygg eit dagkort ──────────────────────────────────── */
 
-        function buildCard(day, todayId) {
+        function buildCard(day, todayId, focusId) {
             var isToday = day.id === todayId;
+            var isFocus = day.id === focusId;
             var isClosed = day.status === 'closed';
             var weekday = getWeekdayName(day.id);
             var dateStr = getDateStr(day.id);
@@ -892,18 +853,18 @@
             var alternativeBlock = alternativeHtml(day.id);
 
             var cardClass = 'day-card';
-            if (isToday && !isClosed) cardClass += ' today';
-            else if (isToday && isClosed) cardClass += ' today-closed';
+            if (isFocus && !isClosed) cardClass += ' today';
+            else if (isFocus && isClosed) cardClass += ' today-closed';
             else if (isClosed) cardClass += ' closed';
 
             // Merke
             var badges = '';
-            if (isToday) {
-                badges += '<span class="badge badge-today-label" style="background:#fff;color:#374151;border-color:#94a3b8">I dag</span>';
+            if (isFocus) {
+                badges += '<span class="badge badge-today-label" style="background:#fff;color:#374151;border-color:#94a3b8">' + (isToday ? 'I dag' : 'Neste dag') + '</span>';
             }
             if (isClosed) {
                 badges += '<span class="badge badge-closed">Stengt</span>';
-            } else if (isToday) {
+            } else if (isFocus) {
                 badges += '<span class="badge badge-open-today">Open</span>';
             } else {
                 badges += '<span class="badge badge-open">Open</span>';
@@ -937,12 +898,13 @@
         /* ── Render ────────────────────────────────────────────── */
 
         function render() {
-            var weeks = getWeeks();
+            var displayDays = getDisplayDays();
             var todayId = getTodayId();
+            var focusId = displayDays.length ? displayDays[0].id : todayId;
             var container = document.getElementById('week-container');
             var noData = document.getElementById('no-data');
 
-            if (!weeks.thisWeek.length) {
+            if (!displayDays.length) {
                 container.innerHTML = '';
                 container.style.display = 'none';
                 noData.style.display = '-webkit-flex';
@@ -955,29 +917,15 @@
             container.style.display = 'flex';
 
             var html = '';
-            var hasNext = weeks.nextWeek.length > 0 && !needsMoreVerticalSpace(weeks.thisWeek);
 
-            // Denne veka
-            var thisCards = '';
-            for (var i = 0; i < weeks.thisWeek.length; i++) {
-                thisCards += buildCard(weeks.thisWeek[i], todayId);
+            var cards = '';
+            for (var i = 0; i < displayDays.length; i++) {
+                cards += buildCard(displayDays[i], todayId, focusId);
             }
-            html += '<div class="week-section ' + (hasNext ? 'primary' : 'primary') + '">' +
-                '<p class="section-label">Denne veka</p>' +
-                '<div class="week-row">' + thisCards + '</div>' +
+            html += '<div class="week-section primary">' +
+                '<p class="section-label">Komande kantinedagar</p>' +
+                '<div class="week-row">' + cards + '</div>' +
                 '</div>';
-
-            // Neste veke
-            if (hasNext) {
-                var nextCards = '';
-                for (var j = 0; j < weeks.nextWeek.length; j++) {
-                    nextCards += buildCard(weeks.nextWeek[j], todayId);
-                }
-                html += '<div class="week-section secondary">' +
-                    '<p class="section-label">Neste veke</p>' +
-                    '<div class="week-row">' + nextCards + '</div>' +
-                    '</div>';
-            }
 
             container.innerHTML = html;
         }
