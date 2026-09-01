@@ -360,6 +360,81 @@
             font-size: 16px;
         }
 
+        .allergen-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            font-size: 14px;
+            font-weight: 700;
+            color: #7f1d1d;
+            line-height: 1.18;
+        }
+
+        .allergen-table td {
+            width: 50%;
+            padding: 1px 8px 2px 0;
+            vertical-align: top;
+            word-break: break-word;
+        }
+
+        .allergen-table.three-cols td {
+            width: 33.333%;
+        }
+
+        .allergen-table.dense {
+            font-size: 12px;
+            line-height: 1.12;
+        }
+
+        .allergen-dot {
+            font-weight: 900;
+            padding-right: 4px;
+        }
+
+        .day-card.today .allergen-table {
+            font-size: 15px;
+        }
+
+        .day-card.today .allergen-table.dense {
+            font-size: 13px;
+        }
+
+        .alternative-box {
+            margin-top: 10px;
+            padding: 10px 11px;
+            border-radius: 9px;
+            background: #ecfdf5;
+            border: 1px solid #86efac;
+        }
+
+        .alternative-label {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #047857;
+            margin-bottom: 4px;
+        }
+
+        .alternative-text {
+            font-size: 17px;
+            font-weight: 700;
+            color: #064e3b;
+            line-height: 1.25;
+            word-break: break-word;
+        }
+
+        .alternative-free {
+            display: inline-block;
+            margin-top: 7px;
+            padding: 4px 9px;
+            border-radius: 6px;
+            background: #d1fae5;
+            color: #065f46;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
         .menu-empty {
             font-size: 15px;
             color: #64748b;
@@ -476,6 +551,33 @@
 
         .week-section.secondary .allergen-text {
             font-size: 12px;
+        }
+
+        .week-section.secondary .allergen-table {
+            font-size: 11px;
+            line-height: 1.1;
+        }
+
+        .week-section.secondary .allergen-table.dense {
+            font-size: 10px;
+        }
+
+        .week-section.secondary .alternative-box {
+            margin-top: 8px;
+            padding: 7px 9px;
+        }
+
+        .week-section.secondary .alternative-label {
+            font-size: 9px;
+            margin-bottom: 3px;
+        }
+
+        .week-section.secondary .alternative-text {
+            font-size: 13px;
+        }
+
+        .week-section.secondary .alternative-free {
+            font-size: 11px;
         }
 
         .week-section.secondary .section-label {
@@ -611,9 +713,11 @@
             return out;
         }
 
-        function getAllergenLabels(dateId) {
-            var raw = state.menus[dateId] && state.menus[dateId].allergens
-                ? state.menus[dateId].allergens : [];
+        function getAllergenLabels(dateId, key) {
+            key = key || 'allergens';
+            if (key === 'alternativ_allergens' && isAlternativeFree(dateId)) return [];
+            var raw = state.menus[dateId] && state.menus[dateId][key]
+                ? state.menus[dateId][key] : [];
             var selected = normalizeAllergens(raw);
             var labels = [];
             for (var i = 0; i < ALLERGENS.length; i++) {
@@ -624,12 +728,51 @@
             return labels;
         }
 
-        function allergenHtml(dateId) {
-            var labels = getAllergenLabels(dateId);
+        function isAlternativeFree(dateId) {
+            var value = state.menus[dateId] && state.menus[dateId]['alternativ_allergenfri'];
+            return value === true || value === 1 || value === '1';
+        }
+
+        function allergenList(labels) {
+            var colCount = labels.length > 8 ? 3 : 2;
+            var rowCount = Math.ceil(labels.length / colCount);
+            var className = 'allergen-table' + (colCount === 3 ? ' three-cols' : '') + (labels.length > 10 ? ' dense' : '');
+            var html = '<table class="' + className + '"><tbody>';
+            for (var row = 0; row < rowCount; row++) {
+                html += '<tr>';
+                for (var col = 0; col < colCount; col++) {
+                    var index = (col * rowCount) + row;
+                    html += '<td>';
+                    if (labels[index]) {
+                        html += '<span class="allergen-dot">&bull;</span>' + esc(labels[index]);
+                    }
+                    html += '</td>';
+                }
+                html += '</tr>';
+            }
+            return html + '</tbody></table>';
+        }
+
+        function allergenHtml(dateId, key) {
+            var labels = getAllergenLabels(dateId, key);
             if (!labels.length) return '';
             return '<div class="allergen-box">' +
                 '<p class="allergen-label">Allergen og matomsyn</p>' +
-                '<p class="allergen-text"><strong>Inneheld:</strong> ' + esc(labels.join(', ')) + '</p>' +
+                '<p class="allergen-text"><strong>Inneheld:</strong></p>' +
+                allergenList(labels) +
+                '</div>';
+        }
+
+        function alternativeHtml(dateId) {
+            var alternative = state.menus[dateId] && state.menus[dateId]['alternativ']
+                ? state.menus[dateId]['alternativ'] : '';
+            if (!alternative) return '';
+            return '<div class="alternative-box">' +
+                '<p class="alternative-label">Alternativ</p>' +
+                '<p class="alternative-text">' + esc(alternative) + '</p>' +
+                (isAlternativeFree(dateId)
+                    ? '<p class="alternative-free">Allergenfritt alternativ</p>'
+                    : allergenHtml(dateId, 'alternativ_allergens')) +
                 '</div>';
         }
 
@@ -719,7 +862,10 @@
             var dateStr = getDateStr(day.id);
             var meny = (state.menus[day.id] && state.menus[day.id]['dagens'])
                 ? state.menus[day.id]['dagens'] : '';
-            var allergens = allergenHtml(day.id);
+            var alternative = (state.menus[day.id] && state.menus[day.id]['alternativ'])
+                ? state.menus[day.id]['alternativ'] : '';
+            var allergens = meny ? allergenHtml(day.id) : '';
+            var alternativeBlock = alternativeHtml(day.id);
 
             var cardClass = 'day-card';
             if (isToday && !isClosed) cardClass += ' today';
@@ -743,16 +889,19 @@
             var menuInner;
             if (isClosed) {
                 menuInner = '<p class="menu-empty">' + esc(day.merknad || 'Stengt') + '</p>';
-            } else if (meny) {
+            } else if (meny || alternative) {
                 menuInner = '<p class="menu-label">Dagens meny</p>' +
-                    '<p class="menu-text">' + esc(meny) + '</p>' +
-                    allergens;
+                    (meny
+                        ? '<p class="menu-text">' + esc(meny) + '</p>'
+                        : '<p class="menu-empty">Ingen hovudmeny lagt inn</p>') +
+                    allergens +
+                    alternativeBlock;
             } else {
                 menuInner = '<p class="menu-label">Dagens meny</p>' +
                     '<p class="menu-empty">Ikkje lagt inn enno</p>';
             }
 
-            var menyClass = meny ? 'has-meny' : 'no-meny';
+            var menyClass = (meny || alternative) ? 'has-meny' : 'no-meny';
             return '<div class="' + cardClass + '">' +
                 '<p class="day-name">' + weekday + '</p>' +
                 '<p class="day-date">' + dateStr + '</p>' +

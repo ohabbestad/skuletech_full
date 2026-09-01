@@ -249,7 +249,13 @@ function load_menus(): array
 {
     $menus = load_values('menus', false);
     foreach ($menus as $dateId => $items) {
+        $alternativeFree = (($items['alternativ_allergenfri'] ?? '') === '1');
         $menus[$dateId]['allergens'] = normalize_allergens_from_storage($items['allergens'] ?? '[]');
+        $menus[$dateId]['alternativ'] = (string)($items['alternativ'] ?? '');
+        $menus[$dateId]['alternativ_allergens'] = $alternativeFree
+            ? []
+            : normalize_allergens_from_storage($items['alternativ_allergens'] ?? '[]');
+        $menus[$dateId]['alternativ_allergenfri'] = $alternativeFree;
     }
     return $menus;
 }
@@ -303,8 +309,16 @@ function save_menu_day(array $data): void
 
     $menuText = (string)($data['value'] ?? '');
     $allergens = normalize_allergens(is_array($data['allergens'] ?? null) ? $data['allergens'] : []);
+    $alternativeText = (string)($data['alternative'] ?? '');
+    $alternativeFreeRaw = $data['alternativeFree'] ?? false;
+    $alternativeFree = $alternativeText !== ''
+        && ($alternativeFreeRaw === true || $alternativeFreeRaw === 1 || $alternativeFreeRaw === '1');
+    $alternativeAllergens = $alternativeFree
+        ? []
+        : normalize_allergens(is_array($data['alternativeAllergens'] ?? null) ? $data['alternativeAllergens'] : []);
     $allergensJson = json_encode($allergens, JSON_UNESCAPED_UNICODE);
-    if ($allergensJson === false) {
+    $alternativeAllergensJson = json_encode($alternativeAllergens, JSON_UNESCAPED_UNICODE);
+    if ($allergensJson === false || $alternativeAllergensJson === false) {
         kantine_json(['error' => 'Kunne ikkje lagre allergen.'], 400);
     }
 
@@ -318,6 +332,9 @@ function save_menu_day(array $data): void
     try {
         $stmt->execute(['menus', $dateId, 'dagens', $menuText]);
         $stmt->execute(['menus', $dateId, 'allergens', $allergensJson]);
+        $stmt->execute(['menus', $dateId, 'alternativ', $alternativeText]);
+        $stmt->execute(['menus', $dateId, 'alternativ_allergens', $alternativeAllergensJson]);
+        $stmt->execute(['menus', $dateId, 'alternativ_allergenfri', $alternativeFree ? '1' : '0']);
         $pdo->commit();
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) {

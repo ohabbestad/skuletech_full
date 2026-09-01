@@ -481,20 +481,48 @@ const app = {
         return this.normalizeAllergens(this.state.menus[dateId]?.allergens || []);
     },
 
+    getAlternativeAllergenIds(dateId) {
+        if (this.isAlternativeFree(dateId)) return [];
+        return this.normalizeAllergens(this.state.menus[dateId]?.['alternativ_allergens'] || []);
+    },
+
+    isAlternativeFree(dateId) {
+        const value = this.state.menus[dateId]?.['alternativ_allergenfri'];
+        return value === true || value === 1 || value === '1';
+    },
+
     getMenuDraft(dateId) {
         return this.state.menuDrafts[dateId] || {
             value: this.state.menus[dateId]?.['dagens'] || '',
-            allergens: this.getMenuAllergenIds(dateId)
+            allergens: this.getMenuAllergenIds(dateId),
+            alternative: this.state.menus[dateId]?.['alternativ'] || '',
+            alternativeAllergens: this.getAlternativeAllergenIds(dateId),
+            alternativeFree: this.isAlternativeFree(dateId)
         };
     },
 
     updateMenuDraft(dateId) {
         const input = document.getElementById(`menu-input-${dateId}`);
-        const checked = [...document.querySelectorAll(`input[data-menu-date="${dateId}"]:checked`)].map(el => el.value);
+        const alternativeInput = document.getElementById(`menu-alternative-input-${dateId}`);
+        const alternativeFreeInput = document.getElementById(`menu-alternative-free-${dateId}`);
+        const checked = [...document.querySelectorAll(`input[data-menu-date="${dateId}"][data-menu-kind="dagens"]:checked`)].map(el => el.value);
+        const alternativeChecked = [...document.querySelectorAll(`input[data-menu-date="${dateId}"][data-menu-kind="alternativ"]:checked`)].map(el => el.value);
+        const alternativeFree = Boolean(alternativeFreeInput?.checked);
         this.state.menuDrafts[dateId] = {
             value: input ? input.value : '',
-            allergens: this.normalizeAllergens(checked)
+            allergens: this.normalizeAllergens(checked),
+            alternative: alternativeInput ? alternativeInput.value : '',
+            alternativeAllergens: alternativeFree ? [] : this.normalizeAllergens(alternativeChecked),
+            alternativeFree
         };
+    },
+
+    toggleAlternativeFree(dateId) {
+        this.updateMenuDraft(dateId);
+        const draft = this.getMenuDraft(dateId);
+        if (draft.alternativeFree) draft.alternativeAllergens = [];
+        this.state.menuDrafts[dateId] = draft;
+        this.renderToday();
     },
 
     formatAllergens(ids) {
@@ -505,15 +533,19 @@ const app = {
             .join(', ');
     },
 
-    renderAllergenOptions(dateId, selectedIds) {
+    renderAllergenOptions(dateId, kind, selectedIds, disabled = false) {
         const selected = new Set(this.normalizeAllergens(selectedIds));
+        const disabledClass = disabled ? 'opacity-50 cursor-not-allowed' : '';
+        const disabledAttr = disabled ? 'disabled' : '';
         return ALLERGENS.map(a => `
-          <label class="flex items-center gap-2 rounded-md border border-amber-200 bg-white px-3 py-2 text-sm text-amber-950">
+          <label class="flex items-center gap-2 rounded-md border border-amber-200 bg-white px-3 py-2 text-sm text-amber-950 ${disabledClass}">
             <input type="checkbox"
                    class="h-4 w-4 rounded border-amber-300 text-amber-600 focus:ring-amber-500"
                    data-menu-date="${dateId}"
+                   data-menu-kind="${kind}"
                    value="${a.id}"
                    ${selected.has(a.id) ? 'checked' : ''}
+                   ${disabledAttr}
                    onchange="app.updateMenuDraft('${dateId}')">
             <span>${this.esc(a.label)}</span>
           </label>`).join('');
@@ -666,15 +698,21 @@ const app = {
     saveMenu(dateId) {
         this.updateMenuDraft(dateId);
         const draft = this.getMenuDraft(dateId);
-        const val = draft.value;
-        const allergens = draft.allergens;
+        const val = draft.value || '';
+        const allergens = this.normalizeAllergens(draft.allergens || []);
+        const alternative = draft.alternative || '';
+        const alternativeFree = Boolean(alternative.trim() && draft.alternativeFree);
+        const alternativeAllergens = alternativeFree ? [] : this.normalizeAllergens(draft.alternativeAllergens || []);
         if (!this.state.menus[dateId]) this.state.menus[dateId] = {};
         this.state.menus[dateId]['dagens'] = val;
         this.state.menus[dateId].allergens = allergens;
+        this.state.menus[dateId]['alternativ'] = alternative;
+        this.state.menus[dateId]['alternativ_allergens'] = alternativeAllergens;
+        this.state.menus[dateId]['alternativ_allergenfri'] = alternativeFree;
         const msg = document.getElementById('save-menu-msg');
         msg.style.opacity = '1';
         setTimeout(() => msg.style.opacity = '0', 2000);
-        this.quickSave({ type: 'menu_day', dateId, value: val, allergens })
+        this.quickSave({ type: 'menu_day', dateId, value: val, allergens, alternative, alternativeAllergens, alternativeFree })
             .then(json => {
                 if (json && !json.error) delete this.state.menuDrafts[dateId];
             });
@@ -722,33 +760,70 @@ const app = {
 
         const savedMenyTekst = this.state.menus[dateId]?.['dagens'] || '';
         const savedAllergens = this.getMenuAllergenIds(dateId);
+        const savedAlternativeText = this.state.menus[dateId]?.['alternativ'] || '';
+        const savedAlternativeAllergens = this.getAlternativeAllergenIds(dateId);
+        const savedAlternativeFree = this.isAlternativeFree(dateId);
         const draft = this.getMenuDraft(dateId);
         const allergenText = this.formatAllergens(savedAllergens);
+        const alternativeAllergenText = this.formatAllergens(savedAlternativeAllergens);
         menuEl.innerHTML = `
           <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 shadow-sm">
             <div class="flex items-center mb-3">
               <span class="text-2xl mr-3">🍲</span>
               <h3 class="text-xl font-bold text-amber-900">Dagens meny</h3>
             </div>
-            <div class="mb-3 text-amber-800 font-medium">
+            <div class="mb-4 text-amber-800 font-medium">
               ${savedMenyTekst
                 ? `<p><span class="text-xs font-bold uppercase tracking-wide text-amber-600 mr-2">Lagra:</span>${this.esc(savedMenyTekst)}</p>`
-                : `<span class="text-amber-500 italic text-sm">Ingen meny lagra enno.</span>`
+                : `<span class="text-amber-500 italic text-sm">Ingen hovudmeny lagra enno.</span>`
               }
               ${allergenText
                 ? `<p class="mt-2 text-sm text-red-800"><span class="font-bold">Inneheld:</span> ${this.esc(allergenText)}</p>`
                 : ''}
+              ${savedAlternativeText
+                ? `<div class="mt-3 border-t border-amber-200 pt-3">
+                     <p><span class="text-xs font-bold uppercase tracking-wide text-emerald-700 mr-2">Alternativ:</span>${this.esc(savedAlternativeText)}</p>
+                     ${savedAlternativeFree
+                       ? `<p class="mt-2 text-sm font-bold text-emerald-800">Allergenfritt alternativ</p>`
+                       : (alternativeAllergenText ? `<p class="mt-2 text-sm text-red-800"><span class="font-bold">Inneheld:</span> ${this.esc(alternativeAllergenText)}</p>` : '')}
+                   </div>`
+                : ''}
             </div>
-            <div data-preserve-during-poll="true">
-              <textarea id="menu-input-${dateId}"
-                        rows="2"
-                        class="w-full p-3 border border-amber-300 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-white"
-                        placeholder="Skriv meny og trykk Lagra..."
-                        oninput="app.updateMenuDraft('${dateId}')">${this.esc(draft.value)}</textarea>
-              <div class="mt-4">
-                <p class="text-xs font-bold uppercase tracking-wide text-amber-700 mb-2">Allergen og matomsyn</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-                  ${this.renderAllergenOptions(dateId, draft.allergens)}
+            <div data-preserve-during-poll="true" class="space-y-5">
+              <div>
+                <label for="menu-input-${dateId}" class="block text-sm font-bold text-amber-900 mb-2">Hovudrett</label>
+                <textarea id="menu-input-${dateId}"
+                          rows="2"
+                          class="w-full p-3 border border-amber-300 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-white"
+                          placeholder="Skriv meny og trykk Lagra..."
+                          oninput="app.updateMenuDraft('${dateId}')">${this.esc(draft.value)}</textarea>
+                <div class="mt-4">
+                  <p class="text-xs font-bold uppercase tracking-wide text-amber-700 mb-2">Allergen og matomsyn for hovudretten</p>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                    ${this.renderAllergenOptions(dateId, 'dagens', draft.allergens)}
+                  </div>
+                </div>
+              </div>
+              <div class="border-t border-amber-200 pt-5">
+                <label for="menu-alternative-input-${dateId}" class="block text-sm font-bold text-emerald-900 mb-2">Alternativ meny</label>
+                <textarea id="menu-alternative-input-${dateId}"
+                          rows="2"
+                          class="w-full p-3 border border-emerald-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500 bg-white"
+                          placeholder="Til dømes focaccia utan ost"
+                          oninput="app.updateMenuDraft('${dateId}')">${this.esc(draft.alternative)}</textarea>
+                <label class="mt-3 inline-flex items-center gap-2 rounded-md bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-900">
+                  <input id="menu-alternative-free-${dateId}"
+                         type="checkbox"
+                         class="h-4 w-4 rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500"
+                         ${draft.alternativeFree ? 'checked' : ''}
+                         onchange="app.toggleAlternativeFree('${dateId}')">
+                  <span>Allergenfritt alternativ</span>
+                </label>
+                <div class="mt-4">
+                  <p class="text-xs font-bold uppercase tracking-wide text-emerald-700 mb-2">Allergen og matomsyn for alternativet</p>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                    ${this.renderAllergenOptions(dateId, 'alternativ', draft.alternativeAllergens, draft.alternativeFree)}
+                  </div>
                 </div>
               </div>
             </div>
@@ -877,7 +952,10 @@ const app = {
                 tidleg: this.getDayStaffing(d.id).tidleg,
                 seint:  this.getDayStaffing(d.id).seint,
                 meny:   this.state.menus[d.id]?.['dagens'] || '',
-                allergen: this.formatAllergens(this.getMenuAllergenIds(d.id))
+                allergen: this.formatAllergens(this.getMenuAllergenIds(d.id)),
+                alternativ: this.state.menus[d.id]?.['alternativ'] || '',
+                alternativAllergen: this.formatAllergens(this.getAlternativeAllergenIds(d.id)),
+                allergenfrittAlternativ: this.isAlternativeFree(d.id) ? 'allergenfritt alternativ' : ''
             }))};
             div.dataset.weekData = JSON.stringify(searchData).toLowerCase();
 
@@ -891,12 +969,27 @@ const app = {
                 const { tidleg, seint } = this.getDayStaffing(d.id);
                 const closed = d.status === 'closed'
                     ? `<span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded ml-2 font-bold">${this.esc(d.merknad) || 'Stengt'}</span>` : '';
+                const menuDay = this.state.menus[d.id] || {};
+                const mainText = menuDay['dagens'] || '';
+                const alternativeText = menuDay['alternativ'] || '';
                 const allergen = this.formatAllergens(this.getMenuAllergenIds(d.id));
-                const meny = this.state.menus[d.id]?.['dagens']
+                const alternativeAllergen = this.formatAllergens(this.getAlternativeAllergenIds(d.id));
+                const alternativeFree = this.isAlternativeFree(d.id);
+                const meny = (mainText || alternativeText)
                     ? `<div class="col-span-1 md:col-span-3 mt-2 text-sm bg-amber-50 p-2 rounded border border-amber-100">
-                         <span class="font-bold text-amber-900 mr-2">🍲 Meny:</span>
-                         <span class="text-amber-800">${this.esc(this.state.menus[d.id]['dagens'])}</span>
+                         ${mainText
+                           ? `<div><span class="font-bold text-amber-900 mr-2">🍲 Meny:</span><span class="text-amber-800">${this.esc(mainText)}</span></div>`
+                           : ''}
                          ${allergen ? `<div class="mt-1 text-red-800"><span class="font-bold">Inneheld:</span> ${this.esc(allergen)}</div>` : ''}
+                         ${alternativeText
+                           ? `<div class="mt-2 border-t border-amber-200 pt-2">
+                                <span class="font-bold text-emerald-900 mr-2">Alternativ:</span>
+                                <span class="text-emerald-800">${this.esc(alternativeText)}</span>
+                                ${alternativeFree
+                                  ? `<div class="mt-1 font-bold text-emerald-800">Allergenfritt alternativ</div>`
+                                  : (alternativeAllergen ? `<div class="mt-1 text-red-800"><span class="font-bold">Inneheld:</span> ${this.esc(alternativeAllergen)}</div>` : '')}
+                              </div>`
+                           : ''}
                        </div>` : '';
                 daysHtml += `
                   <div class="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 p-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition cursor-pointer"
