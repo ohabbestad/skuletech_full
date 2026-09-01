@@ -371,10 +371,14 @@
         }
 
         .allergen-table td {
-            width: 50%;
+            width: 100%;
             padding: 1px 8px 2px 0;
             vertical-align: top;
-            word-break: break-word;
+            word-break: normal;
+        }
+
+        .allergen-table.two-cols td {
+            width: 50%;
         }
 
         .allergen-table.three-cols td {
@@ -734,9 +738,12 @@
         }
 
         function allergenList(labels) {
-            var colCount = labels.length > 8 ? 3 : 2;
+            var colCount = labels.length > 10 ? 3 : (labels.length > 5 ? 2 : 1);
             var rowCount = Math.ceil(labels.length / colCount);
-            var className = 'allergen-table' + (colCount === 3 ? ' three-cols' : '') + (labels.length > 10 ? ' dense' : '');
+            var className = 'allergen-table' +
+                (colCount === 2 ? ' two-cols' : '') +
+                (colCount === 3 ? ' three-cols' : '') +
+                (labels.length > 6 ? ' dense' : '');
             var html = '<table class="' + className + '"><tbody>';
             for (var row = 0; row < rowCount; row++) {
                 html += '<tr>';
@@ -774,6 +781,23 @@
                     ? '<p class="alternative-free">Allergenfritt alternativ</p>'
                     : allergenHtml(dateId, 'alternativ_allergens')) +
                 '</div>';
+        }
+
+        function hasAlternative(dateId) {
+            return !!(state.menus[dateId] && state.menus[dateId]['alternativ']);
+        }
+
+        function allergenCount(dateId) {
+            return getAllergenLabels(dateId).length + getAllergenLabels(dateId, 'alternativ_allergens').length;
+        }
+
+        function needsMoreVerticalSpace(days) {
+            for (var i = 0; i < days.length; i++) {
+                if (hasAlternative(days[i].id) || allergenCount(days[i].id) > 4) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         function getTodayId() {
@@ -931,7 +955,7 @@
             container.style.display = 'flex';
 
             var html = '';
-            var hasNext = weeks.nextWeek.length > 0;
+            var hasNext = weeks.nextWeek.length > 0 && !needsMoreVerticalSpace(weeks.thisWeek);
 
             // Denne veka
             var thisCards = '';
