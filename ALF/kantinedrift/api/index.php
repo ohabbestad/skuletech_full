@@ -75,7 +75,7 @@ function load_all(): array
         'tasksList' => load_task_list(),
         'attendance' => load_values('attendance', true),
         'tasks' => load_values('tasks', true),
-        'menus' => load_values('menus', false),
+        'menus' => load_menus(),
         'vikarer' => load_vikarer(),
     ];
 }
@@ -172,9 +172,9 @@ function save_payload(array $data, array $user): void
 
     $writeRules = [
         'tilsett' => ['tasks'],
-        'driftsleiar' => ['attendance', 'menus', 'vikar_add', 'vikar_remove'],
+        'driftsleiar' => ['attendance', 'menus', 'menu_day', 'vikar_add', 'vikar_remove'],
         'laerar' => [
-            'attendance', 'tasks', 'menus', 'vikar_add', 'vikar_remove',
+            'attendance', 'tasks', 'menus', 'menu_day', 'vikar_add', 'vikar_remove',
             'kalender_veke', 'kalender_dag', 'delete_week', 'bemanning_batch',
         ],
     ];
@@ -192,6 +192,9 @@ function save_payload(array $data, array $user): void
             break;
         case 'menus':
             save_value_text('menus', $data);
+            break;
+        case 'menu_day':
+            save_menu_day($data);
             break;
         case 'vikar_add':
             add_vikar($data);
@@ -240,6 +243,87 @@ function save_value_text(string $kind, array $data): void
         (string)$data['key'],
         (string)($data['value'] ?? ''),
     ]);
+}
+
+function load_menus(): array
+{
+    $menus = load_values('menus', false);
+    foreach ($menus as $dateId => $items) {
+        $menus[$dateId]['allergens'] = normalize_allergens_from_storage($items['allergens'] ?? '[]');
+    }
+    return $menus;
+}
+
+function allowed_allergen_ids(): array
+{
+    return [
+        'gluten',
+        'skalldyr',
+        'egg',
+        'fisk',
+        'peanotter',
+        'soya',
+        'mjolk',
+        'notter',
+        'selleri',
+        'sennep',
+        'sesam',
+        'sulfitt',
+        'lupin',
+        'blautdyr',
+    ];
+}
+
+function normalize_allergens_from_storage($raw): array
+{
+    $decoded = is_string($raw) ? json_decode($raw, true) : $raw;
+    return normalize_allergens(is_array($decoded) ? $decoded : []);
+}
+
+function normalize_allergens(array $raw): array
+{
+    $allowed = array_flip(allowed_allergen_ids());
+    $out = [];
+    foreach ($raw as $id) {
+        $id = (string)$id;
+        if (isset($allowed[$id]) && !in_array($id, $out, true)) {
+            $out[] = $id;
+        }
+    }
+    return $out;
+}
+
+function save_menu_day(array $data): void
+{
+    $dateId = (string)($data['dateId'] ?? '');
+    if ($dateId === '') {
+        kantine_json(['error' => 'Meny manglar dato.'], 400);
+    }
+
+    $menuText = (string)($data['value'] ?? '');
+    $allergens = normalize_allergens(is_array($data['allergens'] ?? null) ? $data['allergens'] : []);
+    $allergensJson = json_encode($allergens, JSON_UNESCAPED_UNICODE);
+    if ($allergensJson === false) {
+        kantine_json(['error' => 'Kunne ikkje lagre allergen.'], 400);
+    }
+
+    $pdo = kantine_pdo();
+    $sql = 'INSERT INTO kantine_values (value_kind, date_id, item_key, value_text)
+            VALUES (?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE value_text = VALUES(value_text), value_bool = NULL';
+    $stmt = $pdo->prepare($sql);
+
+    $pdo->beginTransaction();
+    try {
+        $stmt->execute(['menus', $dateId, 'dagens', $menuText]);
+        $stmt->execute(['menus', $dateId, 'allergens', $allergensJson]);
+        $pdo->commit();
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $e;
+    }
 }
 
 function add_vikar(array $data): void

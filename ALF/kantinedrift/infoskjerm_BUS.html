@@ -332,6 +332,34 @@
             font-size: 26px;
         }
 
+        .allergen-box {
+            margin-top: 10px;
+            padding: 9px 11px;
+            border-radius: 9px;
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+        }
+
+        .allergen-label {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #b91c1c;
+            margin-bottom: 4px;
+        }
+
+        .allergen-text {
+            font-size: 14px;
+            font-weight: 700;
+            color: #7f1d1d;
+            line-height: 1.25;
+        }
+
+        .day-card.today .allergen-text {
+            font-size: 16px;
+        }
+
         .menu-empty {
             font-size: 15px;
             color: #64748b;
@@ -436,6 +464,20 @@
             margin-bottom: 5px;
         }
 
+        .week-section.secondary .allergen-box {
+            margin-top: 8px;
+            padding: 7px 9px;
+        }
+
+        .week-section.secondary .allergen-label {
+            font-size: 9px;
+            margin-bottom: 3px;
+        }
+
+        .week-section.secondary .allergen-text {
+            font-size: 12px;
+        }
+
         .week-section.secondary .section-label {
             margin-bottom: 8px;
         }
@@ -500,6 +542,22 @@
 
     <script>
         var API_URL = 'api/index.php';
+        var ALLERGENS = [
+            { id: 'gluten', label: 'Glutenhaldig korn' },
+            { id: 'skalldyr', label: 'Skaldyr' },
+            { id: 'egg', label: 'Egg' },
+            { id: 'fisk', label: 'Fisk' },
+            { id: 'peanotter', label: 'Peanøtter' },
+            { id: 'soya', label: 'Soya' },
+            { id: 'mjolk', label: 'Mjølk' },
+            { id: 'notter', label: 'Nøtter' },
+            { id: 'selleri', label: 'Selleri' },
+            { id: 'sennep', label: 'Sennep' },
+            { id: 'sesam', label: 'Sesamfrø' },
+            { id: 'sulfitt', label: 'Svoveldioksid/sulfitt' },
+            { id: 'lupin', label: 'Lupin' },
+            { id: 'blautdyr', label: 'Blautdyr' }
+        ];
 
         var state = {
             kalender: [],
@@ -519,6 +577,59 @@
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;');
+        }
+
+        function normalizeAllergens(value) {
+            var ids = [];
+            var i;
+            if (Object.prototype.toString.call(value) === '[object Array]') {
+                ids = value;
+            } else if (typeof value === 'string' && value.replace(/\s/g, '') !== '') {
+                try {
+                    var parsed = JSON.parse(value);
+                    if (Object.prototype.toString.call(parsed) === '[object Array]') {
+                        ids = parsed;
+                    }
+                } catch (e) {
+                    ids = [];
+                }
+            }
+
+            var allowed = {};
+            for (i = 0; i < ALLERGENS.length; i++) {
+                allowed[ALLERGENS[i].id] = true;
+            }
+
+            var out = [];
+            for (i = 0; i < ids.length; i++) {
+                var id = String(ids[i]);
+                if (allowed[id] && out.indexOf(id) === -1) {
+                    out.push(id);
+                }
+            }
+            return out;
+        }
+
+        function getAllergenLabels(dateId) {
+            var raw = state.menus[dateId] && state.menus[dateId].allergens
+                ? state.menus[dateId].allergens : [];
+            var selected = normalizeAllergens(raw);
+            var labels = [];
+            for (var i = 0; i < ALLERGENS.length; i++) {
+                if (selected.indexOf(ALLERGENS[i].id) !== -1) {
+                    labels.push(ALLERGENS[i].label);
+                }
+            }
+            return labels;
+        }
+
+        function allergenHtml(dateId) {
+            var labels = getAllergenLabels(dateId);
+            if (!labels.length) return '';
+            return '<div class="allergen-box">' +
+                '<p class="allergen-label">Allergen</p>' +
+                '<p class="allergen-text"><strong>Inneheld:</strong> ' + esc(labels.join(', ')) + '</p>' +
+                '</div>';
         }
 
         function getTodayId() {
@@ -607,6 +718,7 @@
             var dateStr = getDateStr(day.id);
             var meny = (state.menus[day.id] && state.menus[day.id]['dagens'])
                 ? state.menus[day.id]['dagens'] : '';
+            var allergens = allergenHtml(day.id);
 
             var cardClass = 'day-card';
             if (isToday && !isClosed) cardClass += ' today';
@@ -632,7 +744,8 @@
                 menuInner = '<p class="menu-empty">' + esc(day.merknad || 'Stengt') + '</p>';
             } else if (meny) {
                 menuInner = '<p class="menu-label">Dagens meny</p>' +
-                    '<p class="menu-text">' + esc(meny) + '</p>';
+                    '<p class="menu-text">' + esc(meny) + '</p>' +
+                    allergens;
             } else {
                 menuInner = '<p class="menu-label">Dagens meny</p>' +
                     '<p class="menu-empty">Ikkje lagt inn enno</p>';

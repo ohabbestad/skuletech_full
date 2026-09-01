@@ -246,6 +246,22 @@
 const API_URL   = 'api/index.php';
 const APP_ROLE  = 'laerar';
 const UKEDAGAR  = ['Måndag','Tysdag','Onsdag','Torsdag','Fredag'];
+const ALLERGENS = [
+    { id: 'gluten', label: 'Glutenhaldig korn' },
+    { id: 'skalldyr', label: 'Skaldyr' },
+    { id: 'egg', label: 'Egg' },
+    { id: 'fisk', label: 'Fisk' },
+    { id: 'peanotter', label: 'Peanøtter' },
+    { id: 'soya', label: 'Soya' },
+    { id: 'mjolk', label: 'Mjølk' },
+    { id: 'notter', label: 'Nøtter' },
+    { id: 'selleri', label: 'Selleri' },
+    { id: 'sennep', label: 'Sennep' },
+    { id: 'sesam', label: 'Sesamfrø' },
+    { id: 'sulfitt', label: 'Svoveldioksid/sulfitt' },
+    { id: 'lupin', label: 'Lupin' },
+    { id: 'blautdyr', label: 'Blautdyr' }
+];
 
 const app = {
 
@@ -262,6 +278,7 @@ const app = {
         attendance:     {},
         tasks:          {},
         menus:          {},
+        menuDrafts:     {},
         vikarer:        {}
     },
 
@@ -360,8 +377,10 @@ const app = {
             if (json.error) return;
             this._applyResponse(json);
             const tab = this.state.currentTab;
-            if (tab === 'today')    this.renderToday();
-            else if (tab === 'semester' && !silent) this.renderSemester();
+            if (!this.userIsEditing()) {
+                if (tab === 'today')    this.renderToday();
+                else if (tab === 'semester' && !silent) this.renderSemester();
+            }
             // terminplan og bemanning vert ikkje auto-oppdatert under poll
             document.getElementById('sync-status').textContent = '🟢 Oppdatert';
         } catch { document.getElementById('sync-status').textContent = '🟡 Frakopla'; }
@@ -383,15 +402,19 @@ const app = {
     quickSave(payload) {
         this.state.isSaving = true;
         document.getElementById('sync-status').textContent = '⏳ Lagrar...';
-        this._post({ action: 'save', ...payload })
+        return this._post({ action: 'save', ...payload })
             .then(json => {
                 if (json.error) {
                     if (json._status !== 401) document.getElementById('sync-status').textContent = '🔴 ' + json.error;
-                    return;
+                    return json;
                 }
                 document.getElementById('sync-status').textContent = '🟢 Oppdatert';
+                return json;
             })
-            .catch(() => { document.getElementById('sync-status').textContent = '🔴 Feil ved lagring'; })
+            .catch(() => {
+                document.getElementById('sync-status').textContent = '🔴 Feil ved lagring';
+                return null;
+            })
             .finally(() => { this.state.isSaving = false; });
     },
 
@@ -429,6 +452,71 @@ const app = {
 
     /* ── Hjelpar ────────────────────────────────────────────── */
     esc: str => String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'),
+
+    userIsEditing() {
+        const focused = document.activeElement;
+        if (!focused) return false;
+        if (focused.closest?.('[data-preserve-during-poll="true"]')) return true;
+        return (focused.tagName === 'INPUT' || focused.tagName === 'TEXTAREA') && focused.type !== 'checkbox';
+    },
+
+    normalizeAllergens(value) {
+        let ids = [];
+        if (Array.isArray(value)) {
+            ids = value;
+        } else if (typeof value === 'string' && value.trim()) {
+            try {
+                const parsed = JSON.parse(value);
+                ids = Array.isArray(parsed) ? parsed : [];
+            } catch {
+                ids = [];
+            }
+        }
+        const allowed = new Set(ALLERGENS.map(a => a.id));
+        return [...new Set(ids.map(String).filter(id => allowed.has(id)))];
+    },
+
+    getMenuAllergenIds(dateId) {
+        return this.normalizeAllergens(this.state.menus[dateId]?.allergens || []);
+    },
+
+    getMenuDraft(dateId) {
+        return this.state.menuDrafts[dateId] || {
+            value: this.state.menus[dateId]?.['dagens'] || '',
+            allergens: this.getMenuAllergenIds(dateId)
+        };
+    },
+
+    updateMenuDraft(dateId) {
+        const input = document.getElementById(`menu-input-${dateId}`);
+        const checked = [...document.querySelectorAll(`input[data-menu-date="${dateId}"]:checked`)].map(el => el.value);
+        this.state.menuDrafts[dateId] = {
+            value: input ? input.value : '',
+            allergens: this.normalizeAllergens(checked)
+        };
+    },
+
+    formatAllergens(ids) {
+        const selected = new Set(this.normalizeAllergens(ids));
+        return ALLERGENS
+            .filter(a => selected.has(a.id))
+            .map(a => a.label)
+            .join(', ');
+    },
+
+    renderAllergenOptions(dateId, selectedIds) {
+        const selected = new Set(this.normalizeAllergens(selectedIds));
+        return ALLERGENS.map(a => `
+          <label class="flex items-center gap-2 rounded-md border border-amber-200 bg-white px-3 py-2 text-sm text-amber-950">
+            <input type="checkbox"
+                   class="h-4 w-4 rounded border-amber-300 text-amber-600 focus:ring-amber-500"
+                   data-menu-date="${dateId}"
+                   value="${a.id}"
+                   ${selected.has(a.id) ? 'checked' : ''}
+                   onchange="app.updateMenuDraft('${dateId}')">
+            <span>${this.esc(a.label)}</span>
+          </label>`).join('');
+    },
 
     getWeekdayName(dateId) {
         const d = new Date(dateId + 'T12:00:00');
@@ -575,13 +663,20 @@ const app = {
     },
 
     saveMenu(dateId) {
-        const val = document.getElementById(`menu-input-${dateId}`).value;
+        this.updateMenuDraft(dateId);
+        const draft = this.getMenuDraft(dateId);
+        const val = draft.value;
+        const allergens = draft.allergens;
         if (!this.state.menus[dateId]) this.state.menus[dateId] = {};
         this.state.menus[dateId]['dagens'] = val;
+        this.state.menus[dateId].allergens = allergens;
         const msg = document.getElementById('save-menu-msg');
         msg.style.opacity = '1';
         setTimeout(() => msg.style.opacity = '0', 2000);
-        this.quickSave({ type: 'menus', dateId, key: 'dagens', value: val });
+        this.quickSave({ type: 'menu_day', dateId, value: val, allergens })
+            .then(json => {
+                if (json && !json.error) delete this.state.menuDrafts[dateId];
+            });
         this.renderSemester();
     },
 
@@ -624,26 +719,42 @@ const app = {
             return;
         }
 
-        const menyTekst = this.state.menus[dateId]?.['dagens'] || '';
+        const savedMenyTekst = this.state.menus[dateId]?.['dagens'] || '';
+        const savedAllergens = this.getMenuAllergenIds(dateId);
+        const draft = this.getMenuDraft(dateId);
+        const allergenText = this.formatAllergens(savedAllergens);
         menuEl.innerHTML = `
           <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 shadow-sm">
             <div class="flex items-center mb-3">
               <span class="text-2xl mr-3">🍲</span>
-              <h3 class="text-xl font-bold text-amber-900">Dagens Meny</h3>
+              <h3 class="text-xl font-bold text-amber-900">Dagens meny</h3>
             </div>
-            <p class="mb-3 text-amber-800 font-medium">
-              ${menyTekst
-                ? `<span class="text-xs font-bold uppercase tracking-wide text-amber-600 mr-2">Lagra:</span>${this.esc(menyTekst)}`
+            <div class="mb-3 text-amber-800 font-medium">
+              ${savedMenyTekst
+                ? `<p><span class="text-xs font-bold uppercase tracking-wide text-amber-600 mr-2">Lagra:</span>${this.esc(savedMenyTekst)}</p>`
                 : `<span class="text-amber-500 italic text-sm">Ingen meny lagra enno.</span>`
               }
-            </p>
-            <input type="text" id="menu-input-${dateId}"
-                   class="w-full p-3 border border-amber-300 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-white"
-                   placeholder="Skriv ny meny og trykk Lagra...">
-            <div class="mt-3 flex items-center">
+              ${allergenText
+                ? `<p class="mt-2 text-sm text-red-800"><span class="font-bold">Inneheld:</span> ${this.esc(allergenText)}</p>`
+                : ''}
+            </div>
+            <div data-preserve-during-poll="true">
+              <textarea id="menu-input-${dateId}"
+                        rows="2"
+                        class="w-full p-3 border border-amber-300 rounded-md focus:ring-amber-500 focus:border-amber-500 bg-white"
+                        placeholder="Skriv meny og trykk Lagra..."
+                        oninput="app.updateMenuDraft('${dateId}')">${this.esc(draft.value)}</textarea>
+              <div class="mt-4">
+                <p class="text-xs font-bold uppercase tracking-wide text-amber-700 mb-2">Allergen i retten</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                  ${this.renderAllergenOptions(dateId, draft.allergens)}
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 flex items-center">
               <button onclick="app.saveMenu('${dateId}')"
                       class="bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 px-6 rounded transition">
-                Lagra Meny
+                Lagra meny
               </button>
               <span id="save-menu-msg" class="ml-4 text-emerald-700 font-bold opacity-0 transition-opacity duration-300">✅ Lagra!</span>
             </div>
@@ -764,7 +875,8 @@ const app = {
                 ...d,
                 tidleg: this.getDayStaffing(d.id).tidleg,
                 seint:  this.getDayStaffing(d.id).seint,
-                meny:   this.state.menus[d.id]?.['dagens'] || ''
+                meny:   this.state.menus[d.id]?.['dagens'] || '',
+                allergen: this.formatAllergens(this.getMenuAllergenIds(d.id))
             }))};
             div.dataset.weekData = JSON.stringify(searchData).toLowerCase();
 
@@ -778,10 +890,12 @@ const app = {
                 const { tidleg, seint } = this.getDayStaffing(d.id);
                 const closed = d.status === 'closed'
                     ? `<span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded ml-2 font-bold">${this.esc(d.merknad) || 'Stengt'}</span>` : '';
+                const allergen = this.formatAllergens(this.getMenuAllergenIds(d.id));
                 const meny = this.state.menus[d.id]?.['dagens']
                     ? `<div class="col-span-1 md:col-span-3 mt-2 text-sm bg-amber-50 p-2 rounded border border-amber-100">
                          <span class="font-bold text-amber-900 mr-2">🍲 Meny:</span>
                          <span class="text-amber-800">${this.esc(this.state.menus[d.id]['dagens'])}</span>
+                         ${allergen ? `<div class="mt-1 text-red-800"><span class="font-bold">Inneheld:</span> ${this.esc(allergen)}</div>` : ''}
                        </div>` : '';
                 daysHtml += `
                   <div class="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 p-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition cursor-pointer"

@@ -147,6 +147,22 @@
 
     <script>
         const API_URL = 'api/index.php';
+        const ALLERGENS = [
+            { id: 'gluten', label: 'Glutenhaldig korn' },
+            { id: 'skalldyr', label: 'Skaldyr' },
+            { id: 'egg', label: 'Egg' },
+            { id: 'fisk', label: 'Fisk' },
+            { id: 'peanotter', label: 'Peanøtter' },
+            { id: 'soya', label: 'Soya' },
+            { id: 'mjolk', label: 'Mjølk' },
+            { id: 'notter', label: 'Nøtter' },
+            { id: 'selleri', label: 'Selleri' },
+            { id: 'sennep', label: 'Sennep' },
+            { id: 'sesam', label: 'Sesamfrø' },
+            { id: 'sulfitt', label: 'Svoveldioksid/sulfitt' },
+            { id: 'lupin', label: 'Lupin' },
+            { id: 'blautdyr', label: 'Blautdyr' }
+        ];
 
         const screen = {
 
@@ -159,6 +175,41 @@
 
             /* ── Hjelparar ──────────────────────────────────────── */
             esc: str => String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'),
+
+            normalizeAllergens(value) {
+                let ids = [];
+                if (Array.isArray(value)) {
+                    ids = value;
+                } else if (typeof value === 'string' && value.trim()) {
+                    try {
+                        const parsed = JSON.parse(value);
+                        ids = Array.isArray(parsed) ? parsed : [];
+                    } catch {
+                        ids = [];
+                    }
+                }
+                const allowed = new Set(ALLERGENS.map(a => a.id));
+                return [...new Set(ids.map(String).filter(id => allowed.has(id)))];
+            },
+
+            getAllergenLabels(dateId) {
+                const selected = new Set(this.normalizeAllergens(this.state.menus[dateId]?.allergens || []));
+                return ALLERGENS.filter(a => selected.has(a.id)).map(a => a.label);
+            },
+
+            allergenLine(dateId, compact = false) {
+                const labels = this.getAllergenLabels(dateId);
+                if (!labels.length) return '';
+                const text = labels.map(label => this.esc(label)).join(', ');
+                if (compact) {
+                    return `<p class="text-red-700 text-[11px] font-bold mt-0.5 leading-snug">Inneheld: ${text}</p>`;
+                }
+                return `
+                    <div class="mt-3 rounded-xl bg-red-50 border border-red-200 px-3 py-2">
+                        <p class="text-red-700 text-[11px] font-extrabold uppercase tracking-widest mb-1">Allergen</p>
+                        <p class="text-red-950 text-sm sm:text-base font-bold leading-snug"><span class="font-extrabold">Inneheld:</span> ${text}</p>
+                    </div>`;
+            },
 
             getWeekdayName(dateId) {
                 const d = new Date(dateId + 'T12:00:00');
@@ -238,6 +289,7 @@
                 const weekday = this.getWeekdayName(day.id);
                 const dateStr = this.getDateStr(day.id);
                 const meny = this.state.menus[day.id]?.['dagens'] || '';
+                const allergenHtml = this.allergenLine(day.id);
 
                 let cardBg, border, todayClass, sizeClass, padding, opacity;
                 if (isToday && !isClosed) {
@@ -288,6 +340,7 @@
                 <div class="mt-auto pt-4 rounded-xl bg-amber-100 border-2 border-amber-400 p-4">
                     <p class="text-amber-700 text-[11px] font-extrabold uppercase tracking-widest mb-2">Dagens meny</p>
                     <p class="text-amber-950 text-lg font-bold leading-snug">${this.esc(meny)}</p>
+                    ${allergenHtml}
                 </div>`;
                 } else {
                     menyHtml = `
@@ -337,6 +390,7 @@
                 const isClosed = mainDay.status === 'closed';
                 const isToday = mainDay.id === todayId;
                 const meny = this.state.menus[mainDay.id]?.['dagens'] || '';
+                const allergenHtml = this.allergenLine(mainDay.id);
                 const weekday = this.getWeekdayName(mainDay.id);
                 const dateStr = this.getDateStr(mainDay.id);
 
@@ -352,6 +406,7 @@
                       <div class="mt-6 rounded-2xl bg-amber-100 border-2 border-amber-400 p-5">
                         <p class="text-amber-700 text-xs font-extrabold uppercase tracking-widest mb-2">Dagens meny</p>
                         <p class="text-amber-950 text-2xl font-bold leading-snug">${this.esc(meny)}</p>
+                        ${allergenHtml}
                       </div>`;
                 } else {
                     menyBlock = `
@@ -388,6 +443,7 @@
                         const wday = this.getWeekdayName(d.id);
                         const dstr = this.getDateStr(d.id);
                         const m = this.state.menus[d.id]?.['dagens'] || '';
+                        const allergen = this.allergenLine(d.id, true);
                         const cls = d.id === todayId
                             ? 'bg-indigo-50 border-indigo-200'
                             : d.status === 'closed'
@@ -399,6 +455,7 @@
                               <span class="font-bold text-slate-800 text-sm">${wday}</span>
                               <span class="text-slate-400 text-sm ml-2">${dstr}</span>
                               ${m ? `<p class="text-amber-700 text-xs truncate mt-0.5">${this.esc(m)}</p>` : ''}
+                              ${m ? allergen : ''}
                             </div>
                             ${d.status === 'closed'
                                 ? `<span class="text-xs text-red-500 font-bold shrink-0">Stengt</span>`
