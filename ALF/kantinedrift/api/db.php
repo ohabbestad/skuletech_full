@@ -19,8 +19,9 @@ function kantine_pdo(): PDO
 
     $config = kantine_config();
     $dsn = sprintf(
-        'mysql:host=%s;dbname=%s;charset=utf8mb4',
+        'mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4',
         $config['db_host'],
+        (int)($config['db_port'] ?? 3306),
         $config['db_name']
     );
 

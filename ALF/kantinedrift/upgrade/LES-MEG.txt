@@ -1,0 +1,65 @@
+OPPGRADER KANTINEVEKE UTAN SSH
+
+Du treng berre FileZilla og phpMyAdmin. Ta vare på databaseeksporten og
+filkopien du alt har lasta ned. Gjennomfør stega samla når kantina ikkje
+er i bruk. Bruk den eksisterande databasen, ikkje opprett ein ny.
+
+1. STENG FOR REGISTRERING
+   Last opp fila frå 1-steng/api/index.php i denne pakka til
+   www/ALF/kantinedrift/api/index.php på serveren. Vel overskriv.
+   Denne mellombelse fila stoppar skriving frå både gamle og nye sider.
+   Opne https://skuletech.no/ALF/kantinedrift/api/index.php i nettlesaren.
+   Du skal sjå meldinga «KantineVeke blir oppgradert».
+   Dersom nettadressa di er annleis, bruk adressa til di kantinemappe.
+   Har nokon brukt verktøyet sidan førre databaseeksport, ta ein ny
+   eksport no medan skriving er stengd. Ikkje gå vidare om stenginga
+   ikkje er stadfesta.
+
+2. OPPGRADER DATABASEN
+   Opne kantinedatabasen i phpMyAdmin. Vel «Importer» og vel fila
+   2-database.sql i denne pakka. Bruk UTF-8 (utf-8), format SQL.
+   Importer heile fila samla og vent til importen er ferdig.
+   Ho treng MySQL 5.7.8+ eller MariaDB 10.2.3+ med InnoDB.
+   Ho legg til tabellar og kopierer data; ho slettar ikkje gamle data.
+   Ho krev ikkje lagra prosedyrar eller administratorrettar på tenaren.
+   Dersom tabelltilgang eller ein SQL-funksjon manglar, stopp og meld
+   frå med feilmeldinga. Ikkje publiser resten ved feil.
+
+   Resultatet skal vere «OPPGRADERING FULLFORT», eller
+   «ALLEREIE OPPGRADERT - ingen data endra» dersom ho er køyrd før.
+   Kontroller deretter i SQL-fanen:
+
+   SELECT version, applied_at FROM kantine_schema_versions WHERE version = 2;
+
+   Du skal få éi rad med version = 2.
+   Bruk ikkje sql/schema.sql eller testdata.sql på eksisterande database.
+
+3. LAST OPP DEI NYE FILENE
+   Last opp INNHALDET i 3-filer/ til www/ALF/kantinedrift/ på serveren.
+   Slå saman mappene og overskriv filer med same namn.
+   Ikkje lag ei mappe kalla «3-filer» på serveren.
+   La alle overføringar bli ferdige; sjekk at «Feila overføringar» er tom.
+   Pakka inneheld ikkje config.local.php. Behald den eksisterande fila
+   på serveren og ikkje slett api-mappa før opplasting.
+   Den mellombelse index.php frå steg 1 held registrering stengd.
+
+4. OPNE IGJEN
+   Last opp 4-opne/api/index.php til www/ALF/kantinedrift/api/index.php.
+   Vel overskriv. Dette er den nye ordinære API-fila.
+   Last lærarsida på nytt med Ctrl+F5 og logg inn med det vanlege passordet.
+   Sjekk at menyar, turnus og tidlegare avkryssingar er på plass.
+   Kontroller også driftsleiar, tilsett og dei to infoskjermane.
+   Tilsette kan berre krysse av mellom 11.00 og 12.00; læraren kan
+   korrigere utanfor dette tidsrommet.
+   Be andre brukarar laste sida på nytt før dei held fram.
+
+STOPP VED FEIL
+   Behald vedlikehaldsfila til feilen er forstått. Meld frå med heile
+   feilmeldinga, utan databasepassord eller elevdata.
+   Å laste opp den gamle API-fila åleine etter at ny drift har starta,
+   er ikkje ei full tilbakeføring. Database og filer må vurderast saman.
+
+BERRE DESSE FILENE SKAL TIL SERVEREN
+   Delane 1-steng/, 3-filer/ og 4-opne/ blir brukte som forklart over.
+   SQL-fila skal importerast i phpMyAdmin. Denne rettleiinga, ZIP-fila,
+   testar og sikkerheitskopiar skal ikkje lastast opp til nettstaden.
