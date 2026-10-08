@@ -13,9 +13,13 @@ verktøy/*.jsx
 AGENTS.md
 .claude/
 .codex/
+.agents/
 **/codex-temp-*
-.tmp-chrome-profile*/
+/.tmp-*/
 skuletech-lager-dashbord-*.png
+
+# Lokale dokument og leveransar som ikkje er del av nettstaden
+/output/
 
 # Sensitiv data og interne arbeidsdokument
 ALF/kantinedrift/kantineplan.gs

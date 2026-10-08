@@ -45,6 +45,7 @@ jobs:
           css/input.css
           **/config.local.php
           ALF/kantinedrift/tests/**
+          valencia/tests/**
           ALF/kantinedrift/sql/**
           ALF/kantinedrift/api/migrate.php
           ALF/kantinedrift/api/setup.php
