@@ -28,6 +28,22 @@ const app = {
   },
   now() { return new Date(DEMO_TIME); },
   day() { return this.data.kalender.find(day => day.id === this.date); },
+  captureFocus() {
+    const active = document.activeElement;
+    if (!root.contains(active)) return null;
+    if (active.id) return { id: active.id };
+    if (!active.dataset.action) return null;
+    const keys = ['action', 'key', 'name', 'shift', 'tab', 'date', 'monday', 'role'];
+    return { data: Object.fromEntries(keys.filter(key => active.dataset[key] !== undefined).map(key => [key, active.dataset[key]])) };
+  },
+  restoreFocus(focus) {
+    if (!focus) return;
+    const target = focus.id
+      ? [...root.querySelectorAll('[id]')].find(el => el.id === focus.id)
+      : [...root.querySelectorAll('[data-action]')].find(el => Object.entries(focus.data).every(([key, value]) => el.dataset[key] === value));
+    const destination = target && !target.disabled ? target : root.querySelector('#main');
+    destination?.focus({ preventScroll: true });
+  },
   async init() {
     root.addEventListener('click', event => this.click(event));
     dialog.addEventListener('click', event => this.click(event));
@@ -72,11 +88,9 @@ const app = {
       // A dialog may have opened while the request was in flight.
       if (this.edit || this.pending || this.busy) return;
       const active = document.activeElement;
-      const focus = active?.dataset.action ? { action: active.dataset.action, key: active.dataset.key, name: active.dataset.name } : null;
       const isInput = ['INPUT', 'SELECT', 'TEXTAREA'].includes(active?.tagName);
       if (!isInput) {
         this.accept(data); this.render();
-        if (focus) [...root.querySelectorAll('[data-action]')].find(el => el.dataset.action === focus.action && el.dataset.key === focus.key && el.dataset.name === focus.name)?.focus({ preventScroll: true });
       }
       this.status('Ready');
     } catch (error) { if (this.authenticated) this.status('Could not refresh - retrying'); }
@@ -89,7 +103,7 @@ const app = {
   },
   loginView(message = '') {
     if (dialog.open) dialog.close(); dialog.replaceChildren(); updateStorageMessage();
-    root.innerHTML = `<main id="main" class="role-picker"><p class="eyebrow">School canteen operations</p><h1>Try a working day</h1><p class="muted">Choose a role to explore the same plan from three perspectives. Switch roles at any time to see your changes.</p><div class="role-options">${[['laerar','Teacher','Plan the weeks, manage staffing and adapt daily routines.'],['driftsleiar','Operations manager','Update the menu, record absence and arrange substitutes.'],['tilsett','Employee','Follow the daily checklist and mark tasks as completed.']].map(([id,label,description]) => button('choose-role', `<strong>${label}</strong><span>${description}</span>`, `data-role="${id}"`)).join('')}</div><p class="notice error" role="alert">${esc(message)}</p></main>`;
+    root.innerHTML = `<main id="main" class="role-picker" tabindex="-1"><p class="eyebrow">School canteen operations</p><h1>Try a working day</h1><p class="muted">Choose a role to explore the same plan from three perspectives. Switch roles at any time to see your changes.</p><div class="role-options">${[['laerar','Teacher','Plan the weeks, manage staffing and adapt daily routines.'],['driftsleiar','Operations manager','Update the menu, record absence and arrange substitutes.'],['tilsett','Employee','Follow the daily checklist and mark tasks as completed.']].map(([id,label,description]) => button('choose-role', `<strong>${label}</strong><span>${description}</span>`, `data-role="${id}"`)).join('')}</div><p class="notice error" role="alert">${esc(message)}</p></main>`;
   },
   async selectRole(nextRole) {
     if (!['laerar','driftsleiar','tilsett'].includes(nextRole)) return;
@@ -102,9 +116,11 @@ const app = {
   },
   render() {
     if (!this.authenticated) return;
+    const focus = this.captureFocus();
     root.innerHTML = `<header class="topbar"><div class="topbar-inner"><div class="brand"><span class="brand-mark" aria-hidden="true">K</span><div><strong>CanteenWeek</strong><small>${roleLabel} · Vocational learning</small></div></div><div class="row"><span id="sync-status" class="status" role="status">Ready</span>${button('refresh', 'Refresh', '', 'quiet')}${button('logout', 'Change role', '', 'quiet')}</div></div></header><div class="shell"><aside class="sidebar"><nav class="navigation" aria-label="Main navigation">${[['today', 'Daily operations'], ...(manager ? [['plan', teacher ? 'Planning' : 'Plan overview']] : []), ...(teacher ? [['setup', 'Setup']] : [])].map(([id, label], i) => button('tab', `<span class="nav-number" aria-hidden="true">0${i + 1}</span>${label}`, `data-tab="${id}" ${this.tab === id ? 'aria-current="page"' : ''}`)).join('')}</nav><div class="sidebar-note">Both shifts<br><strong>11.00–12.00</strong><br>Plan together.<br>Take one task at a time.</div></aside><main id="main" class="main" tabindex="-1"><div id="notice" class="notice" role="alert"></div>${this.tab === 'today' ? this.todayView() : this.tab === 'plan' ? this.planView() : this.setupView()}</main></div>`;
     if (this.tab === 'plan') this.renderPlanWeeks();
     this.updateTimeGate();
+    this.restoreFocus(focus);
   },
   todayView() {
     const day = this.day();
@@ -161,7 +177,7 @@ const app = {
     if (message) message.textContent = allowed ? 'You can check tasks now. In normal use, checking closes at 12:00.' : 'Checking is available from 11:00 to 12:00 on an open working day.';
   },
   openEditor(kind, fields = {}, rows = null, title = '') {
-    this.edit = { kind, fields: clone(fields), rows: rows ? clone(rows) : null, revision: this.data.revision, dateId: this.date, dirty: false, title };
+    this.edit = { kind, fields: clone(fields), rows: rows ? clone(rows) : null, revision: this.data.revision, dateId: this.date, dirty: false, title, returnFocus: this.captureFocus() };
     this.renderEditor(); dialog.showModal();
   },
   capture() {
@@ -219,7 +235,8 @@ const app = {
   closeEditor() {
     if (this.busy) return;
     if ((this.edit?.dirty || this.pending) && !window.confirm('Discard the unsaved draft?')) return;
-    this.edit = null; this.pending = null; dialog.close(); dialog.replaceChildren(); this.refresh();
+    const focus = this.edit?.returnFocus;
+    this.edit = null; this.pending = null; dialog.close(); dialog.replaceChildren(); this.restoreFocus(focus); this.refresh();
   },
   confirm(title, message, payload) {
     this.openEditor('confirm', { message }, null, title); this.edit.payload = payload;
@@ -241,12 +258,15 @@ const app = {
   },
   async save(payload) {
     if (this.busy) return;
+    const focus = this.edit ? this.edit.returnFocus : this.captureFocus();
+    let saved = false;
     this.pending = payload; this.busy = true; this.status('Saving locally …');
     dialog.querySelectorAll('button,input,textarea,select').forEach(el => { el.disabled = true; });
     this.updateTimeGate();
     try {
       const data = await this.request({ action: 'save', ...payload });
       this.accept(data); this.pending = null; this.edit = null; dialog.close(); dialog.replaceChildren(); this.render(); this.status('Saved locally');
+      saved = true;
     } catch (error) {
       if (this.authenticated) {
         if (!this.edit) { this.openEditor('confirm', { message: 'The action has not been saved. Try again or cancel.' }, null, 'Saving stopped'); this.edit.payload = payload; }
@@ -259,6 +279,7 @@ const app = {
       // Rerendering would erase drafts; only release controls we disabled.
       dialog.querySelectorAll('button,input,textarea,select').forEach(el => { el.disabled = false; });
       this.updateTimeGate();
+      if (saved) this.restoreFocus(focus);
     }
   },
   describe(data, payload) {
