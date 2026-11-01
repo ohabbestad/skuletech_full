@@ -51,4 +51,8 @@ jobs:
           ALF/kantinedrift/api/setup.php
           ALF/kantinedrift/api/health.php
           ALF/kantinedrift/upgrade/**
+          plan/tests/**
+          plan/tools/**
+          plan/sql/**
+          plan/README.md
           **/*.jsx

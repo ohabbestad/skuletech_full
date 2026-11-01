@@ -27,3 +27,11 @@ naturfag/forbetringsplan_kjemioppgave.md
 
 # Lokale server-/databasepassord
 config.local.php
+
+# Private planar, kalenderar og eksportar for plandelen
+/plan/private/
+/plan/exports/
+/plan/imports/
+/plan/*.ics
+/plan/*.json
+/plan/oppsettsfiler/

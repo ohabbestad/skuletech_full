@@ -1,0 +1,25 @@
+name: Check SkuleTech Plan
+on:
+  pull_request:
+    paths: ['plan/**', '.github/workflows/plan-checks.yml']
+  push:
+    paths: ['plan/**', '.github/workflows/plan-checks.yml']
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Calendar and import tests
+        run: node --test plan/tests/model.test.mjs
+      - name: PHP validation and privacy tests
+        run: |
+          find plan -name '*.php' -print0 | xargs -0 -n1 php -l
+          php plan/tests/domain.php
+      - name: JavaScript syntax
+        run: |
+          for file in plan/assets/*.mjs; do node --check "$file"; done
