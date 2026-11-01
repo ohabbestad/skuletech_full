@@ -2,16 +2,34 @@ export const statuses = {unplanned:'Ikkje planlagt',draft:'Utkast',ready:'Klar',
 export const kinds = {lesson:'Undervisning',duty:'Inspeksjon',meeting:'Møte',day:'Planleggingsdag',message:'Praktisk beskjed'};
 export const uid = () => crypto.randomUUID();
 export const clone = value => structuredClone(value);
-export const empty = () => ({schemaVersion:1,events:[],plans:[],templates:[],todos:[]});
+export const empty = () => ({schemaVersion:1,events:[],plans:[],templates:[],todos:[],dayNotes:[]});
 export function dateAdd(date,days) { const d=new Date(`${date}T12:00:00Z`); d.setUTCDate(d.getUTCDate()+days); return d.toISOString().slice(0,10); }
 export function monday(date) { const d=new Date(`${date}T12:00:00Z`); return dateAdd(date,-((d.getUTCDay()+6)%7)); }
 export function today() { return new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Oslo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()); }
 export function weekNo(date) { const d=new Date(`${monday(date)}T12:00:00Z`); d.setUTCDate(d.getUTCDate()+3); const year=d.getUTCFullYear(); return {year,week:Math.ceil((((d-new Date(`${year}-01-01T12:00:00Z`))/86400000)+1)/7)}; }
 export function content(p={}) { return {title:p.title||'',subject:p.subject||'',group:p.group||'',goals:p.goals||'',equipment:p.equipment||'',preparation:p.preparation||'',activities:clone(p.activities||[]),differentiation:p.differentiation||'',assessment:p.assessment||'',resources:clone(p.resources||[])}; }
-export function blankPlan(event=null) { return {...content(),id:uid(),eventId:event?.id||null,subject:event?.subject||'',group:event?.group||'',status:'draft',notes:'',reflection:''}; }
+export function blankPlan(event=null) { return {...content(),id:uid(),eventId:event?.id||null,subject:event?.subject||'',group:event?.group||'',status:'draft',notes:'',reflection:'',progress:'',followUp:'',adjustment:''}; }
 export function copyPlan(from,to,event) { return {...to,...content(from),group:event?.group||to.group||'',subject:event?.subject||to.subject||'',status:'draft',notes:to.notes||'',reflection:to.reflection||''}; }
 export function duration(e) { if(!e || e.allDay) return 0; const t=s=>Number(s.slice(0,2))*60+Number(s.slice(3,5)); return t(e.end)-t(e.start); }
-export function weekDocument(doc,start) { const end=dateAdd(start,7),events=doc.events.filter(e=>e.date>=start&&e.date<end), ids=new Set(events.map(e=>e.id)); return {schemaVersion:1,meta:{weekStart:start,kind:'week'},events,plans:doc.plans.filter(p=>ids.has(p.eventId)),templates:[],todos:doc.todos.filter(t=>t.date>=start&&t.date<end)}; }
+export function weekDocument(doc,start) { const end=dateAdd(start,7),events=doc.events.filter(e=>e.date>=start&&e.date<end), ids=new Set(events.map(e=>e.id)); return {schemaVersion:1,meta:{weekStart:start,kind:'week'},events,plans:doc.plans.filter(p=>ids.has(p.eventId)),templates:[],todos:doc.todos.filter(t=>t.date>=start&&t.date<end),dayNotes:(doc.dayNotes||[]).filter(n=>n.date>=start&&n.date<end)}; }
+export function osloClock(now=new Date()) {
+    const parts=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Oslo',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(now).split(' ');
+    return {date:parts[0],time:parts[1]};
+}
+const minutes = time => Number(time.slice(0,2))*60+Number(time.slice(3,5));
+export function dayFocus(events,date,clock=osloClock()) {
+    const timed=events.filter(e=>!e.cancelled&&!e.allDay).sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));
+    const isToday=date===clock.date;
+    const current=isToday?timed.filter(e=>e.date===date&&e.start<=clock.time&&e.end>clock.time):[];
+    const next=isToday?timed.find(e=>e.date>date||(e.date===date&&e.start>clock.time)):timed.find(e=>e.date===date);
+    return {isToday,current,next:next||null,untilNext:isToday&&next?.date===date?minutes(next.start)-minutes(clock.time):null};
+}
+export function previousReflection(doc,event) {
+    if(!event?.subject||!event?.group)return null;
+    const candidates=doc.events.filter(e=>e.kind==='lesson'&&!e.cancelled&&e.subject===event.subject&&e.group===event.group&&(e.date+e.start)<(event.date+event.start)).sort((a,b)=>(b.date+b.start).localeCompare(a.date+a.start));
+    for(const prior of candidates){const p=doc.plans.find(p=>p.eventId===prior.id);if(p&&[p.progress,p.followUp,p.adjustment,p.reflection].some(Boolean))return {event:prior,plan:p};}
+    return null;
+}
 const unescapeICS = s => s.replace(/\\[nN]/g,'\n').replace(/\\([,;\\])/g,'$1');
 function icsDate(value,params) {
     if(/^\d{8}$/.test(value)) return {date:`${value.slice(0,4)}-${value.slice(4,6)}-${value.slice(6,8)}`,time:'',allDay:true};
@@ -60,8 +78,8 @@ export function mergeCalendar(doc,incoming,source,applyCalendar=false) {
 }
 export function mergeJSON(doc,input,mapping={}) {
     if(input?.schemaVersion!==1 || !Array.isArray(input.events) || !Array.isArray(input.plans)) throw Error('Forventa SkuleTech Plan JSON, schemaVersion 1, med events og plans.');
-    const next=clone(doc), changes=[], unresolved=[];
-    const merge=(key,rows)=>{ if(!Array.isArray(rows)) throw Error(`Ugyldig liste: ${key}`); const seen=new Set(); for(const row of rows) {if(!row || typeof row.id!=='string'||!row.id||seen.has(row.id)) throw Error('Manglande eller duplisert ID i importen.');seen.add(row.id);const i=next[key].findIndex(v=>v.id===row.id);if(i<0) next[key].push(clone(row));else next[key][i]=clone(row);changes.push({type:i<0?'Ny':'Oppdatering',title:row.title||row.label||row.text||row.id,date:row.date||''});} };
+    const next={...empty(),...clone(doc)}, changes=[], unresolved=[];
+    const merge=(key,rows)=>{ if(!Array.isArray(rows)) throw Error(`Ugyldig liste: ${key}`); const seen=new Set(); for(const row of rows) {if(!row || typeof row.id!=='string'||!row.id||seen.has(row.id)) throw Error('Manglande eller duplisert ID i importen.');seen.add(row.id);const i=next[key].findIndex(v=>v.id===row.id);if(i<0) next[key].push(clone(row));else next[key][i]=key==='plans'?{...next[key][i],...clone(row)}:clone(row);changes.push({type:i<0?'Ny':'Oppdatering',title:row.title||row.label||row.text||row.id,date:row.date||''});} };
     merge('events',input.events);
     const plans=clone(input.plans);
     for(const plan of plans) {
@@ -70,6 +88,11 @@ export function mergeJSON(doc,input,mapping={}) {
         const existing=next.plans.find(p=>p.eventId && p.eventId===plan.eventId && p.id!==plan.id);
         if(existing) plan.id=existing.id;
     }
-    if(!unresolved.length) {merge('plans',plans);merge('templates',input.templates||[]);merge('todos',input.todos||[]);}
+    if(!unresolved.length) {
+        merge('plans',plans);merge('templates',input.templates||[]);merge('todos',input.todos||[]);
+        if(input.dayNotes!==undefined&&!Array.isArray(input.dayNotes))throw Error('Ugyldig liste: dagsnotat.');
+        const dates=new Set();
+        for(const note of input.dayNotes||[]){if(!note||typeof note.date!=='string'||dates.has(note.date))throw Error('Ugyldig eller duplisert dagsnotat.');dates.add(note.date);const i=next.dayNotes.findIndex(n=>n.date===note.date);if(i<0)next.dayNotes.push(clone(note));else next.dayNotes[i]=clone(note);changes.push({type:i<0?'Nytt dagsnotat':'Oppdatert dagsnotat',title:'Privat dagsnotat',date:note.date});}
+    }
     return {document:next,changes,unresolved};
 }

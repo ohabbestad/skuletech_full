@@ -25,6 +25,19 @@ doc.events[0].date='2026-11-03';r=await call('save',{revision,document:doc});rev
 await call('share-update',{id,revoke:true});assert.equal((await call('public',{token},false)).status,404);
 assert.equal((await call('share-create',{scope:'day',target:'2026-11-02',items:['event-b'],expires:'2020-01-01'})).status,422);
 state=(await call('load')).data;const v=state.versions.at(-1);r=await call('restore',{versionId:Number(v.id),revision,label:'Test tilbakeføring'});assert.equal(r.status,200);assert.equal(r.data.document.events[0].date,'2026-11-02');
+// Password changes preserve plans/shares and invalidate another device immediately.
+async function device(){let deviceCookie='',deviceCsrf='';return async(action,fields={})=>{const res=await fetch(base+'api/index.php',{method:'POST',headers:{'Content-Type':'application/json',...(deviceCookie?{Cookie:deviceCookie}:{})},body:JSON.stringify({action,csrf:deviceCsrf,...fields})});const c=res.headers.get('set-cookie');if(c)deviceCookie=c.split(';')[0];const data=await res.json();if(data.csrf)deviceCsrf=data.csrf;return {status:res.status,data};};}
+const other=await device();await other('session');assert.equal((await other('login',{password:'test-only-password'})).status,200);
+assert.equal((await call('password-change',{currentPassword:'wrong',newPassword:'new-test-password-123',confirmPassword:'new-test-password-123'})).status,422);
+assert.equal((await call('password-change',{currentPassword:'test-only-password',newPassword:'short',confirmPassword:'short'})).status,422);
+assert.equal((await call('password-change',{currentPassword:'test-only-password',newPassword:'new-test-password-123',confirmPassword:'different-test-password'})).status,422);
+assert.equal((await call('password-change',{currentPassword:'test-only-password',newPassword:'new-test-password-123',confirmPassword:'new-test-password-123',csrf:'wrong'})).status,403);
+const beforeChange=(await call('load')).data;
+r=await call('password-change',{currentPassword:'test-only-password',newPassword:'new-test-password-123',confirmPassword:'new-test-password-123'});assert.equal(r.status,200);csrf=r.data.csrf;
+assert.equal((await other('session')).data.authenticated,false);assert.equal((await other('load')).status,401);
+const loginCheck=await device();await loginCheck('session');assert.equal((await loginCheck('login',{password:'test-only-password'})).status,401);assert.equal((await loginCheck('login',{password:'new-test-password-123'})).status,200);
+const afterChange=(await call('load')).data;assert.deepEqual(afterChange.document,beforeChange.document);assert.deepEqual(afterChange.shares,beforeChange.shares);
+r=await call('password-change',{currentPassword:'new-test-password-123',newPassword:'test-only-password',confirmPassword:'test-only-password'});assert.equal(r.status,200);csrf=r.data.csrf;
 await call('logout');assert.equal((await call('load')).status,403);
 // Deliberate failed attempts must be throttled, including across session cookies.
 cookie='';csrf=(await call('session')).data.csrf;for(let i=0;i<10;i++)assert.equal((await call('login',{password:'wrong-password'})).status,401);

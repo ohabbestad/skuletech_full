@@ -9,6 +9,21 @@ header('X-Content-Type-Options: nosniff');
 function reply(array $data,int $status=200): never { http_response_code($status); echo json_encode($data,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); exit; }
 function encode_doc(array $d): string { return json_encode($d,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR); }
 function decode_doc(string $d): array { return json_decode($d,true,512,JSON_THROW_ON_ERROR); }
+function password_attempt(PDO $pdo): array {
+    $buckets=[hash('sha256','plan-owner-global'),hash('sha256','plan:'.($_SERVER['REMOTE_ADDR']??''))];
+    $pdo->beginTransaction();
+    foreach($buckets as $bucket) {
+        $pdo->prepare('INSERT IGNORE INTO plan_attempts(bucket,failures,window_start) VALUES (?,0,?)')->execute([$bucket,time()]);
+        $q=$pdo->prepare('SELECT * FROM plan_attempts WHERE bucket=? FOR UPDATE'); $q->execute([$bucket]); $a=$q->fetch();
+        if(time()-(int)$a['window_start']>=900) $pdo->prepare('UPDATE plan_attempts SET failures=0,window_start=? WHERE bucket=?')->execute([time(),$bucket]);
+        elseif((int)$a['failures']>=10) { $pdo->rollBack(); header('Retry-After: 900'); reply(['error'=>'For mange forsøk. Prøv igjen om 15 minutt.'],429); }
+        $pdo->prepare('UPDATE plan_attempts SET failures=failures+1 WHERE bucket=?')->execute([$bucket]);
+    }
+    $pdo->commit(); return $buckets;
+}
+function clear_password_attempts(PDO $pdo,array $buckets): void {
+    foreach($buckets as $bucket) $pdo->prepare('DELETE FROM plan_attempts WHERE bucket=?')->execute([$bucket]);
+}
 try {
     if($_SERVER['REQUEST_METHOD']!=='POST') reply(['error'=>'Bruk POST.'],405);
     if((int)($_SERVER['CONTENT_LENGTH']??0)>8*1024*1024) reply(['error'=>'Fila er større enn 8 MB.'],413);
@@ -35,28 +50,47 @@ try {
     session_start();
     if(!isset($_SESSION['csrf'])) $_SESSION['csrf']=bin2hex(random_bytes(32));
     if(isset($_SESSION['expires']) && $_SESSION['expires']<time()) { unset($_SESSION['owner'],$_SESSION['expires']); }
+    // Bind each owner session to the current password hash. A password change also
+    // invalidates sessions on other devices, including changes made in phpMyAdmin.
+    if(!empty($_SESSION['owner'])) {
+        $currentHash=$pdo->query('SELECT password_hash FROM plan_owner WHERE id=1')->fetchColumn();
+        if(!$currentHash || !is_string($_SESSION['auth_tag']??null) || !hash_equals(hash('sha256',$currentHash),$_SESSION['auth_tag']))
+            unset($_SESSION['owner'],$_SESSION['expires'],$_SESSION['auth_tag']);
+    }
     if($action==='session') reply(['authenticated'=>!empty($_SESSION['owner']),'csrf'=>$_SESSION['csrf']]);
     if(!is_string($input['csrf']??null) || !hash_equals($_SESSION['csrf'],$input['csrf'])) reply(['error'=>'Økta er endra. Last sida på nytt.'],403);
     if($action==='login') {
         $password=plan_text($input['password']??'','passord',256);
-        // Independent global and address buckets: bounded attempts even when requests run concurrently.
-        $buckets=[hash('sha256','plan-owner-global'),hash('sha256','plan:'.($_SERVER['REMOTE_ADDR']??''))];
-        $pdo->beginTransaction();
-        foreach($buckets as $bucket) {
-            $pdo->prepare('INSERT IGNORE INTO plan_attempts(bucket,failures,window_start) VALUES (?,0,?)')->execute([$bucket,time()]);
-            $q=$pdo->prepare('SELECT * FROM plan_attempts WHERE bucket=? FOR UPDATE'); $q->execute([$bucket]); $a=$q->fetch();
-            if(time()-(int)$a['window_start']>=900) $pdo->prepare('UPDATE plan_attempts SET failures=0,window_start=? WHERE bucket=?')->execute([time(),$bucket]);
-            elseif((int)$a['failures']>=10) { $pdo->rollBack(); header('Retry-After: 900'); reply(['error'=>'For mange forsøk. Prøv igjen om 15 minutt.'],429); }
-            $pdo->prepare('UPDATE plan_attempts SET failures=failures+1 WHERE bucket=?')->execute([$bucket]);
-        }
-        $pdo->commit();
+        $buckets=password_attempt($pdo);
         $hash=$pdo->query('SELECT password_hash FROM plan_owner WHERE id=1')->fetchColumn();
         if(!$hash || !password_verify($password,$hash)) reply(['error'=>'Feil passord.'],401);
-        session_regenerate_id(true); $_SESSION['owner']=true; $_SESSION['expires']=time()+28800; $_SESSION['csrf']=bin2hex(random_bytes(32));
-        foreach($buckets as $bucket) $pdo->prepare('DELETE FROM plan_attempts WHERE bucket=?')->execute([$bucket]);
+        session_regenerate_id(true); $_SESSION['owner']=true; $_SESSION['expires']=time()+28800; $_SESSION['csrf']=bin2hex(random_bytes(32)); $_SESSION['auth_tag']=hash('sha256',$hash);
+        clear_password_attempts($pdo,$buckets);
         reply(['csrf'=>$_SESSION['csrf'],'authenticated'=>true]);
     }
     if(empty($_SESSION['owner'])) reply(['error'=>'Logg inn for å opne planlegginga.'],401);
+    if($action==='password-change') {
+        $old=plan_text($input['currentPassword']??'','noverande passord',256);
+        $new=plan_text($input['newPassword']??'','nytt passord',256);
+        $confirm=plan_text($input['confirmPassword']??'','stadfesting',256);
+        if(preg_match_all('/./us',$new)<14) plan_fail('Det nye passordet må ha minst 14 teikn.');
+        if(strlen($new)>72) plan_fail('Det nye passordet er for langt. Bruk ei kortare passordfrase.');
+        if(!hash_equals($new,$confirm)) plan_fail('Dei nye passorda er ikkje like.');
+        $buckets=password_attempt($pdo);
+        $hash=$pdo->query('SELECT password_hash FROM plan_owner WHERE id=1')->fetchColumn();
+        if(!$hash || !password_verify($old,$hash)) reply(['error'=>'Noverande passord er feil.'],422);
+        if(password_verify($new,$hash)) plan_fail('Vel eit anna passord enn det du brukar no.');
+        $newHash=password_hash($new,PASSWORD_DEFAULT);
+        // Compare-and-swap prevents concurrent password changes from overwriting
+        // one another after both requests have verified the previous password.
+        $pdo->beginTransaction();
+        $q=$pdo->prepare('UPDATE plan_owner SET password_hash=? WHERE id=1 AND BINARY password_hash=?'); $q->execute([$newHash,$hash]);
+        if($q->rowCount()!==1) {$pdo->rollBack();reply(['error'=>'Passordet vart endra i ei anna økt. Logg inn på nytt.'],409);}
+        clear_password_attempts($pdo,$buckets);
+        $pdo->commit();
+        session_regenerate_id(true); $_SESSION['auth_tag']=hash('sha256',$newHash); $_SESSION['csrf']=bin2hex(random_bytes(32));
+        reply(['ok'=>true,'csrf'=>$_SESSION['csrf']]);
+    }
     if($action==='logout') { $_SESSION=[]; session_destroy(); setcookie('SKULETECH_PLAN','',['expires'=>time()-3600,'path'=>'/plan/','secure'=>!$local,'httponly'=>true,'samesite'=>'Strict']); reply(['ok'=>true]); }
     if($action==='load') {
         $row=$pdo->query('SELECT * FROM plan_state WHERE id=1')->fetch();

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 function plan_empty(): array {
-    return ['schemaVersion'=>1, 'events'=>[], 'plans'=>[], 'templates'=>[], 'todos'=>[]];
+    return ['schemaVersion'=>1, 'events'=>[], 'plans'=>[], 'templates'=>[], 'todos'=>[], 'dayNotes'=>[]];
 }
 function plan_fail(string $message): never { throw new InvalidArgumentException($message); }
 function plan_text(mixed $v, string $field, int $limit=50000): string {
@@ -86,7 +86,7 @@ function plan_validate(mixed $doc): array {
         if($ev!==null) $assigned[$ev]=true;
         $x=plan_content($p); $x['id']=$id; $x['eventId']=$ev;
         $x['status']=plan_enum($p['status']??'draft',['unplanned','draft','ready','done']);
-        foreach(['notes','reflection'] as $k) $x[$k]=plan_text($p[$k]??'', $k);
+        foreach(['notes','reflection','progress','followUp','adjustment'] as $k) $x[$k]=plan_text($p[$k]??'', $k);
         $out['plans'][]=$x;
     }
     foreach(plan_list($doc['templates']??[], 'malar',1000) as $t) {
@@ -101,6 +101,14 @@ function plan_validate(mixed $doc): array {
         if($ev!==null && !isset($eventIds[$ev])) plan_fail('Gjeremålet viser til ei økt som manglar.');
         $out['todos'][]=['id'=>$id,'date'=>plan_date($t['date']??''),'eventId'=>$ev,
             'text'=>plan_text($t['text']??'','gjeremål',2000),'done'=>plan_bool($t['done']??false)];
+    }
+    $dates=[];
+    foreach(plan_list($doc['dayNotes']??[], 'dagsnotat',5000) as $note) {
+        if(!is_array($note)) plan_fail('Ugyldig dagsnotat.');
+        $date=plan_date($note['date']??'');
+        if(isset($dates[$date])) plan_fail('Berre eitt dagsnotat per dato er tillate.');
+        $dates[$date]=true;
+        $out['dayNotes'][]=['date'=>$date,'note'=>plan_text($note['note']??'','dagsnotat')];
     }
     return $out;
 }
